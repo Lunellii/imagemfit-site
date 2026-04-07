@@ -118,7 +118,7 @@ foreach ($file in $publishFiles) {
 
   try {
     $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
-    if ($bytes.Length -gt 900000) {
+    if ($bytes.Length -gt 50000000) {
       $skipped += $relativePath
       continue
     }
