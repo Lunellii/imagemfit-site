@@ -1,0 +1,100 @@
+﻿import { useState, useEffect } from "react";
+import { localClient } from "@/api/localClient";
+import { Loader2, ShieldAlert } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ImageUploader from "@/components/admin/ImageUploader";
+import ImageManager from "@/components/admin/ImageManager";
+import CategoryManager from "@/components/admin/CategoryManager";
+
+export default function Admin() {
+  const [categories, setCategories] = useState([]);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    localClient.auth
+      .me()
+      .then((user) => {
+        const admin = user?.role === "admin";
+        setIsAdmin(admin);
+        setCheckingAuth(false);
+        if (admin) loadData();
+      })
+      .catch(() => {
+        setIsAdmin(false);
+        setCheckingAuth(false);
+      });
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    const [cats, imgs] = await Promise.all([localClient.entities.Category.list("order", 100), localClient.entities.PortfolioImage.list("-created_date", 500)]);
+    setCategories([...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")));
+    setImages(imgs);
+    setLoading(false);
+  };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gold" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <ShieldAlert className="w-14 h-14 text-destructive" />
+        <h2 className="font-heading text-2xl font-bold text-white">Acesso Restrito</h2>
+        <p className="text-white/50 text-sm">Você não tem permissão para acessar esta área.</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gold" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-12 min-h-screen">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="mb-10">
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Área Restrita</span>
+          <h1 className="font-heading text-4xl font-bold text-white mb-2">Painel Administrativo</h1>
+          <div className="gold-line w-20 mb-4" />
+          <p className="text-white/50 text-sm">Gerencie categorias, adicione e remova imagens do portfólio.</p>
+        </div>
+
+        <Tabs defaultValue="upload">
+          <TabsList className="bg-card border border-border rounded-none mb-8 h-auto p-1 gap-1">
+            {[
+              { value: "upload", label: "Adicionar Imagens" },
+              { value: "manage", label: `Imagens (${images.length})` },
+              { value: "categories", label: `Categorias (${categories.length})` }
+            ].map((t) => (
+              <TabsTrigger key={t.value} value={t.value} className="rounded-none text-xs tracking-widest uppercase px-5 py-3 data-[state=active]:bg-gold data-[state=active]:text-black">
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <TabsContent value="upload">
+            <ImageUploader categories={categories} onUploaded={loadData} />
+          </TabsContent>
+          <TabsContent value="manage">
+            <ImageManager images={images} categories={categories} onDeleted={loadData} />
+          </TabsContent>
+          <TabsContent value="categories">
+            <CategoryManager categories={categories} images={images} onChanged={loadData} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
