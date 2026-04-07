@@ -132,13 +132,32 @@ foreach ($file in $publishFiles) {
       }
     }
 
+    try {
+      $existing = Invoke-RestMethod -Method Get -Uri $targetUrl -Headers $headers
+      if ($existing.sha) {
+        $body.sha = $existing.sha
+      }
+    } catch {
+      $status = $_.Exception.Response.StatusCode.value__
+      if ($status -ne 404) {
+        throw
+      }
+    }
+
     Invoke-RestMethod -Method Put -Uri $targetUrl -Headers $headers -Body ($body | ConvertTo-Json -Depth 8) | Out-Null
     $uploaded++
     if (($uploaded % 20) -eq 0) {
       Write-Host "Enviados: $uploaded"
     }
   } catch {
-    $skipped += $relativePath
+    $detail = ""
+    try {
+      $detail = $_.ErrorDetails.Message
+    } catch {}
+    if ([string]::IsNullOrWhiteSpace($detail)) {
+      $detail = $_.Exception.Message
+    }
+    $skipped += "$relativePath :: $detail"
   }
 }
 
@@ -147,4 +166,8 @@ Write-Host "Repo: $repoWebUrl"
 Write-Host "Enviados: $uploaded"
 if ($skipped.Count -gt 0) {
   Write-Host ("Pulados: " + $skipped.Count)
+  $preview = $skipped | Select-Object -First 10
+  foreach ($line in $preview) {
+    Write-Host (" - " + $line)
+  }
 }
