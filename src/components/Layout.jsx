@@ -1,0 +1,209 @@
+﻿import { Outlet, Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Menu, X, Instagram, Mail, Phone } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import { localClient } from "@/api/localClient";
+
+const LOGO_URL = "/logo-if-branca.png";
+
+export default function Layout() {
+  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const refreshAdminState = () => {
+      localClient.auth
+        .me()
+        .then((user) => {
+          if (!mounted) return;
+          setIsAdmin(user?.role === "admin");
+        })
+        .catch(() => {
+          if (!mounted) return;
+          setIsAdmin(false);
+        });
+    };
+
+    const onStorage = (event) => {
+      if (event.key === "ifq_admin_session") {
+        refreshAdminState();
+      }
+    };
+
+    refreshAdminState();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", refreshAdminState);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focus", refreshAdminState);
+    };
+  }, [location.pathname]);
+
+  const navLinks = [
+    { to: "/", label: "Home" },
+    { to: "/portfolio", label: "Portfólio" },
+    { to: "/artista", label: "Artista" },
+    { to: "/contato", label: "Contato" }
+  ];
+
+  return (
+    <div className="min-h-screen bg-background font-body">
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled ? "bg-[#111]/97 backdrop-blur-md border-b border-gold/20" : "bg-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-18 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3">
+            <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-10 w-auto object-contain" />
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className={`text-xs font-medium tracking-[0.25em] uppercase transition-colors duration-300 ${
+                  location.pathname === l.to ? "text-gold" : "text-white/70 hover:text-white"
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className={`text-xs font-medium tracking-[0.25em] uppercase px-4 py-1.5 border transition-colors ${
+                  location.pathname === "/admin" ? "border-gold text-gold" : "border-white/30 text-white/50 hover:border-gold hover:text-gold"
+                }`}
+              >
+                Admin
+              </Link>
+            )}
+          </nav>
+
+          <button className="md:hidden text-white" onClick={() => setMobileOpen(!mobileOpen)}>
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-black/98 border-b border-gold/20"
+            >
+              <div className="px-6 py-6 flex flex-col gap-5">
+                {navLinks.map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    className={`text-xs tracking-[0.25em] uppercase font-medium ${location.pathname === l.to ? "text-gold" : "text-white/70"}`}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+                {isAdmin && (
+                  <Link to="/admin" className="text-xs tracking-[0.25em] uppercase text-gold/60">
+                    Admin
+                  </Link>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      <main>
+        <Outlet />
+      </main>
+
+      <WhatsAppButton />
+
+      <footer className="bg-black border-t border-gold/20 pt-16 pb-8 mt-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div className="md:col-span-1">
+              <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-14 w-auto object-contain mb-4" />
+              <p className="text-white/50 text-xs leading-relaxed">Arte que transforma ambientes. Quadros exclusivos para sua casa e empresa.</p>
+            </div>
+
+            <div>
+              <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Sobre Nós</h4>
+              <div className="space-y-2">
+                {navLinks.map((l) => (
+                  <Link key={l.to} to={l.to} className="block text-white/50 hover:text-gold text-xs tracking-wide transition-colors">
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Contato</h4>
+              <div className="space-y-3">
+                <a
+                  href="https://wa.me/5547999273809"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
+                >
+                  <Phone size={13} /> (47) 99927-3809
+                </a>
+                <a
+                  href="https://instagram.com/imagemfit.quadros"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
+                >
+                  <Instagram size={13} /> @imagemfit.quadros
+                </a>
+                <a
+                  href="mailto:atendimento.imagemfit@gmail.com"
+                  className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
+                >
+                  <Mail size={13} /> atendimento.imagemfit@gmail.com
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Informações</h4>
+              <div className="space-y-2 text-white/50 text-xs">
+                <p>CNPJ: 00.000.000/0001-00</p>
+                <p className="leading-relaxed">
+                  Rua das Artes, 100
+                  <br />
+                  São Paulo - SP
+                  <br />
+                  CEP 00000-000
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="gold-line mb-6" />
+          <p className="text-center text-white/30 text-xs tracking-widest">© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
