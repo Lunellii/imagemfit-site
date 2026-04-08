@@ -46,7 +46,7 @@ $repoUrl = "https://api.github.com/repos/$owner/$RepoName"
 $repoWebUrl = "https://github.com/$owner/$RepoName"
 
 if (-not $SkipCreate) {
-  Write-Host "Criando repositÃ³rio (ou reutilizando se jÃ¡ existir)..."
+  Write-Host "Criando repositório (ou reutilizando se já existir)..."
   $repoPayload = @{
     name = $RepoName
     description = $Description
@@ -56,17 +56,17 @@ if (-not $SkipCreate) {
 
   try {
     Invoke-RestMethod -Method Post -Uri "https://api.github.com/user/repos" -Headers $headers -Body ($repoPayload | ConvertTo-Json -Depth 5)
-    Write-Host "RepositÃ³rio criado: $repoWebUrl"
+    Write-Host "Repositório criado: $repoWebUrl"
   } catch {
     $statusCode = $_.Exception.Response.StatusCode.value__
     if ($statusCode -eq 422) {
-      Write-Host "RepositÃ³rio jÃ¡ existe, continuando: $repoWebUrl"
+      Write-Host "Repositório já existe, continuando: $repoWebUrl"
     } else {
       throw
     }
   }
 } else {
-  Write-Host "SkipCreate ativo: validando acesso ao repositÃ³rio existente..."
+  Write-Host "SkipCreate ativo: validando acesso ao repositório existente..."
   Invoke-RestMethod -Method Get -Uri $repoUrl -Headers $headers | Out-Null
   Write-Host "Acesso confirmado: $repoWebUrl"
 }
@@ -164,7 +164,7 @@ foreach ($file in $publishFiles) {
   }
 }
 
-Write-Host "PublicaÃ§Ã£o concluÃ­da."
+Write-Host "Publicação concluída."
 Write-Host "Repo: $repoWebUrl"
 Write-Host "Enviados: $uploaded"
 if ($skipped.Count -gt 0) {
