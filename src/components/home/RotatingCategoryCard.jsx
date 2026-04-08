@@ -42,6 +42,8 @@ export default function RotatingCategoryCard({ category, linkTo, coverImages = [
                 alt={`${category.name} - capa`}
                 loading="lazy"
                 decoding="async"
+                draggable={false}
+                onContextMenu={(event) => event.preventDefault()}
                 className="absolute inset-0 w-full h-full object-cover"
                 initial={{ opacity: 0.2, scale: 1.04 }}
                 animate={{ opacity: 1, scale: 1 }}
