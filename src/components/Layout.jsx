@@ -189,13 +189,13 @@ export default function Layout() {
             <div>
               <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Informações</h4>
               <div className="space-y-2 text-white/50 text-xs">
-                <p>CNPJ: 00.000.000/0001-00</p>
+                <p>CNPJ: 12.780.327/0001-02</p>
                 <p className="leading-relaxed">
-                  Rua das Artes, 100
+                  Rua São Paulo, 649
                   <br />
-                  São Paulo - SP
+                  Timbó - SC
                   <br />
-                  CEP 00000-000
+                  CEP 89095-220
                 </p>
               </div>
             </div>
