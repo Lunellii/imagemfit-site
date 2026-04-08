@@ -114,7 +114,15 @@ export default function CategoryDetail() {
                     className="group mb-5 break-inside-avoid bg-[#1a1a1a] border border-white/8 hover:border-gold/40 transition-colors rounded-sm overflow-hidden"
                   >
                     <div className="overflow-hidden cursor-pointer" onClick={() => setLightbox(img)}>
-                      <img src={img.image_url} alt={img.code} loading="lazy" decoding="async" className="w-full h-auto transition-transform duration-700 group-hover:scale-105" />
+                      <img
+                        src={img.image_url}
+                        alt={img.code}
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        onContextMenu={(event) => event.preventDefault()}
+                        className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
+                      />
                     </div>
 
                     <div className="p-3 space-y-2">
@@ -154,7 +162,15 @@ export default function CategoryDetail() {
                     className="group bg-[#1a1a1a] border border-white/8 hover:border-gold/40 transition-colors rounded-sm overflow-hidden"
                   >
                     <div className="overflow-hidden cursor-pointer" onClick={() => setLightbox(img)}>
-                      <img src={img.image_url} alt={img.code} loading="lazy" decoding="async" className="w-full h-auto transition-transform duration-700 group-hover:scale-105" />
+                      <img
+                        src={img.image_url}
+                        alt={img.code}
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        onContextMenu={(event) => event.preventDefault()}
+                        className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
+                      />
                     </div>
 
                     <div className="p-3 space-y-2">
@@ -230,7 +246,13 @@ export default function CategoryDetail() {
               <X size={26} />
             </button>
             <motion.div initial={{ scale: 0.88 }} animate={{ scale: 1 }} exit={{ scale: 0.88 }} className="max-w-3xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
-              <img src={lightbox.image_url} alt={lightbox.code} className="w-full max-h-[72vh] object-contain" />
+              <img
+                src={lightbox.image_url}
+                alt={lightbox.code}
+                draggable={false}
+                onContextMenu={(event) => event.preventDefault()}
+                className="w-full max-h-[72vh] object-contain"
+              />
               <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-gold/20 pt-4">
                 <div>
                   <p className="font-heading text-lg text-white">{lightbox.title || lightbox.code}</p>
