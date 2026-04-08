@@ -9,6 +9,12 @@ export default function AdminRoute({ children }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    if (!localClient.auth.isAdminEnabled()) {
+      setIsAdmin(false);
+      setCheckingAuth(false);
+      return;
+    }
+
     let mounted = true;
 
     localClient.auth
@@ -38,6 +44,9 @@ export default function AdminRoute({ children }) {
   }
 
   if (!isAdmin) {
+    if (!localClient.auth.isAdminEnabled()) {
+      return <Navigate to="/" replace />;
+    }
     return <Navigate to="/admin/login" replace state={{ from: location }} />;
   }
 
