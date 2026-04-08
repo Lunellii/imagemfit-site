@@ -56,12 +56,12 @@ function MediaProtection() {
 
     document.addEventListener("contextmenu", onContextMenu);
     document.addEventListener("dragstart", onDragStart);
-    window.addEventListener("keydown", onKeyDown, { capture: true });
+    window.addEventListener("keydown", onKeyDown, true);
 
     return () => {
       document.removeEventListener("contextmenu", onContextMenu);
       document.removeEventListener("dragstart", onDragStart);
-      window.removeEventListener("keydown", onKeyDown, { capture: true });
+      window.removeEventListener("keydown", onKeyDown, true);
     };
   }, [location.pathname]);
 
