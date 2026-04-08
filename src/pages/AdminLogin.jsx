@@ -6,11 +6,16 @@ import { localClient } from "@/api/localClient";
 const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
 
 const getErrorMessage = (error) => {
-  if (error?.message === "INVALID_CREDENTIALS") {
-    return "Email ou senha inválidos.";
+  if (error?.message === "ADMIN_DISABLED_PUBLIC") {
+    return "Painel admin desativado no site público por segurança.";
   }
-  if (error?.message === "ADMIN_PASSWORD_NOT_CONFIGURED") {
-    return "Admin não configurado. Defina VITE_ADMIN_EMAIL e VITE_ADMIN_PASSWORD no arquivo .env.";
+  if (error?.message === "LOCAL_PASSWORD_DISABLED") {
+    return "Login por senha foi desativado por segurança. Use login Google.";
+  }
+  if (error?.message === "LOGIN_RATE_LIMITED") {
+    const retrySeconds = Math.max(1, Number(error?.retry_after_seconds || 0));
+    const retryMinutes = Math.ceil(retrySeconds / 60);
+    return `Muitas tentativas de login. Tente novamente em ${retryMinutes} minuto(s).`;
   }
   if (error?.message === "GOOGLE_NOT_CONFIGURED") {
     return "Login Google não configurado. Defina VITE_GOOGLE_CLIENT_ID no arquivo .env.";
@@ -21,9 +26,6 @@ const getErrorMessage = (error) => {
   if (error?.message === "GOOGLE_CLIENT_ID_MISMATCH") {
     return "Configuração do Google inválida para este site.";
   }
-  if (error?.message === "UNAUTHORIZED_GOOGLE_EMAIL") {
-    return "Esta conta Google não tem acesso ao painel admin.";
-  }
   return "Não foi possível entrar agora. Tente novamente.";
 };
 
@@ -32,13 +34,11 @@ export default function AdminLogin() {
   const location = useLocation();
   const googleButtonRef = useRef(null);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [error, setError] = useState("");
-  const [googleAvailable, setGoogleAvailable] = useState(Boolean(GOOGLE_CLIENT_ID));
+  const [googleAvailable, setGoogleAvailable] = useState(Boolean(GOOGLE_CLIENT_ID) && localClient.auth.isAdminEnabled());
+  const adminEnabled = localClient.auth.isAdminEnabled();
 
   const finishLogin = useCallback(() => {
     const target = location.state?.from?.pathname || "/admin";
@@ -82,7 +82,7 @@ export default function AdminLogin() {
   }, [finishLogin]);
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || checkingSession) return;
+    if (!adminEnabled || !GOOGLE_CLIENT_ID || checkingSession) return;
 
     let disposed = false;
 
@@ -144,22 +144,7 @@ export default function AdminLogin() {
       script.removeEventListener("load", onLoad);
       script.removeEventListener("error", onError);
     };
-  }, [checkingSession, handleGoogleCredential]);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      await localClient.auth.login({ email, password });
-      finishLogin();
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [adminEnabled, checkingSession, handleGoogleCredential]);
 
   if (checkingSession) {
     return (
@@ -175,11 +160,13 @@ export default function AdminLogin() {
         <div className="text-center mb-8">
           <Lock className="w-6 h-6 text-gold mx-auto mb-3" />
           <h1 className="font-heading text-3xl text-white mb-2">Acesso Admin</h1>
-          <p className="text-white/60 text-sm">Entre com Google ou use suas credenciais de administrador.</p>
+          <p className="text-white/60 text-sm">
+            {adminEnabled ? "Entre com Google para acessar o painel." : "O acesso admin está desativado neste ambiente público."}
+          </p>
         </div>
 
         <div className="space-y-3 mb-6">
-          {googleAvailable ? (
+          {googleAvailable && adminEnabled ? (
             <>
               <div className="min-h-[44px] flex items-center justify-center" ref={googleButtonRef} />
               {googleLoading ? (
@@ -189,61 +176,20 @@ export default function AdminLogin() {
               ) : null}
             </>
           ) : (
-            <p className="text-xs text-white/50 text-center">Configure `VITE_GOOGLE_CLIENT_ID` para ativar o login com Google.</p>
+            <p className="text-xs text-white/50 text-center">
+              {adminEnabled ? "Configure `VITE_GOOGLE_CLIENT_ID` para ativar o login com Google." : "Admin desativado no site público."}
+            </p>
           )}
-          <div className="relative">
-            <div className="h-px bg-white/15" />
-            <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-black px-2 text-[10px] tracking-[0.2em] uppercase text-white/40">ou</span>
-          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="admin-email" className="block text-xs tracking-[0.2em] uppercase text-white/70 mb-2">
-              Email
-            </label>
-            <input
-              id="admin-email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full h-11 px-3 bg-background border border-white/20 text-white focus:outline-none focus:border-gold"
-              placeholder="admin@imagemfit.local"
-              required
-              autoComplete="username"
-            />
-          </div>
-          <div>
-            <label htmlFor="admin-password" className="block text-xs tracking-[0.2em] uppercase text-white/70 mb-2">
-              Senha
-            </label>
-            <input
-              id="admin-password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="w-full h-11 px-3 bg-background border border-white/20 text-white focus:outline-none focus:border-gold"
-              placeholder="Sua senha admin"
-              required
-              autoComplete="current-password"
-            />
-          </div>
-
+        <div className="space-y-4">
           {error ? (
             <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 p-3">
               <ShieldAlert className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
               <p className="text-xs text-destructive/90">{error}</p>
             </div>
           ) : null}
-
-          <button
-            type="submit"
-            disabled={loading || googleLoading}
-            className="w-full h-11 bg-gold text-black text-xs tracking-[0.2em] uppercase font-semibold hover:bg-gold/90 transition-colors disabled:opacity-70"
-          >
-            {loading ? "Entrando..." : "Entrar no admin"}
-          </button>
-        </form>
+        </div>
 
         <div className="mt-6 text-center">
           <Link to="/" className="text-xs tracking-[0.2em] uppercase text-white/50 hover:text-gold transition-colors">
