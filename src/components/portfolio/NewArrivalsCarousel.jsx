@@ -54,7 +54,15 @@ export default function NewArrivalsCarousel({ images }) {
         {images.map((img) => (
           <motion.div key={img.id} whileHover={{ y: -6 }} className="flex-shrink-0 w-56 sm:w-60 group">
             <div className="overflow-hidden bg-card">
-              <img src={img.image_url} alt={img.title || img.code} loading="lazy" decoding="async" className="w-full h-auto transition-transform duration-700 group-hover:scale-105" />
+              <img
+                src={img.image_url}
+                alt={img.title || img.code}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                onContextMenu={(event) => event.preventDefault()}
+                className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
+              />
             </div>
             <div className="mt-3 space-y-2">
               <p className="text-foreground text-sm font-medium truncate">{img.title || img.code}</p>
