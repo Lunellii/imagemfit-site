@@ -34,7 +34,7 @@ export default function Contact() {
     { icon: Phone, label: "WhatsApp", value: "(47) 99927-3809", href: "https://wa.me/5547999273809" },
     { icon: Instagram, label: "Instagram", value: "@imagemfit.quadros", href: "https://instagram.com/imagemfit.quadros" },
     { icon: Mail, label: "Email", value: "atendimento.imagemfit@gmail.com", href: "mailto:atendimento.imagemfit@gmail.com" },
-    { icon: MapPin, label: "Endereço", value: "Rua São Paulo, 649 - Timbó, SC", href: null }
+    { icon: MapPin, label: "Endereço", value: "Rua São Paulo, 649 - Timbó, SC - CEP 89095-220", href: null }
   ];
 
   return (
