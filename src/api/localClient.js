@@ -9,11 +9,17 @@ const CATEGORY_MIGRATION_KEY = "ifq_categories_migrated_v4";
 const IMAGE_ASSET_MIGRATION_KEY = "ifq_image_assets_migrated_v1";
 const ADMIN_SESSION_KEY = "ifq_admin_session";
 
-const ADMIN_SESSION_TTL_MS = 1000 * 60 * 60 * 12;
-const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || "admin@imagemfit.local").trim().toLowerCase();
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "";
+const ADMIN_SESSION_TTL_MS = 1000 * 60 * 60 * 6;
 const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
-const ADMIN_GOOGLE_EMAIL = (import.meta.env.VITE_ADMIN_GOOGLE_EMAIL || ADMIN_EMAIL).trim().toLowerCase();
+const ADMIN_FORCE_ENABLE = String(import.meta.env.VITE_ENABLE_ADMIN || "")
+  .trim()
+  .toLowerCase() === "true";
+const ADMIN_LOGIN_RATE_LIMIT_KEY = "ifq_admin_login_rate_limit_v1";
+const ADMIN_MAX_FAILED_ATTEMPTS = 5;
+const ADMIN_ATTEMPT_WINDOW_MS = 1000 * 60 * 15;
+const ADMIN_LOCKOUT_MS = 1000 * 60 * 15;
+const ADMIN_LOGIN_FAILURE_CODES = new Set(["INVALID_GOOGLE_CREDENTIAL", "GOOGLE_CLIENT_ID_MISMATCH"]);
+const ADMIN_DISABLED_ERROR = "ADMIN_DISABLED_PUBLIC";
 
 const MAX_UPLOAD_DIMENSION = 1600;
 const UPLOAD_WEBP_QUALITY = 0.82;
@@ -54,6 +60,18 @@ const imageAssetObjectUrlCache = new Map();
 let imageAssetCleanupRegistered = false;
 
 const nowIso = () => new Date().toISOString();
+const isBrowser = () => typeof window !== "undefined" && typeof window.location !== "undefined";
+const isLocalHost = () => {
+  if (!isBrowser()) return false;
+  const host = window.location.hostname;
+  return host === "localhost" || host === "127.0.0.1";
+};
+const isAdminEnabled = () => ADMIN_FORCE_ENABLE || isLocalHost();
+const assertAdminEnabled = () => {
+  if (!isAdminEnabled()) {
+    throw new Error(ADMIN_DISABLED_ERROR);
+  }
+};
 
 const uid = () => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -108,6 +126,134 @@ const parseGoogleCredential = (credential) => {
     throw new Error("INVALID_GOOGLE_CREDENTIAL");
   }
 };
+
+const createLoginRateLimitError = (retryMs) => {
+  const err = new Error("LOGIN_RATE_LIMITED");
+  err.retry_after_seconds = Math.max(1, Math.ceil(Math.max(0, retryMs) / 1000));
+  return err;
+};
+
+const readAdminLoginRateLimit = () => {
+  const fallback = { failed_attempts: 0, first_failed_at: "", lock_until: "" };
+  const raw = readJson(ADMIN_LOGIN_RATE_LIMIT_KEY, fallback);
+  const failedAttempts = Math.max(0, Number(raw?.failed_attempts || 0));
+  const firstFailedMs = Date.parse(raw?.first_failed_at || "");
+  const lockUntilMs = Date.parse(raw?.lock_until || "");
+  const now = Date.now();
+
+  if (!Number.isFinite(firstFailedMs) || firstFailedMs <= 0 || now - firstFailedMs > ADMIN_ATTEMPT_WINDOW_MS) {
+    return fallback;
+  }
+
+  if (Number.isFinite(lockUntilMs) && lockUntilMs > now) {
+    return {
+      failed_attempts: failedAttempts,
+      first_failed_at: new Date(firstFailedMs).toISOString(),
+      lock_until: new Date(lockUntilMs).toISOString()
+    };
+  }
+
+  return {
+    failed_attempts: failedAttempts,
+    first_failed_at: new Date(firstFailedMs).toISOString(),
+    lock_until: ""
+  };
+};
+
+const clearAdminLoginRateLimit = () => {
+  localStorage.removeItem(ADMIN_LOGIN_RATE_LIMIT_KEY);
+};
+
+const assertAdminLoginAllowed = () => {
+  assertAdminEnabled();
+  const rateLimit = readAdminLoginRateLimit();
+  const lockUntilMs = Date.parse(rateLimit.lock_until || "");
+  if (Number.isFinite(lockUntilMs) && lockUntilMs > Date.now()) {
+    throw createLoginRateLimitError(lockUntilMs - Date.now());
+  }
+};
+
+const registerAdminLoginFailure = () => {
+  const now = Date.now();
+  const current = readAdminLoginRateLimit();
+  const firstFailedMs = Date.parse(current.first_failed_at || "");
+  const insideWindow = Number.isFinite(firstFailedMs) && firstFailedMs > 0 && now - firstFailedMs <= ADMIN_ATTEMPT_WINDOW_MS;
+  const failedAttempts = (insideWindow ? Number(current.failed_attempts || 0) : 0) + 1;
+  const nextFirstFailedAt = insideWindow ? new Date(firstFailedMs).toISOString() : new Date(now).toISOString();
+
+  if (failedAttempts >= ADMIN_MAX_FAILED_ATTEMPTS) {
+    const lockUntil = new Date(now + ADMIN_LOCKOUT_MS).toISOString();
+    writeJson(ADMIN_LOGIN_RATE_LIMIT_KEY, {
+      failed_attempts: failedAttempts,
+      first_failed_at: nextFirstFailedAt,
+      lock_until: lockUntil
+    });
+    return createLoginRateLimitError(ADMIN_LOCKOUT_MS);
+  }
+
+  writeJson(ADMIN_LOGIN_RATE_LIMIT_KEY, {
+    failed_attempts: failedAttempts,
+    first_failed_at: nextFirstFailedAt,
+    lock_until: ""
+  });
+  return null;
+};
+
+const createSessionFingerprint = () => {
+  if (typeof navigator === "undefined") return "";
+  const host = typeof window !== "undefined" && window.location ? window.location.host : "";
+  const source = `${navigator.userAgent || ""}|${navigator.language || ""}|${host}`;
+  try {
+    return btoa(source);
+  } catch (_error) {
+    try {
+      const bytes = new TextEncoder().encode(source);
+      const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
+      return btoa(binary);
+    } catch (_innerError) {
+      return source;
+    }
+  }
+};
+
+const clearAdminSession = () => {
+  localStorage.removeItem(ADMIN_SESSION_KEY);
+};
+
+const invalidateAdminSessionIfNeeded = () => {
+  if (!isAdminEnabled()) {
+    clearAdminSession();
+    return null;
+  }
+
+  const session = readJson(ADMIN_SESSION_KEY, null);
+  if (!session) return null;
+
+  const expiresAtMs = Date.parse(session.expires_at || "");
+  if (!Number.isNaN(expiresAtMs) && expiresAtMs <= Date.now()) {
+    clearAdminSession();
+    return null;
+  }
+
+  const expectedFingerprint = createSessionFingerprint();
+  if (session.fingerprint && expectedFingerprint && session.fingerprint !== expectedFingerprint) {
+    clearAdminSession();
+    return null;
+  }
+
+  return session;
+};
+
+const createAdminSession = ({ id, name, email, provider = "local" }) => ({
+  id,
+  role: "admin",
+  name,
+  email,
+  provider,
+  fingerprint: createSessionFingerprint(),
+  created_date: nowIso(),
+  expires_at: new Date(Date.now() + ADMIN_SESSION_TTL_MS).toISOString()
+});
 
 const normalizeCategoryName = (value) =>
   String(value || "")
@@ -585,19 +731,11 @@ const ensureImagesReady = async () => {
 };
 
 const readAdminSession = () => {
-  const session = readJson(ADMIN_SESSION_KEY, null);
-  if (!session) return null;
-
-  const expiresAtMs = Date.parse(session.expires_at || "");
-  if (!Number.isNaN(expiresAtMs) && expiresAtMs <= Date.now()) {
-    localStorage.removeItem(ADMIN_SESSION_KEY);
-    return null;
-  }
-
-  return session;
+  return invalidateAdminSessionIfNeeded();
 };
 
 const requireAdmin = () => {
+  assertAdminEnabled();
   const session = readAdminSession();
   if (!session || session.role !== "admin") {
     throw new Error("UNAUTHORIZED");
@@ -836,76 +974,55 @@ export const localClient = {
   },
   auth: {
     async loginWithGoogleCredential({ credential }) {
+      assertAdminLoginAllowed();
+
       if (!GOOGLE_CLIENT_ID) {
         throw new Error("GOOGLE_NOT_CONFIGURED");
       }
 
-      const payload = parseGoogleCredential(credential);
-      const normalizedEmail = String(payload?.email || "").trim().toLowerCase();
-      const emailVerified = payload?.email_verified === true;
+      try {
+        const payload = parseGoogleCredential(credential);
+        const normalizedEmail = String(payload?.email || "").trim().toLowerCase();
+        const emailVerified = payload?.email_verified === true;
 
-      if (!normalizedEmail || !emailVerified) {
-        throw new Error("INVALID_GOOGLE_CREDENTIAL");
+        if (!normalizedEmail || !emailVerified) {
+          throw new Error("INVALID_GOOGLE_CREDENTIAL");
+        }
+
+        if (payload?.aud && payload.aud !== GOOGLE_CLIENT_ID) {
+          throw new Error("GOOGLE_CLIENT_ID_MISMATCH");
+        }
+
+        const session = createAdminSession({
+          id: String(payload?.sub || "google-admin"),
+          name: payload?.name || "Admin",
+          email: normalizedEmail,
+          provider: "google"
+        });
+
+        writeJson(ADMIN_SESSION_KEY, session);
+        clearAdminLoginRateLimit();
+
+        return {
+          id: session.id,
+          role: session.role,
+          name: session.name,
+          email: session.email
+        };
+      } catch (error) {
+        if (ADMIN_LOGIN_FAILURE_CODES.has(error?.message)) {
+          const lockError = registerAdminLoginFailure();
+          if (lockError) throw lockError;
+        }
+        throw error;
       }
-
-      if (payload?.aud && payload.aud !== GOOGLE_CLIENT_ID) {
-        throw new Error("GOOGLE_CLIENT_ID_MISMATCH");
-      }
-
-      if (normalizedEmail !== ADMIN_GOOGLE_EMAIL) {
-        throw new Error("UNAUTHORIZED_GOOGLE_EMAIL");
-      }
-
-      const session = {
-        id: String(payload?.sub || "google-admin"),
-        role: "admin",
-        name: payload?.name || "Admin",
-        email: normalizedEmail,
-        provider: "google",
-        created_date: nowIso(),
-        expires_at: new Date(Date.now() + ADMIN_SESSION_TTL_MS).toISOString()
-      };
-
-      writeJson(ADMIN_SESSION_KEY, session);
-
-      return {
-        id: session.id,
-        role: session.role,
-        name: session.name,
-        email: session.email
-      };
     },
     async login({ email, password }) {
-      const normalizedEmail = String(email || "").trim().toLowerCase();
-      const normalizedPassword = String(password || "");
-
-      if (!ADMIN_PASSWORD) {
-        throw new Error("ADMIN_PASSWORD_NOT_CONFIGURED");
-      }
-
-      if (normalizedEmail !== ADMIN_EMAIL || normalizedPassword !== ADMIN_PASSWORD) {
-        throw new Error("INVALID_CREDENTIALS");
-      }
-
-      const session = {
-        id: "local-admin",
-        role: "admin",
-        name: "Admin Local",
-        email: normalizedEmail,
-        created_date: nowIso(),
-        expires_at: new Date(Date.now() + ADMIN_SESSION_TTL_MS).toISOString()
-      };
-
-      writeJson(ADMIN_SESSION_KEY, session);
-
-      return {
-        id: session.id,
-        role: session.role,
-        name: session.name,
-        email: session.email
-      };
+      assertAdminEnabled();
+      throw new Error("LOCAL_PASSWORD_DISABLED");
     },
     async me() {
+      if (!isAdminEnabled()) return null;
       const session = readAdminSession();
       if (!session) return null;
       return {
@@ -916,11 +1033,14 @@ export const localClient = {
       };
     },
     logout() {
-      localStorage.removeItem(ADMIN_SESSION_KEY);
+      clearAdminSession();
+    },
+    isAdminEnabled() {
+      return isAdminEnabled();
     },
     redirectToLogin() {
       if (typeof window !== "undefined") {
-        window.location.assign("/admin/login");
+        window.location.assign("/#/admin/login");
       }
     }
   }
