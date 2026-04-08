@@ -28,7 +28,15 @@ export default function ImageGrid({ images }) {
               className="group relative aspect-square overflow-hidden cursor-pointer bg-card"
               onClick={() => setLightbox(img)}
             >
-              <img src={img.image_url} alt={img.title || img.code} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img
+                src={img.image_url}
+                alt={img.title || img.code}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                onContextMenu={(event) => event.preventDefault()}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
               <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-400">
                 <p className="text-white text-xs font-medium truncate">{img.title || img.code}</p>
@@ -52,7 +60,13 @@ export default function ImageGrid({ images }) {
               <X size={26} />
             </button>
             <motion.div initial={{ scale: 0.85 }} animate={{ scale: 1 }} exit={{ scale: 0.85 }} className="max-w-4xl max-h-[85vh] w-full" onClick={(e) => e.stopPropagation()}>
-              <img src={lightbox.image_url} alt={lightbox.title || lightbox.code} className="w-full max-h-[72vh] object-contain" />
+              <img
+                src={lightbox.image_url}
+                alt={lightbox.title || lightbox.code}
+                draggable={false}
+                onContextMenu={(event) => event.preventDefault()}
+                className="w-full max-h-[72vh] object-contain"
+              />
               <div className="mt-4 flex items-center justify-between border-t border-gold/20 pt-4">
                 <p className="font-heading text-lg text-white">{lightbox.title || lightbox.code}</p>
                 <p className="text-gold font-mono text-sm">#{lightbox.code}</p>
