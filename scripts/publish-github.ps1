@@ -10,6 +10,8 @@ param(
   [ValidateSet("public", "private")]
   [string]$Visibility = "public",
 
+  [string]$Branch = "main",
+
   [switch]$SkipCreate
 )
 
@@ -44,7 +46,7 @@ $repoUrl = "https://api.github.com/repos/$owner/$RepoName"
 $repoWebUrl = "https://github.com/$owner/$RepoName"
 
 if (-not $SkipCreate) {
-  Write-Host "Criando repositório (ou reutilizando se já existir)..."
+  Write-Host "Criando repositÃ³rio (ou reutilizando se jÃ¡ existir)..."
   $repoPayload = @{
     name = $RepoName
     description = $Description
@@ -54,17 +56,17 @@ if (-not $SkipCreate) {
 
   try {
     Invoke-RestMethod -Method Post -Uri "https://api.github.com/user/repos" -Headers $headers -Body ($repoPayload | ConvertTo-Json -Depth 5)
-    Write-Host "Repositório criado: $repoWebUrl"
+    Write-Host "RepositÃ³rio criado: $repoWebUrl"
   } catch {
     $statusCode = $_.Exception.Response.StatusCode.value__
     if ($statusCode -eq 422) {
-      Write-Host "Repositório já existe, continuando: $repoWebUrl"
+      Write-Host "RepositÃ³rio jÃ¡ existe, continuando: $repoWebUrl"
     } else {
       throw
     }
   }
 } else {
-  Write-Host "SkipCreate ativo: validando acesso ao repositório existente..."
+  Write-Host "SkipCreate ativo: validando acesso ao repositÃ³rio existente..."
   Invoke-RestMethod -Method Get -Uri $repoUrl -Headers $headers | Out-Null
   Write-Host "Acesso confirmado: $repoWebUrl"
 }
@@ -126,6 +128,7 @@ foreach ($file in $publishFiles) {
     $body = @{
       message = "chore: add $relativePath"
       content = $base64
+      branch = $Branch
       committer = @{
         name = $owner
         email = "$owner@users.noreply.github.com"
@@ -133,7 +136,7 @@ foreach ($file in $publishFiles) {
     }
 
     try {
-      $existing = Invoke-RestMethod -Method Get -Uri $targetUrl -Headers $headers
+      $existing = Invoke-RestMethod -Method Get -Uri "${targetUrl}?ref=$([System.Uri]::EscapeDataString($Branch))" -Headers $headers
       if ($existing.sha) {
         $body.sha = $existing.sha
       }
@@ -161,7 +164,7 @@ foreach ($file in $publishFiles) {
   }
 }
 
-Write-Host "Publicação concluída."
+Write-Host "PublicaÃ§Ã£o concluÃ­da."
 Write-Host "Repo: $repoWebUrl"
 Write-Host "Enviados: $uploaded"
 if ($skipped.Count -gt 0) {
