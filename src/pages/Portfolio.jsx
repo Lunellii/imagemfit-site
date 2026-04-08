@@ -43,7 +43,13 @@ export default function Portfolio() {
   return (
     <div className="min-h-screen">
       <div className="relative h-64 md:h-80 overflow-hidden">
-        <img src="https://picsum.photos/seed/ifq-portfolio-banner/1920/1080" alt="Portfólio" className="w-full h-full object-cover" />
+        <img
+          src="https://picsum.photos/seed/ifq-portfolio-banner/1920/1080"
+          alt="Portfólio"
+          draggable={false}
+          onContextMenu={(event) => event.preventDefault()}
+          className="w-full h-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
