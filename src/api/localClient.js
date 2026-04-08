@@ -1,6 +1,10 @@
-﻿const CATEGORY_KEY = "ifq_categories";
+﻿import seedCatalog from "@/data/seedCatalog.json";
+
+const CATEGORY_KEY = "ifq_categories";
+
 const IMAGE_KEY = "ifq_images";
 const SEEDED_KEY = "ifq_seeded_v1";
+const CATALOG_SEED_MIGRATION_KEY = "ifq_catalog_seed_migrated_v1";
 const CATEGORY_MIGRATION_KEY = "ifq_categories_migrated_v4";
 const IMAGE_ASSET_MIGRATION_KEY = "ifq_image_assets_migrated_v1";
 const ADMIN_SESSION_KEY = "ifq_admin_session";
@@ -18,29 +22,30 @@ const IMAGE_ASSET_PREFIX = "ifq-asset://";
 const IMAGE_ASSET_DB_NAME = "ifq_assets";
 const IMAGE_ASSET_DB_VERSION = 1;
 const IMAGE_ASSET_STORE = "images";
+const SAMPLE_IMAGE_PREFIX = "https://picsum.photos/seed/ifq-";
 
 const REQUIRED_CATEGORIES = [
-  { name: "Abstrato Arquitetônico", description: "Composições abstratas com linhas e formas inspiradas na arquitetura." },
-  { name: "Abstrato Fluido e Mármore", description: "Arte abstrata com movimento fluido e estética de mármore." },
-  { name: "Abstrato Geométrico", description: "Formas geométricas e equilíbrio visual para ambientes modernos." },
-  { name: "Abstrato Minimalista", description: "Peças com estética limpa, elegante e minimalista." },
+  { name: "Abstrato Arquitet\u00f4nico", description: "Composi\u00e7\u00f5es abstratas com linhas e formas inspiradas na arquitetura." },
+  { name: "Abstrato Fluido e M\u00e1rmore", description: "Arte abstrata com movimento fluido e est\u00e9tica de m\u00e1rmore." },
+  { name: "Abstrato Geom\u00e9trico", description: "Formas geom\u00e9tricas e equil\u00edbrio visual para ambientes modernos." },
+  { name: "Abstrato Minimalista", description: "Pe\u00e7as com est\u00e9tica limpa, elegante e minimalista." },
   { name: "Abstrato Pintura e Aquarela", description: "Abstratos com pinceladas expressivas e leveza de aquarela." },
-  { name: "Animais", description: "Temas de fauna para dar personalidade e vida à decoração." },
-  { name: "Árvores", description: "Obras com árvores e elementos naturais para ambientes acolhedores." },
-  { name: "Cozinha", description: "Quadros pensados para cozinhas e espaços gourmet." },
-  { name: "Diversos", description: "Seleção variada de estilos e temas para todos os gostos." },
-  { name: "Espelhos", description: "Peças com espelhos para ampliar e valorizar o ambiente." },
-  { name: "Espiritualidade", description: "Temas de fé, energia e espiritualidade para ambientes de paz." },
-  { name: "Flores e Folhas", description: "Composições botânicas com delicadeza e frescor natural." },
+  { name: "Animais", description: "Temas de fauna para dar personalidade e vida \u00e0 decora\u00e7\u00e3o." },
+  { name: "\u00c1rvores", description: "Obras com \u00e1rvores e elementos naturais para ambientes acolhedores." },
+  { name: "Cozinha", description: "Quadros pensados para cozinhas e espa\u00e7os gourmet." },
+  { name: "Diversos", description: "Sele\u00e7\u00e3o variada de estilos e temas para todos os gostos." },
+  { name: "Espelhos", description: "Pe\u00e7as com espelhos para ampliar e valorizar o ambiente." },
+  { name: "Espiritualidade", description: "Temas de f\u00e9, energia e espiritualidade para ambientes de paz." },
+  { name: "Flores e Folhas", description: "Composi\u00e7\u00f5es bot\u00e2nicas com delicadeza e frescor natural." },
   { name: "Frases", description: "Quadros com frases inspiradoras e mensagens decorativas." },
-  { name: "Infantil", description: "Arte lúdica e delicada para quartos e espaços infantis." },
-  { name: "Mar e Praia", description: "Paisagens marítimas e clima praiano para ambientes leves." },
+  { name: "Infantil", description: "Arte l\u00fadica e delicada para quartos e espa\u00e7os infantis." },
+  { name: "Mar e Praia", description: "Paisagens mar\u00edtimas e clima praiano para ambientes leves." },
   { name: "Natureza", description: "Paisagens e elementos naturais para ambientes leves." },
   { name: "Pinturas Manuais", description: "Obras autorais com toque artesanal e acabamento exclusivo." },
-  { name: "Ponte", description: "Temática de pontes e arquitetura urbana em diferentes estilos." },
-  { name: "Tridimensional", description: "Peças com profundidade, relevo e textura para destaque visual." },
-  { name: "Urbano", description: "Referências de cidade, arquitetura e estilo contemporâneo." },
-  { name: "Vida", description: "Obras que celebram movimento, cotidiano e expressões da vida." }
+  { name: "Ponte", description: "Tem\u00e1tica de pontes e arquitetura urbana em diferentes estilos." },
+  { name: "Tridimensional", description: "Pe\u00e7as com profundidade, relevo e textura para destaque visual." },
+  { name: "Urbano", description: "Refer\u00eancias de cidade, arquitetura e estilo contempor\u00e2neo." },
+  { name: "Vida", description: "Obras que celebram movimento, cotidiano e express\u00f5es da vida." }
 ];
 
 let imageAssetDbPromise = null;
@@ -178,6 +183,13 @@ const makeImageCodePrefix = (name) => {
   return (base.slice(0, 3).toUpperCase() || "CAT").padEnd(3, "X");
 };
 
+const toStaticAssetUrl = (value) => {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  if (/^(https?:|data:|blob:|ifq-asset:\/\/)/i.test(raw)) return raw;
+  return `${import.meta.env.BASE_URL}${raw.replace(/^\/+/, "")}`;
+};
+
 const seedImagesForCategories = (categories) => {
   const sampleCategories = categories.slice(0, 6);
   return sampleCategories.flatMap((cat, catIndex) =>
@@ -194,6 +206,61 @@ const seedImagesForCategories = (categories) => {
       };
     })
   );
+};
+
+const seedImagesFromCatalog = (categories) => {
+  const entries = Array.isArray(seedCatalog?.images) ? seedCatalog.images : [];
+  if (!entries.length) return [];
+
+  const categoryIdByName = new Map(categories.map((category) => [normalizeCategoryName(category.name), category.id]));
+  const seeded = [];
+  const seen = new Set();
+
+  entries.forEach((entry, index) => {
+    const normalizedCategory = normalizeCategoryName(entry?.category);
+    const canonicalCategory = CATEGORY_DESCRIPTION_ALIASES[normalizedCategory] || normalizedCategory;
+    const categoryId = categoryIdByName.get(canonicalCategory) || categoryIdByName.get(normalizedCategory);
+    if (!categoryId) return;
+
+    const code = normalizeImageCode(entry?.code || entry?.title || "");
+    if (!code) return;
+
+    const imageUrl = toStaticAssetUrl(entry?.image);
+    if (!imageUrl) return;
+
+    const dedupeKey = `${categoryId}::${code}`;
+    if (seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
+
+    seeded.push({
+      id: uid(),
+      title: String(entry?.title || code),
+      code,
+      image_url: imageUrl,
+      category_id: categoryId,
+      is_new: index < 20,
+      created_date: new Date(Date.now() - index * 60000).toISOString()
+    });
+  });
+
+  return seeded;
+};
+
+const buildInitialImages = (categories) => {
+  const catalogImages = seedImagesFromCatalog(categories);
+  if (!catalogImages.length) return seedImagesForCategories(categories);
+
+  const categoriesWithImage = new Set(catalogImages.map((image) => image.category_id));
+  const categoriesWithoutImage = categories.filter((category) => !categoriesWithImage.has(category.id));
+  if (!categoriesWithoutImage.length) return catalogImages;
+
+  const fallbackImages = seedImagesForCategories(categoriesWithoutImage).map((image, index) => ({
+    ...image,
+    is_new: false,
+    created_date: new Date(Date.now() - (catalogImages.length + index) * 60000).toISOString()
+  }));
+
+  return [...catalogImages, ...fallbackImages];
 };
 
 const migrateRequiredCategoriesOnce = () => {
@@ -233,20 +300,45 @@ const migrateRequiredCategoriesOnce = () => {
   localStorage.setItem(CATEGORY_MIGRATION_KEY, "1");
 };
 
+const migrateCatalogSeedOnce = () => {
+  if (localStorage.getItem(CATALOG_SEED_MIGRATION_KEY) === "1") return;
+
+  const categories = normalizeCategories(readJson(CATEGORY_KEY, []));
+  const catalogImages = seedImagesFromCatalog(categories);
+  if (!catalogImages.length) {
+    localStorage.setItem(CATALOG_SEED_MIGRATION_KEY, "1");
+    return;
+  }
+
+  const currentImages = readJson(IMAGE_KEY, []);
+  const hasCustomImages = currentImages.some((image) => {
+    const url = String(image?.image_url || "");
+    return url.length > 0 && !url.startsWith(SAMPLE_IMAGE_PREFIX);
+  });
+
+  if (!hasCustomImages) {
+    writeJson(IMAGE_KEY, catalogImages);
+  }
+
+  localStorage.setItem(CATALOG_SEED_MIGRATION_KEY, "1");
+};
+
 const ensureSeed = () => {
   if (localStorage.getItem(SEEDED_KEY) !== "1") {
     const categories = REQUIRED_CATEGORIES.map((category, index) => buildCategory(category.name, index, category.description));
-    const images = seedImagesForCategories(categories);
+    const images = buildInitialImages(categories);
 
     writeJson(CATEGORY_KEY, categories);
     writeJson(IMAGE_KEY, images);
 
     localStorage.setItem(SEEDED_KEY, "1");
     localStorage.setItem(CATEGORY_MIGRATION_KEY, "1");
+    localStorage.setItem(CATALOG_SEED_MIGRATION_KEY, "1");
     return;
   }
 
   migrateRequiredCategoriesOnce();
+  migrateCatalogSeedOnce();
 };
 
 const sortBy = (arr, sortExpr = "created_date") => {
