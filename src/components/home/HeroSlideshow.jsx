@@ -3,21 +3,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
+const heroBase = `${import.meta.env.BASE_URL}hero/`;
+
 const SLIDES = [
   {
-    url: "/hero/175.jpg",
+    url: `${heroBase}175.jpg`,
     label: "Sala Moderna"
   },
   {
-    url: "/hero/23934.jpg",
+    url: `${heroBase}23934.jpg`,
     label: "Ambiente Minimalista"
   },
   {
-    url: "/hero/301.jpg",
+    url: `${heroBase}301.jpg`,
     label: "Arte Abstrata"
   },
   {
-    url: "/hero/23642.jpg",
+    url: `${heroBase}23642.jpg`,
     label: "Estilo Tropical"
   }
 ];
