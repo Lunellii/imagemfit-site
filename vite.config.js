@@ -2,7 +2,8 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === "production" ? "/imagemfit-site/" : "/",
   logLevel: "error",
   server: {
     proxy: {
@@ -18,4 +19,4 @@ export default defineConfig({
     }
   },
   plugins: [react()]
-});
+}));
