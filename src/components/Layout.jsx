@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { localClient } from "@/api/localClient";
 
-const LOGO_URL = "/logo-if-branca.png";
+const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
 
 export default function Layout() {
   const location = useLocation();
