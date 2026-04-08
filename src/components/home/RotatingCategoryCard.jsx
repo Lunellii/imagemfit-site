@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ImageIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
-const ROTATION_MS = 4200;
+const ROTATION_MS = 30000;
 
 export default function RotatingCategoryCard({ category, linkTo, coverImages = [], className = "", imageHeight = "h-52" }) {
   const availableImages = useMemo(
