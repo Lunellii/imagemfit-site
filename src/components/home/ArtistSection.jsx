@@ -13,7 +13,7 @@ export default function ArtistSection() {
             className="relative"
           >
             <div className="aspect-[3/4] overflow-hidden">
-              <img src={`${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.jpeg`} alt="Almir Donizete Gonçalves" className="w-full h-full object-cover" />
+              <img src={`${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png`} alt="Almir Donizete Gonçalves" className="w-full h-full object-cover" />
             </div>
             <div className="absolute -bottom-6 -right-6 w-32 h-32 border-2 border-primary/30" />
           </motion.div>
