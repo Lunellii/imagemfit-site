@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const ROTATION_MS = 30000;
 
-export default function RotatingCategoryCard({ category, linkTo, coverImages = [], className = "", imageHeight = "h-52" }) {
+export default function RotatingCategoryCard({ category, linkTo, coverImages = [], className = "", imageHeight = "h-36 sm:h-44 md:h-52" }) {
   const availableImages = useMemo(
     () => coverImages.filter((image) => typeof image?.image_url === "string" && image.image_url.length > 0),
     [coverImages]
@@ -64,18 +64,18 @@ export default function RotatingCategoryCard({ category, linkTo, coverImages = [
         )}
       </div>
 
-      <div className="p-5">
+      <div className="p-3 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.3em] text-gold/70 mb-2">Categoria</p>
-            <h3 className="font-heading text-xl text-white leading-tight">{category.name}</h3>
-            {category.description ? <p className="text-white/55 text-xs mt-2 leading-relaxed">{category.description}</p> : null}
+            <p className="hidden sm:block text-[11px] uppercase tracking-[0.3em] text-gold/70 mb-2">Categoria</p>
+            <h3 className="font-heading text-base sm:text-xl text-white leading-tight">{category.name}</h3>
+            {category.description ? <p className="hidden sm:block text-white/55 text-xs mt-2 leading-relaxed">{category.description}</p> : null}
           </div>
-          <div className="w-9 h-9 border border-gold/40 flex items-center justify-center opacity-60 group-hover:opacity-100 group-hover:bg-gold group-hover:text-black transition-all">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 border border-gold/40 flex items-center justify-center opacity-60 group-hover:opacity-100 group-hover:bg-gold group-hover:text-black transition-all">
             <ArrowRight size={14} />
           </div>
         </div>
-        <div className="mt-5 h-px bg-gradient-to-r from-gold/60 to-transparent scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+        <div className="mt-3 sm:mt-5 h-px bg-gradient-to-r from-gold/60 to-transparent scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
       </div>
     </Link>
   );
