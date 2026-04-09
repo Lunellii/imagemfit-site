@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 
-const ARTIST_PHOTO = "https://picsum.photos/seed/ifq-artista/1200/1600";
+const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.jpeg`;
 const ARTIST_CATEGORY_NAMES = ["pinturas manuais", "tridimensional"];
 
 export default function Artista() {
@@ -80,8 +80,8 @@ export default function Artista() {
               </div>
               <div className="mt-10 grid grid-cols-3 gap-6 border-t border-gold/20 pt-8">
                 {[
-                  { n: "10+", l: "Anos de experiência" },
-                  { n: "500+", l: "Obras criadas" },
+                  { n: "30+", l: "Anos de experiência" },
+                  { n: "+2000", l: "Obras criadas" },
                   { n: "300+", l: "Clientes satisfeitos" }
                 ].map((s) => (
                   <div key={s.l}>
