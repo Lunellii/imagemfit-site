@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-const ARTIST_PHOTO = "https://picsum.photos/seed/ifq-almir-teaser/1200/1600";
+const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.jpeg`;
 
 export default function AlmirTeaser() {
   return (
@@ -10,7 +10,7 @@ export default function AlmirTeaser() {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="relative overflow-hidden aspect-[4/3] md:aspect-[3/4]">
-            <img src={ARTIST_PHOTO} alt="Almir Gonçalves" className="w-full h-full object-cover" />
+            <img src={ARTIST_PHOTO} alt="Almir Donizete Gonçalves" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           </motion.div>
 
@@ -21,7 +21,7 @@ export default function AlmirTeaser() {
             </h2>
             <div className="gold-line w-16 mb-6" />
             <p className="text-white/60 text-sm leading-relaxed mb-4">
-              Artista plástico contemporâneo com mais de 10 anos de experiência, Almir Gonçalves cria obras que transitam entre o abstrato e o experimental -
+              Artista plástico contemporâneo com mais de 30 anos de experiência, Almir Gonçalves cria obras que transitam entre o abstrato e o experimental -
               usando tinta acrílica, colagem e técnicas digitais em composições tridimensionais únicas.
             </p>
             <p className="text-white/50 text-sm leading-relaxed mb-8">
