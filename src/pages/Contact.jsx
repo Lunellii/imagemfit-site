@@ -39,16 +39,16 @@ export default function Contact() {
 
   const representatives = [
     {
-      name: "Jonas",
-      region: "Paraná (região de Curitiba)",
-      phoneLabel: "+55 41 9234-9935",
-      phoneHref: "https://wa.me/554192349935"
-    },
-    {
       name: "Almir",
       region: "Santa Catarina e Rio Grande do Sul",
       phoneLabel: "+55 47 9936-7928",
       phoneHref: "https://wa.me/554799367928"
+    },
+    {
+      name: "Jonas",
+      region: "Paraná (região de Curitiba)",
+      phoneLabel: "+55 41 9234-9935",
+      phoneHref: "https://wa.me/554192349935"
     }
   ];
 
