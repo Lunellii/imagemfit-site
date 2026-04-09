@@ -37,6 +37,21 @@ export default function Contact() {
     { icon: MapPin, label: "Endereço", value: "Rua São Paulo, 649 - Timbó, SC - CEP 89095-220", href: null }
   ];
 
+  const representatives = [
+    {
+      name: "Jonas",
+      region: "Paraná (região de Curitiba)",
+      phoneLabel: "+55 41 9234-9935",
+      phoneHref: "https://wa.me/554192349935"
+    },
+    {
+      name: "Almir",
+      region: "Santa Catarina e Rio Grande do Sul",
+      phoneLabel: "+55 47 9936-7928",
+      phoneHref: "https://wa.me/554799367928"
+    }
+  ];
+
   return (
     <div className="pt-28 pb-16 min-h-screen">
       <div className="max-w-6xl mx-auto px-6">
@@ -111,6 +126,21 @@ export default function Contact() {
                 <p>Seg - Sex: 08:00 - 17:00</p>
                 <p>Sáb: somente com horário marcado</p>
                 <p className="text-white/30">Dom: Fechado</p>
+              </div>
+            </div>
+
+            <div className="p-5 border border-border">
+              <p className="text-white/40 text-xs tracking-widest uppercase mb-3">Representantes</p>
+              <div className="space-y-4">
+                {representatives.map((rep) => (
+                  <div key={rep.name} className="border border-border/80 p-4">
+                    <p className="text-white text-sm font-semibold">{rep.name}</p>
+                    <p className="text-white/55 text-xs mt-1">{rep.region}</p>
+                    <a href={rep.phoneHref} target="_blank" rel="noreferrer" className="inline-block mt-2 text-gold text-sm hover:text-gold/80 transition-colors">
+                      {rep.phoneLabel}
+                    </a>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
