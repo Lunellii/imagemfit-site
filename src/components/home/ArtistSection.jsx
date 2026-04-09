@@ -13,11 +13,7 @@ export default function ArtistSection() {
             className="relative"
           >
             <div className="aspect-[3/4] overflow-hidden">
-              <img
-                src="https://picsum.photos/seed/ifq-artist-section/1200/1600"
-                alt="Nosso Artista"
-                className="w-full h-full object-cover"
-              />
+              <img src={`${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.jpeg`} alt="Almir Donizete Gonçalves" className="w-full h-full object-cover" />
             </div>
             <div className="absolute -bottom-6 -right-6 w-32 h-32 border-2 border-primary/30" />
           </motion.div>
@@ -34,7 +30,7 @@ export default function ArtistSection() {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                Com mais de 10 anos de experiência na arte visual, nosso artista principal combina técnicas tradicionais com tecnologias modernas para criar
+                Com mais de 30 anos de experiência na arte visual, nosso artista principal combina técnicas tradicionais com tecnologias modernas para criar
                 imagens impactantes e memoráveis.
               </p>
               <p>
@@ -47,11 +43,11 @@ export default function ArtistSection() {
             </div>
             <div className="mt-10 flex gap-12">
               <div>
-                <span className="font-heading text-4xl font-bold text-primary">10+</span>
+                <span className="font-heading text-4xl font-bold text-primary">30+</span>
                 <p className="text-sm text-muted-foreground mt-1">Anos de experiência</p>
               </div>
               <div>
-                <span className="font-heading text-4xl font-bold text-primary">500+</span>
+                <span className="font-heading text-4xl font-bold text-primary">+2000</span>
                 <p className="text-sm text-muted-foreground mt-1">Projetos realizados</p>
               </div>
               <div>
