@@ -9,9 +9,9 @@ export default function AlmirTeaser() {
     <section className="py-20 px-6 bg-black/30">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
-          <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="relative overflow-hidden aspect-[4/3] md:aspect-[3/4]">
-            <img src={ARTIST_PHOTO} alt="Almir Donizete Gonçalves" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="relative overflow-hidden aspect-[3/4] sm:aspect-[4/5] md:aspect-[3/4] bg-black/40">
+            <img src={ARTIST_PHOTO} alt="Almir Donizete Gonçalves" className="w-full h-full object-contain md:object-cover object-top" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent hidden md:block" />
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.2 }}>
