@@ -2,8 +2,8 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-const IMG1 = "https://picsum.photos/seed/ifq-company-1/1200/900";
-const IMG2 = "https://picsum.photos/seed/ifq-company-2/1200/900";
+const IMG1 = `${import.meta.env.BASE_URL}company/imagem-fit-fachada.jpg`;
+const IMG2 = `${import.meta.env.BASE_URL}company/imagem-fit-galeria.jpeg`;
 
 export default function CompanySection() {
   return (
@@ -28,7 +28,7 @@ export default function CompanySection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="aspect-[4/3] overflow-hidden group">
-            <img src={IMG1} alt="Galeria de Quadros" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <img src={IMG1} alt="Fachada da Imagem Fit Quadros" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 30 }}
@@ -37,7 +37,7 @@ export default function CompanySection() {
             transition={{ delay: 0.15 }}
             className="aspect-[4/3] overflow-hidden group"
           >
-            <img src={IMG2} alt="Natureza em Quadros" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <img src={IMG2} alt="Galeria de quadros da Imagem Fit" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
           </motion.div>
         </div>
 
