@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.jpeg`;
+const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png`;
 
 export default function AlmirTeaser() {
   return (
