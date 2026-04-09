@@ -7,20 +7,16 @@ const heroBase = `${import.meta.env.BASE_URL}hero/`;
 
 const SLIDES = [
   {
-    url: `${heroBase}175.jpg`,
-    label: "Sala Moderna"
+    url: `${heroBase}gallery-home-1.jpg`,
+    label: "Galeria Contemporânea"
   },
   {
-    url: `${heroBase}23934.jpg`,
-    label: "Ambiente Minimalista"
+    url: `${heroBase}gallery-home-2.jpg`,
+    label: "Curadoria Exclusiva"
   },
   {
-    url: `${heroBase}301.jpg`,
-    label: "Arte Abstrata"
-  },
-  {
-    url: `${heroBase}23642.jpg`,
-    label: "Estilo Tropical"
+    url: `${heroBase}gallery-home-3.jpg`,
+    label: "Arte em Destaque"
   }
 ];
 
