@@ -52,9 +52,6 @@ export default function RotatingCategoryCard({ category, linkTo, coverImages = [
               />
             </AnimatePresence>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-            <div className="absolute top-3 left-3">
-              <span className="text-[10px] uppercase tracking-[0.25em] border border-gold/60 text-gold px-2 py-1 bg-black/60">Capa</span>
-            </div>
           </>
         ) : (
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(199,161,90,0.18),_rgba(0,0,0,0.95)_60%)] flex flex-col items-center justify-center">
