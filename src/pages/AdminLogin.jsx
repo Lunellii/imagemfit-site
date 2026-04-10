@@ -4,6 +4,7 @@ import { Loader2, Lock, ShieldAlert } from "lucide-react";
 import { localClient } from "@/api/localClient";
 
 const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
+const ADMIN_BASE_PATH = "/admingustavoif";
 
 const getErrorMessage = (error) => {
   if (error?.message === "ADMIN_DISABLED_PUBLIC") {
@@ -41,7 +42,7 @@ export default function AdminLogin() {
   const adminEnabled = localClient.auth.isAdminEnabled();
 
   const finishLogin = useCallback(() => {
-    const target = location.state?.from?.pathname || "/admin";
+    const target = location.state?.from?.pathname || ADMIN_BASE_PATH;
     navigate(target, { replace: true });
   }, [location.state, navigate]);
 
