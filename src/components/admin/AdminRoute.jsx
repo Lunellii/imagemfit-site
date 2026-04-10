@@ -3,6 +3,8 @@ import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { localClient } from "@/api/localClient";
 
+const ADMIN_BASE_PATH = "/admingustavoif";
+
 export default function AdminRoute({ children }) {
   const location = useLocation();
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -47,7 +49,7 @@ export default function AdminRoute({ children }) {
     if (!localClient.auth.isAdminEnabled()) {
       return <Navigate to="/" replace />;
     }
-    return <Navigate to="/admin/login" replace state={{ from: location }} />;
+    return <Navigate to={`${ADMIN_BASE_PATH}/login`} replace state={{ from: location }} />;
   }
 
   return children;
