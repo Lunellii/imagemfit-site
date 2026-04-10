@@ -2,12 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Shield } from "lucide-react";
 import { localClient } from "@/api/localClient";
 
+const ADMIN_LOGIN_PATH = "/admingustavoif/login";
+
 export default function AdminLayout({ children }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localClient.auth.logout();
-    navigate("/admin/login", { replace: true });
+    navigate(ADMIN_LOGIN_PATH, { replace: true });
   };
 
   return (
