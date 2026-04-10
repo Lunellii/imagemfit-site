@@ -29,7 +29,7 @@ export default function HeroSlideshow() {
   }, []);
 
   return (
-    <section className="relative h-screen min-h-[600px] overflow-hidden bg-black">
+    <section className="relative h-screen min-h-[600px] overflow-hidden">
       <AnimatePresence mode="sync">
         <motion.div
           key={current}
@@ -39,7 +39,7 @@ export default function HeroSlideshow() {
           transition={{ duration: 1.2, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <img src={SLIDES[current].url} alt={SLIDES[current].label} className="w-full h-full object-contain md:object-cover object-center" />
+          <img src={SLIDES[current].url} alt={SLIDES[current].label} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80" />
         </motion.div>
       </AnimatePresence>
