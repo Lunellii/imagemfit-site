@@ -1,31 +1,24 @@
-﻿import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Loader2, Lock, ShieldAlert } from "lucide-react";
 import { localClient } from "@/api/localClient";
 
-const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
 const ADMIN_BASE_PATH = "/admingustavoif";
 
 const getErrorMessage = (error) => {
   if (error?.message === "ADMIN_DISABLED_PUBLIC") {
     return "Painel admin desativado no site público por segurança.";
   }
-  if (error?.message === "LOCAL_PASSWORD_DISABLED") {
-    return "Login por senha foi desativado por segurança. Use login Google.";
+  if (error?.message === "ADMIN_CREDENTIALS_NOT_CONFIGURED") {
+    return "Credenciais de admin não configuradas.";
+  }
+  if (error?.message === "INVALID_ADMIN_CREDENTIALS") {
+    return "Email ou senha inválidos.";
   }
   if (error?.message === "LOGIN_RATE_LIMITED") {
     const retrySeconds = Math.max(1, Number(error?.retry_after_seconds || 0));
     const retryMinutes = Math.ceil(retrySeconds / 60);
     return `Muitas tentativas de login. Tente novamente em ${retryMinutes} minuto(s).`;
-  }
-  if (error?.message === "GOOGLE_NOT_CONFIGURED") {
-    return "Login Google não configurado. Defina VITE_GOOGLE_CLIENT_ID no arquivo .env.";
-  }
-  if (error?.message === "INVALID_GOOGLE_CREDENTIAL") {
-    return "Não foi possível validar sua conta Google.";
-  }
-  if (error?.message === "GOOGLE_CLIENT_ID_MISMATCH") {
-    return "Configuração do Google inválida para este site.";
   }
   return "Não foi possível entrar agora. Tente novamente.";
 };
@@ -33,39 +26,17 @@ const getErrorMessage = (error) => {
 export default function AdminLogin() {
   const navigate = useNavigate();
   const location = useLocation();
-  const googleButtonRef = useRef(null);
 
-  const [googleLoading, setGoogleLoading] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [submitting, setSubmitting] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [error, setError] = useState("");
-  const [googleAvailable, setGoogleAvailable] = useState(Boolean(GOOGLE_CLIENT_ID) && localClient.auth.isAdminEnabled());
   const adminEnabled = localClient.auth.isAdminEnabled();
 
   const finishLogin = useCallback(() => {
     const target = location.state?.from?.pathname || ADMIN_BASE_PATH;
     navigate(target, { replace: true });
   }, [location.state, navigate]);
-
-  const handleGoogleCredential = useCallback(
-    async (credential) => {
-      if (!credential) {
-        setError("Não foi possível validar sua conta Google.");
-        return;
-      }
-
-      setGoogleLoading(true);
-      setError("");
-      try {
-        await localClient.auth.loginWithGoogleCredential({ credential });
-        finishLogin();
-      } catch (err) {
-        setError(getErrorMessage(err));
-      } finally {
-        setGoogleLoading(false);
-      }
-    },
-    [finishLogin]
-  );
 
   useEffect(() => {
     localClient.auth
@@ -82,70 +53,21 @@ export default function AdminLogin() {
       });
   }, [finishLogin]);
 
-  useEffect(() => {
-    if (!adminEnabled || !GOOGLE_CLIENT_ID || checkingSession) return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!adminEnabled || submitting) return;
 
-    let disposed = false;
-
-    const setupGoogle = () => {
-      if (disposed) return;
-      if (!window.google?.accounts?.id || !googleButtonRef.current) {
-        setGoogleAvailable(false);
-        return;
-      }
-
-      try {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: (response) => handleGoogleCredential(response?.credential)
-        });
-
-        googleButtonRef.current.innerHTML = "";
-        window.google.accounts.id.renderButton(googleButtonRef.current, {
-          type: "standard",
-          theme: "outline",
-          size: "large",
-          text: "continue_with",
-          shape: "rectangular",
-          width: 320,
-          logo_alignment: "left"
-        });
-
-        setGoogleAvailable(true);
-      } catch (_err) {
-        setGoogleAvailable(false);
-      }
-    };
-
-    if (window.google?.accounts?.id) {
-      setupGoogle();
-      return () => {
-        disposed = true;
-      };
+    setSubmitting(true);
+    setError("");
+    try {
+      await localClient.auth.login({ email: form.email, password: form.password });
+      finishLogin();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSubmitting(false);
     }
-
-    let script = document.querySelector('script[data-google-gsi="true"]');
-    if (!script) {
-      script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.dataset.googleGsi = "true";
-      document.head.appendChild(script);
-    }
-
-    const onLoad = () => setupGoogle();
-    const onError = () => setGoogleAvailable(false);
-
-    script.addEventListener("load", onLoad);
-    script.addEventListener("error", onError);
-
-    return () => {
-      disposed = true;
-      script.removeEventListener("load", onLoad);
-      script.removeEventListener("error", onError);
-    };
-  }, [adminEnabled, checkingSession, handleGoogleCredential]);
+  };
 
   if (checkingSession) {
     return (
@@ -161,38 +83,56 @@ export default function AdminLogin() {
         <div className="text-center mb-8">
           <Lock className="w-6 h-6 text-gold mx-auto mb-3" />
           <h1 className="font-heading text-3xl text-white mb-2">Acesso Admin</h1>
-          <p className="text-white/60 text-sm">
-            {adminEnabled ? "Entre com Google para acessar o painel." : "O acesso admin está desativado neste ambiente público."}
-          </p>
+          <p className="text-white/60 text-sm">{adminEnabled ? "Entre com email e senha para acessar o painel." : "O acesso admin está desativado neste ambiente público."}</p>
         </div>
 
-        <div className="space-y-3 mb-6">
-          {googleAvailable && adminEnabled ? (
-            <>
-              <div className="min-h-[44px] flex items-center justify-center" ref={googleButtonRef} />
-              {googleLoading ? (
-                <div className="flex items-center justify-center gap-2 text-xs text-white/60">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Validando conta Google...
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <p className="text-xs text-white/50 text-center">
-              {adminEnabled ? "Configure `VITE_GOOGLE_CLIENT_ID` para ativar o login com Google." : "Admin desativado no site público."}
-            </p>
-          )}
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+          <div className="space-y-1.5">
+            <label className="text-white/50 text-xs tracking-[0.2em] uppercase">Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm((current) => ({ ...current, email: e.target.value }))}
+              autoComplete="username"
+              className="w-full bg-card border border-border text-white placeholder-white/30 px-4 py-3.5 text-sm outline-none focus:border-gold transition-colors"
+              placeholder="seu@email.com"
+              disabled={!adminEnabled || submitting}
+              required
+            />
+          </div>
 
-        <div className="space-y-4">
-          {error ? (
-            <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 p-3">
-              <ShieldAlert className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
-              <p className="text-xs text-destructive/90">{error}</p>
-            </div>
-          ) : null}
-        </div>
+          <div className="space-y-1.5">
+            <label className="text-white/50 text-xs tracking-[0.2em] uppercase">Senha</label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm((current) => ({ ...current, password: e.target.value }))}
+              autoComplete="current-password"
+              className="w-full bg-card border border-border text-white placeholder-white/30 px-4 py-3.5 text-sm outline-none focus:border-gold transition-colors"
+              placeholder="Sua senha"
+              disabled={!adminEnabled || submitting}
+              required
+            />
+          </div>
 
-        <div className="mt-6 text-center">
+          <button
+            type="submit"
+            disabled={!adminEnabled || submitting}
+            className="w-full bg-gold text-black py-4 text-xs tracking-[0.3em] uppercase font-semibold hover:bg-gold/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {submitting ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
+
+        {error ? (
+          <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 p-3 mb-6">
+            <ShieldAlert className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+            <p className="text-xs text-destructive/90">{error}</p>
+          </div>
+        ) : null}
+
+        <div className="text-center">
           <Link to="/" className="text-xs tracking-[0.2em] uppercase text-white/50 hover:text-gold transition-colors">
             Voltar ao site
           </Link>
