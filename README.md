@@ -7,21 +7,17 @@ Projeto React + Vite para catalogo de quadros com:
 - painel administrativo para criar categorias e gerenciar imagens
 - persistencia local em `localStorage`
 
-### Rodar local (modo seguro)
+### Rodar local
 1. Instale dependencias:
    - `npm install`
-2. Configure acesso admin:
+2. Configure admin:
    - copie `.env.example` para `.env`
    - ajuste `VITE_ADMIN_EMAIL` e `VITE_ADMIN_PASSWORD`
-   - para Google Login, defina `VITE_GOOGLE_CLIENT_ID` e `VITE_ADMIN_GOOGLE_EMAIL`
-3. Configure IA visual segura (server-side):
-   - copie `.env.server.example` para `.env.server`
-   - defina `OPENAI_API_KEY` e opcional `OPENAI_MODEL`
-4. Execute:
-   - `npm run dev:secure`
-5. Acesse:
-   - `http://localhost:5173/admin`
-   - `http://localhost:5173/admin/login`
+3. Execute:
+   - `npm run dev`
+4. Acesse:
+   - site: `http://localhost:5173/`
+   - admin: `http://localhost:5173/#/admingustavoif/login`
 
 ### Scripts
 - `npm run dev` - frontend Vite
@@ -30,11 +26,25 @@ Projeto React + Vite para catalogo de quadros com:
 - `npm run build`
 - `npm run preview`
 
-### Custos da API
-- uso/custos: `https://platform.openai.com/usage`
-- limites/alertas: `https://platform.openai.com/settings/organization/limits`
+### Deploy na Hostinger (GitHub)
+Use essas configuracoes no deploy:
+- Framework: `Vite`
+- Branch: `main`
+- Node: `20.x`
+- Root directory: `./`
+- Build command: `npm run build -- --base=/`
+- Output directory: `dist`
+
+Variaveis de ambiente recomendadas:
+- `VITE_ENABLE_ADMIN=true`
+- `VITE_ADMIN_EMAIL=seu-email-admin`
+- `VITE_ADMIN_PASSWORD=sua-senha-forte`
+
+### Deploy no GitHub Pages
+O workflow `.github/workflows/deploy-pages.yml` ja define `VITE_BASE_PATH=/imagemfit-site/` automaticamente para publicar em:
+- `https://lunellii.github.io/imagemfit-site/`
 
 ### Seguranca
-- a chave OpenAI fica somente no servidor local (`.env.server`), nunca no frontend
-- a API de classificacao roda em `127.0.0.1` e aplica rate limit
-- para producao, use autenticacao backend real e HTTPS
+- Nunca subir `.env` e `.env.server` para o GitHub
+- Em producao, use senha forte no admin
+- Se quiser seguranca maxima para admin, migrar login para backend com sessao/JWT (nao somente `localStorage`)
