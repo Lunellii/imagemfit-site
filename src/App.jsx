@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import { HashRouter as Router, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { queryClientInstance } from "@/lib/query-client";
 import PageNotFound from "@/lib/PageNotFound";
 import Layout from "@/components/Layout";
@@ -95,6 +95,7 @@ export default function App() {
               </AdminRoute>
             }
           />
+          <Route path="/admin/*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
       <Toaster />
