@@ -6,6 +6,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { localClient } from "@/api/localClient";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
+const ADMIN_BASE_PATH = "/admingustavoif";
 
 export default function Layout() {
   const location = useLocation();
@@ -89,9 +90,9 @@ export default function Layout() {
             ))}
             {isAdmin && (
               <Link
-                to="/admin"
+                to={ADMIN_BASE_PATH}
                 className={`text-xs font-medium tracking-[0.25em] uppercase px-4 py-1.5 border transition-colors ${
-                  location.pathname === "/admin" ? "border-gold text-gold" : "border-white/30 text-white/50 hover:border-gold hover:text-gold"
+                  location.pathname === ADMIN_BASE_PATH ? "border-gold text-gold" : "border-white/30 text-white/50 hover:border-gold hover:text-gold"
                 }`}
               >
                 Admin
@@ -123,7 +124,7 @@ export default function Layout() {
                   </Link>
                 ))}
                 {isAdmin && (
-                  <Link to="/admin" className="text-xs tracking-[0.25em] uppercase text-gold/60">
+                  <Link to={ADMIN_BASE_PATH} className="text-xs tracking-[0.25em] uppercase text-gold/60">
                     Admin
                   </Link>
                 )}
