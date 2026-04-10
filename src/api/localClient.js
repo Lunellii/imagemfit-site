@@ -10,7 +10,10 @@ const IMAGE_ASSET_MIGRATION_KEY = "ifq_image_assets_migrated_v1";
 const ADMIN_SESSION_KEY = "ifq_admin_session";
 
 const ADMIN_SESSION_TTL_MS = 1000 * 60 * 60 * 6;
-const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
+const ADMIN_EMAIL = String(import.meta.env.VITE_ADMIN_EMAIL || "")
+  .trim()
+  .toLowerCase();
+const ADMIN_PASSWORD = String(import.meta.env.VITE_ADMIN_PASSWORD || "").trim();
 const ADMIN_FORCE_ENABLE = String(import.meta.env.VITE_ENABLE_ADMIN || "")
   .trim()
   .toLowerCase() === "true";
@@ -18,7 +21,6 @@ const ADMIN_LOGIN_RATE_LIMIT_KEY = "ifq_admin_login_rate_limit_v1";
 const ADMIN_MAX_FAILED_ATTEMPTS = 5;
 const ADMIN_ATTEMPT_WINDOW_MS = 1000 * 60 * 15;
 const ADMIN_LOCKOUT_MS = 1000 * 60 * 15;
-const ADMIN_LOGIN_FAILURE_CODES = new Set(["INVALID_GOOGLE_CREDENTIAL", "GOOGLE_CLIENT_ID_MISMATCH"]);
 const ADMIN_DISABLED_ERROR = "ADMIN_DISABLED_PUBLIC";
 
 const MAX_UPLOAD_DIMENSION = 1600;
@@ -974,52 +976,43 @@ export const localClient = {
   },
   auth: {
     async loginWithGoogleCredential({ credential }) {
-      assertAdminLoginAllowed();
-
-      if (!GOOGLE_CLIENT_ID) {
-        throw new Error("GOOGLE_NOT_CONFIGURED");
-      }
-
-      try {
-        const payload = parseGoogleCredential(credential);
-        const normalizedEmail = String(payload?.email || "").trim().toLowerCase();
-        const emailVerified = payload?.email_verified === true;
-
-        if (!normalizedEmail || !emailVerified) {
-          throw new Error("INVALID_GOOGLE_CREDENTIAL");
-        }
-
-        if (payload?.aud && payload.aud !== GOOGLE_CLIENT_ID) {
-          throw new Error("GOOGLE_CLIENT_ID_MISMATCH");
-        }
-
-        const session = createAdminSession({
-          id: String(payload?.sub || "google-admin"),
-          name: payload?.name || "Admin",
-          email: normalizedEmail,
-          provider: "google"
-        });
-
-        writeJson(ADMIN_SESSION_KEY, session);
-        clearAdminLoginRateLimit();
-
-        return {
-          id: session.id,
-          role: session.role,
-          name: session.name,
-          email: session.email
-        };
-      } catch (error) {
-        if (ADMIN_LOGIN_FAILURE_CODES.has(error?.message)) {
-          const lockError = registerAdminLoginFailure();
-          if (lockError) throw lockError;
-        }
-        throw error;
-      }
+      void credential;
+      throw new Error("GOOGLE_LOGIN_DISABLED");
     },
     async login({ email, password }) {
-      assertAdminEnabled();
-      throw new Error("LOCAL_PASSWORD_DISABLED");
+      assertAdminLoginAllowed();
+
+      if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+        throw new Error("ADMIN_CREDENTIALS_NOT_CONFIGURED");
+      }
+
+      const normalizedEmail = String(email || "")
+        .trim()
+        .toLowerCase();
+      const normalizedPassword = String(password || "").trim();
+
+      if (normalizedEmail !== ADMIN_EMAIL || normalizedPassword !== ADMIN_PASSWORD) {
+        const lockError = registerAdminLoginFailure();
+        if (lockError) throw lockError;
+        throw new Error("INVALID_ADMIN_CREDENTIALS");
+      }
+
+      const session = createAdminSession({
+        id: "local-admin",
+        name: "Admin",
+        email: ADMIN_EMAIL,
+        provider: "local"
+      });
+
+      writeJson(ADMIN_SESSION_KEY, session);
+      clearAdminLoginRateLimit();
+
+      return {
+        id: session.id,
+        role: session.role,
+        name: session.name,
+        email: session.email
+      };
     },
     async me() {
       if (!isAdminEnabled()) return null;
