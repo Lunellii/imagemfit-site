@@ -17,12 +17,13 @@ import AdminRoute from "@/components/admin/AdminRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 const PROTECTED_MEDIA_SELECTOR = "img,[data-protected-image='true']";
+const ADMIN_BASE_PATH = "/admingustavoif";
 
 function MediaProtection() {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname.startsWith("/admin")) {
+    if (location.pathname.startsWith(ADMIN_BASE_PATH)) {
       return undefined;
     }
 
@@ -83,9 +84,9 @@ export default function App() {
             <Route path="/contato" element={<Contact />} />
             <Route path="*" element={<PageNotFound />} />
           </Route>
-          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path={`${ADMIN_BASE_PATH}/login`} element={<AdminLogin />} />
           <Route
-            path="/admin"
+            path={ADMIN_BASE_PATH}
             element={
               <AdminRoute>
                 <AdminLayout>
