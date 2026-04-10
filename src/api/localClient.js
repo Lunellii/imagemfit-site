@@ -1040,7 +1040,7 @@ export const localClient = {
     },
     redirectToLogin() {
       if (typeof window !== "undefined") {
-        window.location.assign("/#/admin/login");
+        window.location.assign("/#/admingustavoif/login");
       }
     }
   }
