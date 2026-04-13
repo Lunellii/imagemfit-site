@@ -1,4 +1,4 @@
-import http from "node:http";
+﻿import http from "node:http";
 import crypto from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
@@ -43,6 +43,48 @@ const normalizeCategoryName = (value) =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
+
+const REQUIRED_CATEGORIES = [
+  { name: "Abstrato Arquitetonico", description: "Composicoes abstratas com linhas e formas inspiradas na arquitetura." },
+  { name: "Abstrato Fluido e Marmore", description: "Arte abstrata com movimento fluido e estetica de marmore." },
+  { name: "Abstrato Geometrico", description: "Formas geometricas e equilibrio visual para ambientes modernos." },
+  { name: "Abstrato Minimalista", description: "Pecas com estetica limpa, elegante e minimalista." },
+  { name: "Abstrato Pintura e Aquarela", description: "Abstratos com pinceladas expressivas e leveza de aquarela." },
+  { name: "Animais", description: "Temas de fauna para dar personalidade e vida a decoracao." },
+  { name: "Arvores", description: "Obras com arvores e elementos naturais para ambientes acolhedores." },
+  { name: "Cozinha", description: "Quadros pensados para cozinhas e espacos gourmet." },
+  { name: "Diversos", description: "Selecao variada de estilos e temas para todos os gostos." },
+  { name: "Espelhos", description: "Pecas com espelhos para ampliar e valorizar o ambiente." },
+  { name: "Espiritualidade", description: "Temas de fe, energia e espiritualidade para ambientes de paz." },
+  { name: "Flores e Folhas", description: "Composicoes botanicas com delicadeza e frescor natural." },
+  { name: "Frases", description: "Quadros com frases inspiradoras e mensagens decorativas." },
+  { name: "Infantil", description: "Arte ludica e delicada para quartos e espacos infantis." },
+  { name: "Mar e Praia", description: "Paisagens maritimas e clima praiano para ambientes leves." },
+  { name: "Natureza", description: "Paisagens e elementos naturais para ambientes leves." },
+  { name: "Pinturas Manuais", description: "Obras autorais com toque artesanal e acabamento exclusivo." },
+  { name: "Ponte", description: "Tematica de pontes e arquitetura urbana em diferentes estilos." },
+  { name: "Tridimensional", description: "Pecas com profundidade, relevo e textura para destaque visual." },
+  { name: "Urbano", description: "Referencias de cidade, arquitetura e estilo contemporaneo." },
+  { name: "Vida", description: "Obras que celebram movimento, cotidiano e expressoes da vida." }
+];
+
+const CATEGORY_DESCRIPTION_ALIASES = {
+  pontes: "ponte",
+  "pintura manual": "pinturas manuais",
+  tridmensional: "tridimensional"
+};
+
+const requiredDescriptionByName = new Map(REQUIRED_CATEGORIES.map((category) => [normalizeCategoryName(category.name), category.description]));
+const hasBrokenEncoding = (value) => /Ã|Â|\uFFFD/.test(String(value || ""));
+
+const resolveCategoryDescription = (categoryName) => {
+  const normalizedName = normalizeCategoryName(categoryName);
+  if (!normalizedName) return "";
+  const canonical = CATEGORY_DESCRIPTION_ALIASES[normalizedName] || normalizedName;
+  const requiredDescription = requiredDescriptionByName.get(canonical);
+  if (requiredDescription) return requiredDescription;
+  return `Colecao ${String(categoryName || "").trim()} com curadoria para compor ambientes com estilo.`;
+};
 
 const MIME = {
   ".avif": "image/avif",
@@ -266,11 +308,50 @@ const bootstrap = async () => {
     db.categories = names.map((name, index) => ({
       id: uid(),
       name,
-      description: `Coleção ${name} com curadoria para compor ambientes com estilo.`,
+      description: resolveCategoryDescription(name),
       cover_enabled: true,
       order: index,
       created_date: nowIso()
     }));
+  }
+  {
+    const seen = new Set();
+    const normalizedCategories = [];
+
+    for (const raw of db.categories) {
+      const name = String(raw?.name || "").trim();
+      const key = normalizeCategoryName(name);
+      if (!name || !key || seen.has(key)) continue;
+      seen.add(key);
+
+      const currentDescription = String(raw?.description || "").trim();
+      normalizedCategories.push({
+        id: String(raw?.id || uid()),
+        name,
+        description: currentDescription && !hasBrokenEncoding(currentDescription) ? currentDescription : resolveCategoryDescription(name),
+        cover_enabled: typeof raw?.cover_enabled === "boolean" ? raw.cover_enabled : true,
+        order: Number.isFinite(Number(raw?.order)) ? Number(raw.order) : normalizedCategories.length,
+        created_date: String(raw?.created_date || nowIso())
+      });
+    }
+
+    for (const requiredCategory of REQUIRED_CATEGORIES) {
+      const key = normalizeCategoryName(requiredCategory.name);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      normalizedCategories.push({
+        id: uid(),
+        name: requiredCategory.name,
+        description: requiredCategory.description,
+        cover_enabled: true,
+        order: normalizedCategories.length,
+        created_date: nowIso()
+      });
+    }
+
+    db.categories = normalizedCategories
+      .sort((a, b) => Number(a.order) - Number(b.order))
+      .map((category, index) => ({ ...category, order: index }));
   }
 
   if (!db.images.length) {
@@ -522,3 +603,4 @@ server.listen(PORT, HOST, () => {
   console.log(`[app-server] storage=${storageRoot}`);
   console.log(`[app-server] admin=${ENABLE_ADMIN ? "enabled" : "disabled"}`);
 });
+
