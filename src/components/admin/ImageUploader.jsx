@@ -17,25 +17,28 @@ function normalizeText(value) {
 }
 
 const PREFIX_ALIASES_BY_CATEGORY = {
-  "ABSTRATO ARQUITETONICO": ["ABS", "AAR", "ARQ"],
-  "ABSTRATO FLUIDO E MARMORE": ["ABS", "AFM", "FLU"],
-  "ABSTRATO GEOMETRICO": ["ABS", "AGE", "GEO"],
-  "ABSTRATO MINIMALISTA": ["ABS", "AMI", "MIN"],
-  "ABSTRATO PINTURA E AQUARELA": ["ABS", "APA", "AQU"],
+  "ABSTRATO ARQUITETONICO": ["ARQ", "AAR", "ABS"],
+  "ABSTRATO FLUIDO E MARMORE": ["AFM", "FLU", "ABS"],
+  "ABSTRATO GEOMETRICO": ["AGT", "AGE", "GEO", "ABS"],
+  "ABSTRATO MINIMALISTA": ["AMN", "AMI", "MIN", "ABS"],
+  "ABSTRATO PINTURA E AQUARELA": ["APA", "AQU", "ABS"],
   ANIMAIS: ["ANI"],
   ARVORES: ["ARV"],
   COZINHA: ["COZ"],
   DIVERSOS: ["DIV"],
+  "DIVERSOS.": ["DIV"],
+  ESPIRITUALIDADE: ["ESD", "ESPIR", "ESPI", "ESPU"],
   ESPELHOS: ["ESP"],
-  ESPIRITUALIDADE: ["ESPI", "ESPIR", "ESPU"],
   "FLORES E FOLHAS": ["FLO", "FOL"],
   FRASES: ["FRA"],
   INFANTIL: ["INF"],
   "MAR E PRAIA": ["MAR"],
   NATUREZA: ["NAT"],
-  "PINTURAS MANUAIS": ["PIN", "PMA"],
+  "PINTURAS MANUAIS": ["PIT", "PIN", "PMA"],
   PONTE: ["PON"],
-  TRIDIMENSIONAL: ["TRI"],
+  PONTES: ["PON"],
+  TRIDIMENSIONAL: ["TRID", "TRI"],
+  TRIDMENSIONAL: ["TRID", "TRI"],
   URBANO: ["URB"],
   VIDA: ["VID"]
 };
@@ -400,8 +403,9 @@ export default function ImageUploader({ categories, onUploaded }) {
         <div className="border border-border p-3 text-xs text-white/65 space-y-1">
           <p className="uppercase tracking-widest text-white/45">Prefixos aceitos (exemplos)</p>
           <p>
-            ANI=Animais, ARV=Arvores, NAT=Natureza, VID=Vida, URB=Urbano, PON=Ponte, PIN=Pinturas Manuais, FRA=Frases,
-            INF=Infantil, FLO/FOL=Flores e Folhas.
+            AFM=Abstrato Fluido e Marmore, AGT=Abstrato Geometrico, AMN=Abstrato Minimalista, ANI=Animais, APA=Abstrato Pintura e Aquarela,
+            ARQ=Abstrato Arquitetonico, ARV=Arvores, DIV=Diversos, ESD=Espiritualidade, ESP=Espelhos, FLO=Flores e Folhas, FRA=Frases,
+            INF=Infantil, MAR=Mar e Praia, NAT=Natureza, PIT=Pinturas Manuais, PON=Pontes, TRID=Tridimensional, URB=Urbano, VID=Vida.
           </p>
         </div>
       ) : null}
