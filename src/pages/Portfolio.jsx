@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Loader2, LayoutGrid } from "lucide-react";
 import CategoryGrid from "@/components/portfolio/CategoryGrid";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
+import { toast } from "@/components/ui/use-toast";
 
 export default function Portfolio() {
   const [categories, setCategories] = useState([]);
@@ -13,21 +14,33 @@ export default function Portfolio() {
 
   useEffect(() => {
     const load = async () => {
-      const [cats, imgs] = await Promise.all([
-        localClient.entities.Category.list("order", 100),
-        localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 20)
-      ]);
+      try {
+        const [cats, imgs] = await Promise.all([
+          localClient.entities.Category.list("order", 100),
+          localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 20)
+        ]);
 
-      const grouped = await localClient.entities.PortfolioImage.groupedByCategory(
-        "-created_date",
-        8,
-        cats.map((category) => category.id)
-      );
+        const grouped = await localClient.entities.PortfolioImage.groupedByCategory(
+          "-created_date",
+          8,
+          cats.map((category) => category.id)
+        );
 
-      setCategories([...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")));
-      setNewImages(imgs);
-      setImagesByCategory(grouped);
-      setLoading(false);
+        setCategories([...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")));
+        setNewImages(imgs);
+        setImagesByCategory(grouped);
+      } catch (_error) {
+        setCategories([]);
+        setNewImages([]);
+        setImagesByCategory({});
+        toast({
+          variant: "destructive",
+          title: "Falha ao carregar o portfólio",
+          description: "Atualize a página e tente novamente."
+        });
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
