@@ -17,7 +17,7 @@ const seedCatalogFile = path.resolve(rootDir, "src", "data", "seedCatalog.json")
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number(process.env.PORT || 3000);
 const MAX_JSON_BYTES = Number(process.env.IFQ_MAX_JSON_BYTES || 12_000_000);
-const MAX_UPLOAD_BYTES = Number(process.env.IFQ_MAX_UPLOAD_BYTES || 10_000_000);
+const MAX_UPLOAD_BYTES = Number(process.env.IFQ_MAX_UPLOAD_BYTES || 7_000_000);
 
 const ENABLE_ADMIN = String(process.env.ENABLE_ADMIN || process.env.VITE_ENABLE_ADMIN || "")
   .trim()
