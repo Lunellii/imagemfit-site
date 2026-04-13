@@ -30,7 +30,6 @@ const ADMIN_SESSION_SECRET = String(process.env.ADMIN_SESSION_SECRET || process.
 const ADMIN_SESSION_TTL_MS = Number(process.env.ADMIN_SESSION_TTL_MS || 1000 * 60 * 60 * 6);
 const ADMIN_COOKIE_NAME = "ifq_admin_token";
 
-const loginRateByIp = new Map();
 let writeQueue = Promise.resolve();
 let db = { categories: [], images: [] };
 let dbReady = false;
@@ -312,20 +311,11 @@ const server = http.createServer(async (req, res) => {
       if (!ADMIN_EMAIL || !ADMIN_PASSWORD) return sendJson(res, 500, { error: "ADMIN_CREDENTIALS_NOT_CONFIGURED" });
       const body = await readBody(req).catch((err) => ({ __error: err.message }));
       if (body.__error) return sendJson(res, body.__error === "PAYLOAD_TOO_LARGE" ? 413 : 400, { error: body.__error });
-      const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown");
-      const now = Date.now();
-      const limit = loginRateByIp.get(ip);
-      if (limit && limit.lockUntil > now) return sendJson(res, 429, { error: "LOGIN_RATE_LIMITED", retry_after_seconds: Math.ceil((limit.lockUntil - now) / 1000) });
       const email = String(body.email || "").trim().toLowerCase();
       const password = String(body.password || "").trim();
       if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-        const failed = limit && now - limit.first <= 15 * 60 * 1000 ? limit.count + 1 : 1;
-        const first = limit && now - limit.first <= 15 * 60 * 1000 ? limit.first : now;
-        const lockUntil = failed >= 5 ? now + 15 * 60 * 1000 : 0;
-        loginRateByIp.set(ip, { count: failed, first, lockUntil });
-        return sendJson(res, lockUntil ? 429 : 401, lockUntil ? { error: "LOGIN_RATE_LIMITED", retry_after_seconds: 900 } : { error: "INVALID_ADMIN_CREDENTIALS" });
+        return sendJson(res, 401, { error: "INVALID_ADMIN_CREDENTIALS" });
       }
-      loginRateByIp.delete(ip);
       const token = createToken(ADMIN_EMAIL);
       res.setHeader("Set-Cookie", cookieStr(ADMIN_COOKIE_NAME, token, { path: "/", httpOnly: true, sameSite: "Lax", secure: secureReq(req), maxAge: Math.floor(ADMIN_SESSION_TTL_MS / 1000) }));
       return sendJson(res, 200, { id: "server-admin", role: "admin", name: "Admin", email: ADMIN_EMAIL });
