@@ -43,16 +43,29 @@ export default function CategoryDetail() {
 
     const load = async () => {
       setLoading(true);
-      const [cats, pageData] = await Promise.all([
-        localClient.entities.Category.list("order", 100),
-        localClient.entities.PortfolioImage.filterPage({ category_id: id }, "-created_date", currentPage, PAGE_SIZE)
-      ]);
+      try {
+        const [cats, pageData] = await Promise.all([
+          localClient.entities.Category.list("order", 100),
+          localClient.entities.PortfolioImage.filterPage({ category_id: id }, "-created_date", currentPage, PAGE_SIZE)
+        ]);
 
-      if (!mounted) return;
-      setCategory(cats.find((c) => c.id === id) || null);
-      setImages(pageData.items || []);
-      setTotalImages(pageData.total || 0);
-      setLoading(false);
+        if (!mounted) return;
+        setCategory(cats.find((c) => c.id === id) || null);
+        setImages(pageData.items || []);
+        setTotalImages(pageData.total || 0);
+      } catch (_error) {
+        if (!mounted) return;
+        setCategory(null);
+        setImages([]);
+        setTotalImages(0);
+        toast({
+          variant: "destructive",
+          title: "Falha ao carregar a categoria",
+          description: "Atualize a página e tente novamente."
+        });
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
 
     load();
