@@ -33,6 +33,7 @@ Projeto React + Vite com painel administrativo e dois modos de armazenamento:
 No modo `server`, arquivos enviados no admin vao para:
 - imagens: `storage/uploads`
 - metadados: `storage/data/categories.json` e `storage/data/images.json`
+- uploads sao otimizados automaticamente no navegador (WebP com compressao adaptativa) para manter boa qualidade com menor peso.
 
 ### Deploy Hostinger (Web App Node.js)
 Use:
