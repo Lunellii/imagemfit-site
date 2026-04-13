@@ -1,4 +1,5 @@
 ﻿import seedCatalog from "@/data/seedCatalog.json";
+import { buildServerClient } from "@/api/serverClient";
 
 const CATEGORY_KEY = "ifq_categories";
 
@@ -930,7 +931,7 @@ const PortfolioImageEntity = {
   }
 };
 
-export const localClient = {
+const browserLocalClient = {
   entities: {
     Category: CategoryEntity,
     PortfolioImage: PortfolioImageEntity
@@ -1038,6 +1039,9 @@ export const localClient = {
     }
   }
 };
+const storageModeEnv = String(import.meta.env.VITE_STORAGE_MODE || "").trim().toLowerCase();
+const runtimeHost = typeof window !== "undefined" ? String(window.location.hostname || "").toLowerCase() : "";
+const looksLikeHostinger = runtimeHost.endsWith(".hostingersite.com") || runtimeHost === "imagemfit.com.br" || runtimeHost.endsWith(".imagemfit.com.br");
+const useServerStorage = storageModeEnv === "server" || (storageModeEnv !== "local" && looksLikeHostinger);
 
-
-
+export const localClient = useServerStorage ? buildServerClient({ fallbackClient: browserLocalClient }) : browserLocalClient;
