@@ -13,16 +13,21 @@ export default function HomeCategoriesSection() {
 
   useEffect(() => {
     const load = async () => {
-      const cats = await localClient.entities.Category.list("order", 8);
-      const sorted = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
-      const grouped = await localClient.entities.PortfolioImage.groupedByCategory(
-        "-created_date",
-        8,
-        sorted.map((category) => category.id)
-      );
+      try {
+        const cats = await localClient.entities.Category.list("order", 8);
+        const sorted = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+        const grouped = await localClient.entities.PortfolioImage.groupedByCategory(
+          "-created_date",
+          8,
+          sorted.map((category) => category.id)
+        );
 
-      setCategories(sorted);
-      setImagesByCategory(grouped);
+        setCategories(sorted);
+        setImagesByCategory(grouped);
+      } catch (_error) {
+        setCategories([]);
+        setImagesByCategory({});
+      }
     };
 
     load();
