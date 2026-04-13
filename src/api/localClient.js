@@ -25,7 +25,10 @@ const ADMIN_LOCKOUT_MS = 1000 * 60 * 15;
 const ADMIN_DISABLED_ERROR = "ADMIN_DISABLED_PUBLIC";
 
 const MAX_UPLOAD_DIMENSION = 1600;
-const UPLOAD_WEBP_QUALITY = 0.82;
+const UPLOAD_DIMENSION_LARGE = 1440;
+const UPLOAD_DIMENSION_XLARGE = 1280;
+const UPLOAD_TARGET_BYTES = 850_000;
+const UPLOAD_WEBP_QUALITY_STEPS = [0.82, 0.76, 0.7, 0.64];
 
 const IMAGE_ASSET_PREFIX = "ifq-asset://";
 const IMAGE_ASSET_DB_NAME = "ifq_assets";
@@ -521,6 +524,13 @@ const loadImageElement = (dataUrl) =>
     image.src = dataUrl;
   });
 
+const estimateDataUrlBytes = (dataUrl) => {
+  const data = String(dataUrl || "");
+  const commaIndex = data.indexOf(",");
+  if (commaIndex < 0) return data.length;
+  return Math.ceil(((data.length - commaIndex - 1) * 3) / 4);
+};
+
 const optimizeImageDataUrl = async (file, originalDataUrl) => {
   const mimeType = String(file?.type || "").toLowerCase();
   if (!mimeType.startsWith("image/")) return originalDataUrl;
@@ -528,7 +538,16 @@ const optimizeImageDataUrl = async (file, originalDataUrl) => {
 
   try {
     const image = await loadImageElement(originalDataUrl);
-    const ratio = Math.min(1, MAX_UPLOAD_DIMENSION / Math.max(image.width, 1), MAX_UPLOAD_DIMENSION / Math.max(image.height, 1));
+    const pixelArea = Math.max(1, image.width * image.height);
+    const originalFileBytes = Number(file?.size || 0);
+    let maxDimension = MAX_UPLOAD_DIMENSION;
+    if (pixelArea >= 4_000_000 || originalFileBytes >= 4_000_000) {
+      maxDimension = UPLOAD_DIMENSION_XLARGE;
+    } else if (pixelArea >= 2_500_000 || originalFileBytes >= 2_000_000) {
+      maxDimension = UPLOAD_DIMENSION_LARGE;
+    }
+
+    const ratio = Math.min(1, maxDimension / Math.max(image.width, 1), maxDimension / Math.max(image.height, 1));
     const targetWidth = Math.max(1, Math.round(image.width * ratio));
     const targetHeight = Math.max(1, Math.round(image.height * ratio));
 
@@ -540,9 +559,26 @@ const optimizeImageDataUrl = async (file, originalDataUrl) => {
     if (!context) return originalDataUrl;
     context.drawImage(image, 0, 0, targetWidth, targetHeight);
 
-    const compressedDataUrl = canvas.toDataURL("image/webp", UPLOAD_WEBP_QUALITY);
-    if (typeof compressedDataUrl !== "string" || compressedDataUrl.length === 0) return originalDataUrl;
-    return compressedDataUrl.length < originalDataUrl.length ? compressedDataUrl : originalDataUrl;
+    let bestCandidate = "";
+    let bestCandidateBytes = Number.POSITIVE_INFINITY;
+
+    for (const quality of UPLOAD_WEBP_QUALITY_STEPS) {
+      const candidate = canvas.toDataURL("image/webp", quality);
+      if (typeof candidate !== "string" || candidate.length === 0) continue;
+      const candidateBytes = estimateDataUrlBytes(candidate);
+      if (candidateBytes < bestCandidateBytes) {
+        bestCandidate = candidate;
+        bestCandidateBytes = candidateBytes;
+      }
+      if (candidateBytes <= UPLOAD_TARGET_BYTES) {
+        bestCandidate = candidate;
+        bestCandidateBytes = candidateBytes;
+        break;
+      }
+    }
+
+    if (!bestCandidate) return originalDataUrl;
+    return bestCandidateBytes < estimateDataUrlBytes(originalDataUrl) ? bestCandidate : originalDataUrl;
   } catch (_error) {
     return originalDataUrl;
   }
