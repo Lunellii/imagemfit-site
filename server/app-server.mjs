@@ -352,12 +352,12 @@ const server = http.createServer(async (req, res) => {
     }
 
     const session = getAdminSession(req);
+    const isGroupedImagesRead = req.method === "POST" && pathname === "/api/images/grouped";
     const adminRequired =
-      req.method !== "GET" &&
-      (pathname.startsWith("/api/categories") ||
-        pathname.startsWith("/api/images") ||
-        pathname === "/api/uploads/base64" ||
-        pathname === "/api/classify-category");
+      (pathname.startsWith("/api/categories") && req.method !== "GET") ||
+      (pathname.startsWith("/api/images") && req.method !== "GET" && !isGroupedImagesRead) ||
+      pathname === "/api/uploads/base64" ||
+      pathname === "/api/classify-category";
     if (adminRequired) {
       if (!ENABLE_ADMIN) return sendJson(res, 403, { error: "ADMIN_DISABLED_PUBLIC" });
       if (!session) return sendJson(res, 401, { error: "UNAUTHORIZED" });
