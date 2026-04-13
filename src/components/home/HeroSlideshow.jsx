@@ -28,19 +28,34 @@ export default function HeroSlideshow() {
     return () => clearInterval(t);
   }, []);
 
+  useEffect(() => {
+    SLIDES.forEach((slide) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = slide.url;
+    });
+  }, []);
+
   return (
     <section className="relative h-screen min-h-[600px] overflow-hidden">
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="wait">
         <motion.div
           key={current}
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
+          transition={{ duration: 0.9, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <img src={SLIDES[current].url} alt={SLIDES[current].label} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80" />
+          <img
+            src={SLIDES[current].url}
+            alt={SLIDES[current].label}
+            loading={current === 0 ? "eager" : "lazy"}
+            fetchPriority={current === 0 ? "high" : "auto"}
+            decoding={current === 0 ? "sync" : "async"}
+            className="w-full h-full object-cover [image-rendering:auto]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/45 to-black/78" />
         </motion.div>
       </AnimatePresence>
 
