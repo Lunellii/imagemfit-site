@@ -1,11 +1,17 @@
 .env
 .env.*
 .env.local
+!.env.example
+!.env.server.example
+!.env.hostinger.example
 
 node_modules
 dist
 dist-ssr
 .vite
+storage/uploads
+storage/data
+!storage/data/.gitkeep
 
 logs
 *.log
