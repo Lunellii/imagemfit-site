@@ -172,36 +172,10 @@ const clearAdminLoginRateLimit = () => {
 
 const assertAdminLoginAllowed = () => {
   assertAdminEnabled();
-  const rateLimit = readAdminLoginRateLimit();
-  const lockUntilMs = Date.parse(rateLimit.lock_until || "");
-  if (Number.isFinite(lockUntilMs) && lockUntilMs > Date.now()) {
-    throw createLoginRateLimitError(lockUntilMs - Date.now());
-  }
 };
 
 const registerAdminLoginFailure = () => {
-  const now = Date.now();
-  const current = readAdminLoginRateLimit();
-  const firstFailedMs = Date.parse(current.first_failed_at || "");
-  const insideWindow = Number.isFinite(firstFailedMs) && firstFailedMs > 0 && now - firstFailedMs <= ADMIN_ATTEMPT_WINDOW_MS;
-  const failedAttempts = (insideWindow ? Number(current.failed_attempts || 0) : 0) + 1;
-  const nextFirstFailedAt = insideWindow ? new Date(firstFailedMs).toISOString() : new Date(now).toISOString();
-
-  if (failedAttempts >= ADMIN_MAX_FAILED_ATTEMPTS) {
-    const lockUntil = new Date(now + ADMIN_LOCKOUT_MS).toISOString();
-    writeJson(ADMIN_LOGIN_RATE_LIMIT_KEY, {
-      failed_attempts: failedAttempts,
-      first_failed_at: nextFirstFailedAt,
-      lock_until: lockUntil
-    });
-    return createLoginRateLimitError(ADMIN_LOCKOUT_MS);
-  }
-
-  writeJson(ADMIN_LOGIN_RATE_LIMIT_KEY, {
-    failed_attempts: failedAttempts,
-    first_failed_at: nextFirstFailedAt,
-    lock_until: ""
-  });
+  clearAdminLoginRateLimit();
   return null;
 };
 
