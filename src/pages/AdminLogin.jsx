@@ -15,11 +15,6 @@ const getErrorMessage = (error) => {
   if (error?.message === "INVALID_ADMIN_CREDENTIALS") {
     return "Email ou senha inválidos.";
   }
-  if (error?.message === "LOGIN_RATE_LIMITED") {
-    const retrySeconds = Math.max(1, Number(error?.retry_after_seconds || 0));
-    const retryMinutes = Math.ceil(retrySeconds / 60);
-    return `Muitas tentativas de login. Tente novamente em ${retryMinutes} minuto(s).`;
-  }
   return "Não foi possível entrar agora. Tente novamente.";
 };
 
