@@ -1,0 +1,216 @@
+const ADMIN_BASE_PATH = "/admingustavoif";
+
+const MAX_UPLOAD_DIMENSION = 1600;
+const UPLOAD_WEBP_QUALITY = 0.82;
+
+const toDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+
+const loadImageElement = (dataUrl) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("IMAGE_DECODE_FAILED"));
+    image.src = dataUrl;
+  });
+
+const optimizeImageDataUrl = async (file, originalDataUrl) => {
+  const mimeType = String(file?.type || "").toLowerCase();
+  if (!mimeType.startsWith("image/")) return originalDataUrl;
+  if (mimeType.includes("svg") || mimeType.includes("gif")) return originalDataUrl;
+
+  try {
+    const image = await loadImageElement(originalDataUrl);
+    const ratio = Math.min(1, MAX_UPLOAD_DIMENSION / Math.max(image.width, 1), MAX_UPLOAD_DIMENSION / Math.max(image.height, 1));
+    const targetWidth = Math.max(1, Math.round(image.width * ratio));
+    const targetHeight = Math.max(1, Math.round(image.height * ratio));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+
+    const context = canvas.getContext("2d");
+    if (!context) return originalDataUrl;
+    context.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+    const compressedDataUrl = canvas.toDataURL("image/webp", UPLOAD_WEBP_QUALITY);
+    if (typeof compressedDataUrl !== "string" || compressedDataUrl.length === 0) return originalDataUrl;
+    return compressedDataUrl.length < originalDataUrl.length ? compressedDataUrl : originalDataUrl;
+  } catch (_error) {
+    return originalDataUrl;
+  }
+};
+
+const withQuery = (path, params = {}) => {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === "") continue;
+    search.set(key, String(value));
+  }
+  const query = search.toString();
+  return query ? `${path}?${query}` : path;
+};
+
+const parseJsonResponse = async (response) => {
+  const text = await response.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch (_err) {
+    return null;
+  }
+};
+
+const apiRequest = async (path, { method = "GET", body } = {}) => {
+  const response = await fetch(path, {
+    method,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined
+  });
+
+  const payload = await parseJsonResponse(response);
+  if (!response.ok) {
+    const error = new Error(payload?.error || `HTTP_${response.status}`);
+    error.status = response.status;
+    if (payload && typeof payload === "object") {
+      Object.assign(error, payload);
+    }
+    throw error;
+  }
+  return payload;
+};
+
+const normalizeImageCode = (value) => String(value || "").trim().replace(/^#+/, "").toUpperCase();
+
+export function buildServerClient({ fallbackClient }) {
+  return {
+    entities: {
+      Category: {
+        async list(sort = "order", limit = 100) {
+          return apiRequest(withQuery("/api/categories", { sort, limit }));
+        },
+        async create(payload) {
+          return apiRequest("/api/categories", { method: "POST", body: payload });
+        },
+        async update(id, payload) {
+          return apiRequest(`/api/categories/${id}`, { method: "PATCH", body: payload });
+        },
+        async delete(id) {
+          return apiRequest(`/api/categories/${id}`, { method: "DELETE" });
+        }
+      },
+      PortfolioImage: {
+        async list(sort = "-created_date", limit = 100) {
+          return apiRequest(withQuery("/api/images", { sort, limit }));
+        },
+        async filter(filters = {}, sort = "-created_date", limit = 100) {
+          return apiRequest(withQuery("/api/images", { ...filters, sort, limit }));
+        },
+        async filterPage(filters = {}, sort = "-created_date", page = 1, pageSize = 35) {
+          return apiRequest(withQuery("/api/images", { ...filters, sort, page, page_size: pageSize }));
+        },
+        async groupedByCategory(sort = "-created_date", limitPerCategory = 8, categoryIds = []) {
+          return apiRequest("/api/images/grouped", {
+            method: "POST",
+            body: {
+              sort,
+              limit_per_category: limitPerCategory,
+              category_ids: categoryIds
+            }
+          });
+        },
+        async create(payload) {
+          const normalizedCode = normalizeImageCode(payload.code || payload.title);
+          if (!normalizedCode) throw new Error("INVALID_IMAGE_CODE");
+          return apiRequest("/api/images", {
+            method: "POST",
+            body: {
+              ...payload,
+              code: normalizedCode,
+              title: payload.title || normalizedCode
+            }
+          });
+        },
+        async delete(id) {
+          return apiRequest(`/api/images/${id}`, { method: "DELETE" });
+        }
+      }
+    },
+    integrations: {
+      Core: {
+        async UploadFile({ file }) {
+          const originalDataUrl = await toDataUrl(file);
+          const optimized = await optimizeImageDataUrl(file, originalDataUrl);
+          return apiRequest("/api/uploads/base64", {
+            method: "POST",
+            body: {
+              data_url: optimized,
+              file_name: file?.name || "imagem"
+            }
+          });
+        },
+        async ClassifyImageCategory({ image_data_url, focus_image_data_url, file_name, categories }) {
+          return apiRequest("/api/classify-category", {
+            method: "POST",
+            body: {
+              image_data_url,
+              focus_image_data_url,
+              file_name,
+              categories
+            }
+          });
+        },
+        async SendEmail(payload) {
+          return fallbackClient.integrations.Core.SendEmail(payload);
+        }
+      }
+    },
+    auth: {
+      async loginWithGoogleCredential({ credential }) {
+        void credential;
+        throw new Error("GOOGLE_LOGIN_DISABLED");
+      },
+      async login({ email, password }) {
+        return apiRequest("/api/admin/login", {
+          method: "POST",
+          body: { email, password }
+        });
+      },
+      async me() {
+        try {
+          return await apiRequest("/api/admin/me");
+        } catch (error) {
+          if (error?.status === 401 || error?.status === 403) return null;
+          throw error;
+        }
+      },
+      async logout() {
+        try {
+          await apiRequest("/api/admin/logout", { method: "POST", body: {} });
+        } catch (_err) {
+          // ignore logout network errors
+        }
+      },
+      isAdminEnabled() {
+        const envValue = String(import.meta.env.VITE_ENABLE_ADMIN || "").trim().toLowerCase();
+        if (envValue === "true") return true;
+        if (envValue === "false") return false;
+        return true;
+      },
+      redirectToLogin() {
+        if (typeof window !== "undefined") {
+          window.location.assign(`/#${ADMIN_BASE_PATH}/login`);
+        }
+      }
+    }
+  };
+}
+
