@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "node ./node_modules/vite/bin/vite.js",
     "dev:api": "node server/ai-classifier.mjs",
+    "dev:app": "node server/app-server.mjs",
     "dev:secure": "node scripts/dev-secure.mjs",
     "build": "node ./node_modules/vite/bin/vite.js build",
+    "start": "node server/app-server.mjs",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
