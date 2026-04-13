@@ -1,50 +1,60 @@
 ## Imagem Fit Quadros
 
-Projeto React + Vite para catalogo de quadros com:
-- vitrine publica por categorias
-- novidades em carrossel
-- carrinho local com envio de orcamento por WhatsApp
-- painel administrativo para criar categorias e gerenciar imagens
-- persistencia local em `localStorage`
+Projeto React + Vite com painel administrativo e dois modos de armazenamento:
+- `local` (padrao): dados no `localStorage` do navegador
+- `server`: dados e imagens salvos no servidor (Hostinger)
 
-### Rodar local
-1. Instale dependencias:
-   - `npm install`
-2. Configure admin:
-   - copie `.env.example` para `.env`
-   - ajuste `VITE_ADMIN_EMAIL` e `VITE_ADMIN_PASSWORD`
-3. Execute:
-   - `npm run dev`
-4. Acesse:
-   - site: `http://localhost:5173/`
-   - admin: `http://localhost:5173/#/admingustavoif/login`
+### Acesso admin
+- Login: `/#/admingustavoif/login`
 
-### Scripts
-- `npm run dev` - frontend Vite
-- `npm run dev:api` - API privada local da classificacao IA
-- `npm run dev:secure` - sobe frontend + API privada juntos
-- `npm run build`
-- `npm run preview`
+### Rodar local (modo localStorage)
+1. Instale dependencias: `npm install`
+2. Copie `.env.example` para `.env`
+3. Ajuste `VITE_ADMIN_EMAIL` e `VITE_ADMIN_PASSWORD`
+4. Execute: `npm run dev`
+5. Acesse:
+- site: `http://localhost:5173/`
+- admin: `http://localhost:5173/#/admingustavoif/login`
 
-### Deploy na Hostinger (GitHub)
-Use essas configuracoes no deploy:
-- Framework: `Vite`
-- Branch: `main`
-- Node: `20.x`
-- Root directory: `./`
-- Build command: `npm run build -- --base=/`
-- Output directory: `dist`
-
-Variaveis de ambiente recomendadas:
+### Rodar com armazenamento em servidor (Node)
+1. Gere build: `npm run build`
+2. Configure variaveis de ambiente:
+- `VITE_STORAGE_MODE=server`
 - `VITE_ENABLE_ADMIN=true`
 - `VITE_ADMIN_EMAIL=seu-email-admin`
 - `VITE_ADMIN_PASSWORD=sua-senha-forte`
+- `ENABLE_ADMIN=true`
+- `ADMIN_EMAIL=seu-email-admin`
+- `ADMIN_PASSWORD=sua-senha-forte`
+- `ADMIN_SESSION_SECRET=chave-longa-aleatoria`
+- `IFQ_STORAGE_DIR=./storage` (opcional)
+3. Inicie servidor: `npm run start`
 
-### Deploy no GitHub Pages
-O workflow `.github/workflows/deploy-pages.yml` ja define `VITE_BASE_PATH=/imagemfit-site/` automaticamente para publicar em:
-- `https://lunellii.github.io/imagemfit-site/`
+No modo `server`, arquivos enviados no admin vao para:
+- imagens: `storage/uploads`
+- metadados: `storage/data/categories.json` e `storage/data/images.json`
+
+### Deploy Hostinger (Web App Node.js)
+Use:
+- Framework: `Vite`
+- Branch: `main`
+- Node: `20.x` (ou superior suportado)
+- Diretorio raiz: `./`
+- Comando de build: `npm run build`
+- Comando de start: `npm run start`
+
+Adicione as variaveis acima no painel da Hostinger para ativar o modo `server`.
+
+### Scripts
+- `npm run dev` - frontend Vite
+- `npm run dev:api` - API privada local de classificacao IA
+- `npm run dev:app` - servidor Node da aplicacao
+- `npm run dev:secure` - frontend + API privada local
+- `npm run build`
+- `npm run start`
+- `npm run preview`
 
 ### Seguranca
-- Nunca subir `.env` e `.env.server` para o GitHub
-- Em producao, use senha forte no admin
-- Se quiser seguranca maxima para admin, migrar login para backend com sessao/JWT (nao somente `localStorage`)
+- Nunca subir `.env` para o GitHub.
+- Use senha forte e `ADMIN_SESSION_SECRET` longo.
+- Troque imediatamente qualquer chave/token exposto.
