@@ -182,14 +182,15 @@ export function buildServerClient({ fallbackClient }) {
     },
     integrations: {
       Core: {
-        async UploadFile({ file }) {
+        async UploadFile({ file, code }) {
           const originalDataUrl = await toDataUrl(file);
           const optimized = await optimizeImageDataUrl(file, originalDataUrl);
           return apiRequest("/api/uploads/base64", {
             method: "POST",
             body: {
               data_url: optimized,
-              file_name: file?.name || "imagem"
+              file_name: file?.name || "imagem",
+              code: normalizeImageCode(code || file?.name || "")
             }
           });
         },
