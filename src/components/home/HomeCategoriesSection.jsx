@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { localClient } from "@/api/localClient";
@@ -75,3 +75,4 @@ export default function HomeCategoriesSection() {
     </section>
   );
 }
+
