@@ -5,7 +5,13 @@ import { localClient } from "@/api/localClient";
 import { ArrowRight } from "lucide-react";
 import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
 
-const ARTISTA_CATEGORIES = ["pinturas manuais", "tridimensional"];
+const ARTISTA_CATEGORY_KEYS = new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
+const normalizeCategoryKey = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 
 export default function HomeCategoriesSection() {
   const [categories, setCategories] = useState([]);
@@ -56,7 +62,7 @@ export default function HomeCategoriesSection() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {categories.map((cat, i) => {
-            const isArtista = ARTISTA_CATEGORIES.includes(cat.name.toLowerCase());
+            const isArtista = ARTISTA_CATEGORY_KEYS.has(normalizeCategoryKey(cat?.name));
             const linkTo = isArtista ? "/artista" : `/portfolio/categoria/${cat.id}`;
             return (
               <motion.div
