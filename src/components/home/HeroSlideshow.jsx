@@ -4,18 +4,19 @@ import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
 const heroBase = `${import.meta.env.BASE_URL}hero/`;
+const HERO_VERSION = "20260414b";
 
 const SLIDES = [
   {
-    url: `${heroBase}gallery-home-1.jpg`,
+    url: `${heroBase}gallery-home-1.jpg?v=${HERO_VERSION}`,
     label: "Galeria Contemporânea"
   },
   {
-    url: `${heroBase}gallery-home-2.jpg`,
+    url: `${heroBase}gallery-home-2.jpg?v=${HERO_VERSION}`,
     label: "Curadoria Exclusiva"
   },
   {
-    url: `${heroBase}gallery-home-3.jpg`,
+    url: `${heroBase}gallery-home-3.jpg?v=${HERO_VERSION}`,
     label: "Arte em Destaque"
   }
 ];
