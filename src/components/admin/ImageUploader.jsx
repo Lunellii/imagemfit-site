@@ -129,10 +129,10 @@ function resolveCategoryByFileName(filename, prefixIndex, fallbackCategoryId) {
 }
 
 function reasonLabel(reason) {
-  if (reason === "AMBIGUO") return "prefixo ambiguo";
-  if (reason === "NAO_ENCONTRADO") return "prefixo nao mapeado";
+  if (reason === "AMBIGUO") return "prefixo ambíguo";
+  if (reason === "NAO_ENCONTRADO") return "prefixo não mapeado";
   if (reason === "SEM_PREFIXO") return "sem prefixo";
-  return "nao classificado";
+  return "não classificado";
 }
 
 function dedupeFiles(items) {
@@ -186,7 +186,7 @@ export default function ImageUploader({ categories, onUploaded }) {
   const addFiles = (incoming) => {
     const incomingFiles = Array.from(incoming || []).filter(isImageFile);
     if (!incomingFiles.length) {
-      toast({ title: "Nenhuma imagem valida encontrada.", variant: "destructive" });
+      toast({ title: "Nenhuma imagem válida encontrada.", variant: "destructive" });
       return;
     }
 
@@ -257,7 +257,7 @@ export default function ImageUploader({ categories, onUploaded }) {
     if (unresolvedAssignments.length > 0) {
       toast({
         title: `${unresolvedAssignments.length} arquivo(s) sem categoria`,
-        description: "Somente os arquivos com prefixo mapeado serao enviados neste lote.",
+        description: "Somente os arquivos com prefixo mapeado serão enviados neste lote.",
         variant: "destructive"
       });
     }
@@ -319,21 +319,21 @@ export default function ImageUploader({ categories, onUploaded }) {
 
       if (error?.message === "STORAGE_QUOTA_EXCEEDED") {
         toast({
-          title: "Espaco do navegador lotado",
+          title: "Espaço do navegador lotado",
           description: "Exclua algumas imagens no painel e tente novamente, ou envie em lotes menores.",
           variant: "destructive"
         });
       } else if (error?.message === "DUPLICATE_IMAGE_CODE") {
         const duplicateCode = String(error?.duplicate_code || "").trim();
         toast({
-          title: "Codigo ja cadastrado",
-          description: duplicateCode ? `Ja existe uma imagem com o codigo ${duplicateCode}.` : "Ja existe imagem com este codigo.",
+          title: "Código já cadastrado",
+          description: duplicateCode ? `Já existe uma imagem com o código ${duplicateCode}.` : "Já existe imagem com este código.",
           variant: "destructive"
         });
       } else if (error?.message === "INVALID_IMAGE_CODE") {
         toast({
-          title: "Codigo invalido",
-          description: "Nao foi possivel extrair um codigo valido do nome do arquivo.",
+          title: "Código inválido",
+          description: "Não foi possível extrair um código válido do nome do arquivo.",
           variant: "destructive"
         });
       } else {
@@ -378,7 +378,7 @@ export default function ImageUploader({ categories, onUploaded }) {
 
       <div className="space-y-2">
         <label className="text-white/50 text-xs tracking-widest uppercase">
-          {assignMode === "manual" ? "Categoria *" : "Fallback (opcional para prefixo ambiguo)"}
+          {assignMode === "manual" ? "Categoria *" : "Fallback (opcional para prefixo ambíguo)"}
         </label>
         <Select
           value={assignMode === "by_name" ? (hasFallback ? categoryId : "__none__") : categoryId}
@@ -411,7 +411,7 @@ export default function ImageUploader({ categories, onUploaded }) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-white/50 text-xs tracking-widest uppercase">Imagens - o codigo e extraido automaticamente do nome do arquivo</label>
+        <label className="text-white/50 text-xs tracking-widest uppercase">Imagens - o código é extraído automaticamente do nome do arquivo</label>
         <div
           onDragOver={handleDragOver}
           onDragEnter={handleDragOver}
@@ -435,7 +435,7 @@ export default function ImageUploader({ categories, onUploaded }) {
           <label htmlFor="img-upload" className="cursor-pointer flex flex-col items-center gap-3">
             <Upload className="w-8 h-8 text-gold/50" />
             <span className="text-white/50 text-sm">{files.length ? `${files.length} arquivo(s) selecionado(s)` : "Clique ou arraste imagens aqui"}</span>
-            <span className="text-white/30 text-xs">JPG, PNG, WEBP - multiplos arquivos suportados</span>
+            <span className="text-white/30 text-xs">JPG, PNG, WEBP - múltiplos arquivos suportados</span>
           </label>
         </div>
       </div>
@@ -468,7 +468,7 @@ export default function ImageUploader({ categories, onUploaded }) {
 
       {lastAssignments.length > 0 ? (
         <div className="border border-border p-4 space-y-2 max-h-56 overflow-y-auto">
-          <p className="text-white/60 text-xs tracking-widest uppercase">Ultimo lote enviado</p>
+          <p className="text-white/60 text-xs tracking-widest uppercase">Último lote enviado</p>
           {lastAssignments.map((assignment, index) => (
             <div key={`${assignment.code}-${index}`} className="flex items-center justify-between gap-3 text-xs">
               <span className="text-white/55 truncate">{assignment.file_name}</span>
