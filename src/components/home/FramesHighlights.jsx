@@ -26,7 +26,7 @@ const items = [
 
 export default function FramesHighlights() {
   return (
-    <section className="py-20 px-6 bg-black/20">
+    <section className="py-20 px-4 sm:px-6 bg-black/20">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
@@ -39,7 +39,7 @@ export default function FramesHighlights() {
           <div className="gold-line w-20 mx-auto mt-5" />
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {items.map((item, i) => (
             <motion.div
               key={item.title}
@@ -47,13 +47,13 @@ export default function FramesHighlights() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06 }}
-              className="border border-border bg-card p-5 hover:border-gold/50 transition-colors"
+              className="border border-border bg-card p-4 sm:p-5 hover:border-gold/50 transition-colors"
             >
-              <div className="w-10 h-10 border border-gold/40 flex items-center justify-center text-gold mb-4">
-                <item.icon size={16} />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 border border-gold/40 flex items-center justify-center text-gold mb-3 sm:mb-4">
+                <item.icon size={15} />
               </div>
-              <h3 className="font-heading text-xl text-white mb-2">{item.title}</h3>
-              <p className="text-white/60 text-sm leading-relaxed">{item.text}</p>
+              <h3 className="font-heading text-[1.12rem] sm:text-xl text-white mb-1.5 sm:mb-2 leading-tight">{item.title}</h3>
+              <p className="text-white/60 text-[0.95rem] sm:text-sm leading-relaxed">{item.text}</p>
             </motion.div>
           ))}
         </div>
