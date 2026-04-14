@@ -13,6 +13,8 @@ export default function Portfolio() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const load = async () => {
       try {
         const [cats, imgs] = await Promise.all([
@@ -20,16 +22,29 @@ export default function Portfolio() {
           localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 20)
         ]);
 
-        const grouped = await localClient.entities.PortfolioImage.groupedByCategory(
-          "-created_date",
-          8,
-          cats.map((category) => category.id)
-        );
+        if (!mounted) return;
 
-        setCategories([...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")));
+        const sortedCategories = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+        setCategories(sortedCategories);
         setNewImages(imgs);
-        setImagesByCategory(grouped);
+        setLoading(false);
+
+        localClient.entities.PortfolioImage
+          .groupedByCategory(
+            "-created_date",
+            8,
+            sortedCategories.map((category) => category.id)
+          )
+          .then((grouped) => {
+            if (!mounted) return;
+            setImagesByCategory(grouped || {});
+          })
+          .catch(() => {
+            if (!mounted) return;
+            setImagesByCategory({});
+          });
       } catch (_error) {
+        if (!mounted) return;
         setCategories([]);
         setNewImages([]);
         setImagesByCategory({});
@@ -39,10 +54,13 @@ export default function Portfolio() {
           description: "Atualize a página e tente novamente."
         });
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (loading) {
