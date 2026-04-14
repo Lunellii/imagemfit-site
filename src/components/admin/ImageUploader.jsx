@@ -190,6 +190,7 @@ export default function ImageUploader({ categories, onUploaded }) {
       return;
     }
 
+    setLastAssignments([]);
     setFiles((current) => {
       const seen = new Set(current.map(fileKey));
       const deduped = incomingFiles.filter((file) => {
