@@ -930,6 +930,7 @@ const PortfolioImageEntity = {
       title: payload.title || normalizedCode,
       code: normalizedCode,
       image_url: storedImageUrl,
+      image_hash: String(payload.image_hash || "").trim().toLowerCase() || undefined,
       category_id: payload.category_id,
       is_new: payload.is_new ?? true,
       created_date: nowIso()
