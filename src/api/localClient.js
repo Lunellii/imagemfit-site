@@ -6,7 +6,7 @@ const CATEGORY_KEY = "ifq_categories";
 const IMAGE_KEY = "ifq_images";
 const SEEDED_KEY = "ifq_seeded_v1";
 const CATALOG_SEED_MIGRATION_KEY = "ifq_catalog_seed_migrated_v1";
-const CATEGORY_MIGRATION_KEY = "ifq_categories_migrated_v4";
+const CATEGORY_MIGRATION_KEY = "ifq_categories_migrated_v5";
 const IMAGE_ASSET_MIGRATION_KEY = "ifq_image_assets_migrated_v1";
 const ADMIN_SESSION_KEY = "ifq_admin_session";
 
@@ -54,7 +54,7 @@ const REQUIRED_CATEGORIES = [
   { name: "Mar e Praia", description: "Paisagens mar\u00edtimas e clima praiano para ambientes leves." },
   { name: "Natureza", description: "Paisagens e elementos naturais para ambientes leves." },
   { name: "Pinturas Manuais", description: "Obras autorais com toque artesanal e acabamento exclusivo." },
-  { name: "Ponte", description: "Tem\u00e1tica de pontes e arquitetura urbana em diferentes estilos." },
+  { name: "Pontes", description: "Tem\u00e1tica de pontes e arquitetura urbana em diferentes estilos." },
   { name: "Tridimensional", description: "Pe\u00e7as com profundidade, relevo e textura para destaque visual." },
   { name: "Urbano", description: "Refer\u00eancias de cidade, arquitetura e estilo contempor\u00e2neo." },
   { name: "Vida", description: "Obras que celebram movimento, cotidiano e express\u00f5es da vida." }
@@ -251,12 +251,14 @@ const CATEGORY_DESCRIPTION_ALIASES = {
   "abstrato fluido e marmore": "abstrato fluido e mármore",
   "abstrato geometrico": "abstrato geométrico",
   arvores: "árvores",
-  pontes: "ponte",
+  ponte: "pontes",
+  pontes: "pontes",
   "pintura manual": "pinturas manuais",
   tridmensional: "tridimensional"
 };
 
 const requiredDescriptionByName = new Map(REQUIRED_CATEGORIES.map((category) => [normalizeCategoryName(category.name), category.description]));
+const requiredNameByNormalized = new Map(REQUIRED_CATEGORIES.map((category) => [normalizeCategoryName(category.name), category.name]));
 
 const resolveCategoryDescription = (categoryName) => {
   const normalizedName = normalizeCategoryName(categoryName);
@@ -393,34 +395,55 @@ const migrateRequiredCategoriesOnce = () => {
   if (localStorage.getItem(CATEGORY_MIGRATION_KEY) === "1") return;
 
   const categories = normalizeCategories(readJson(CATEGORY_KEY, []));
-  const existingNormalizedNames = new Set(categories.map((cat) => normalizeCategoryName(cat.name)));
-
+  const seen = new Set();
   let changed = false;
-  const enrichedCategories = categories.map((category) => {
+  const normalizedCategories = [];
+
+  for (const category of categories) {
+    const rawName = String(category?.name || "").trim();
+    const normalizedName = normalizeCategoryName(rawName);
+    if (!normalizedName) {
+      changed = true;
+      continue;
+    }
+
+    const canonicalKey = CATEGORY_DESCRIPTION_ALIASES[normalizedName] || normalizedName;
+    const canonicalName = requiredNameByNormalized.get(canonicalKey) || rawName;
+    if (seen.has(canonicalKey)) {
+      changed = true;
+      continue;
+    }
+    seen.add(canonicalKey);
+
     const currentDescription = normalizeDescription(category.description);
-    if (currentDescription && !hasBrokenEncoding(currentDescription)) return category;
+    const resolvedDescription = resolveCategoryDescription(canonicalName);
+    const description = currentDescription && !hasBrokenEncoding(currentDescription) ? currentDescription : resolvedDescription;
+    if (canonicalName !== rawName || description !== currentDescription) {
+      changed = true;
+    }
 
-    const resolvedDescription = resolveCategoryDescription(category.name);
-    if (!resolvedDescription) return category;
-
-    changed = true;
-    return {
+    normalizedCategories.push({
       ...category,
-      description: resolvedDescription
-    };
-  });
+      name: canonicalName,
+      description
+    });
+  }
 
   for (const required of REQUIRED_CATEGORIES) {
     const key = normalizeCategoryName(required.name);
-    if (!existingNormalizedNames.has(key)) {
-      enrichedCategories.push(buildCategory(required.name, enrichedCategories.length, required.description));
-      existingNormalizedNames.add(key);
-      changed = true;
-    }
+    if (seen.has(key)) continue;
+    seen.add(key);
+    normalizedCategories.push(buildCategory(required.name, normalizedCategories.length, required.description));
+    changed = true;
   }
 
+  const reOrdered = normalizedCategories.map((category, index) => ({
+    ...category,
+    order: index
+  }));
+
   if (changed) {
-    writeJson(CATEGORY_KEY, enrichedCategories);
+    writeJson(CATEGORY_KEY, reOrdered);
   }
 
   localStorage.setItem(CATEGORY_MIGRATION_KEY, "1");
