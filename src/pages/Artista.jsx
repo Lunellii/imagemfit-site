@@ -9,7 +9,14 @@ import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
 
 const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png?v=20260409`;
-const ARTIST_CATEGORY_NAMES = ["pinturas manuais", "tridimensional"];
+const ARTIST_CATEGORY_KEYS = new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
+
+const normalizeCategoryKey = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 
 export default function Artista() {
   const [artistCategories, setArtistCategories] = useState([]);
@@ -22,9 +29,15 @@ export default function Artista() {
   useEffect(() => {
     const load = async () => {
       try {
-        const categories = await localClient.entities.Category.list("order", 100);
+        const [categories, allImages, newestImages, groupedCovers] = await Promise.all([
+          localClient.entities.Category.list("order", 100),
+          localClient.entities.PortfolioImage.list("-created_date", 5000),
+          localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 120),
+          localClient.entities.PortfolioImage.groupedByCategory("-created_date", 10)
+        ]);
+
         const selectedCategories = categories
-          .filter((category) => ARTIST_CATEGORY_NAMES.includes(String(category?.name || "").toLowerCase()))
+          .filter((category) => ARTIST_CATEGORY_KEYS.has(normalizeCategoryKey(category?.name)))
           .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
         const artistCategoryIds = selectedCategories.map((category) => category.id);
 
@@ -36,18 +49,13 @@ export default function Artista() {
           return;
         }
 
-        const [groupedCovers, newestImages, ...imagesPerCategory] = await Promise.all([
-          localClient.entities.PortfolioImage.groupedByCategory("-created_date", 10, artistCategoryIds),
-          localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 80),
-          ...artistCategoryIds.map((categoryId) => localClient.entities.PortfolioImage.filter({ category_id: categoryId }, "-created_date", 2000))
-        ]);
-
-        const mergedImages = imagesPerCategory
-          .flat()
-          .sort((a, b) => new Date(b.created_date || 0).getTime() - new Date(a.created_date || 0).getTime());
+        const mergedImages = allImages.filter((image) => artistCategoryIds.includes(image.category_id));
 
         setArtistCategories(selectedCategories);
-        setCoversByCategory(groupedCovers || {});
+        const onlyArtistCovers = Object.fromEntries(
+          artistCategoryIds.map((categoryId) => [categoryId, (groupedCovers?.[categoryId] || []).slice(0, 10)])
+        );
+        setCoversByCategory(onlyArtistCovers);
         setImages(mergedImages);
         setNewImages(newestImages.filter((image) => artistCategoryIds.includes(image.category_id)));
       } catch (_error) {
