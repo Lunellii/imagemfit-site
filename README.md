@@ -59,3 +59,5 @@ Adicione as variaveis acima no painel da Hostinger para ativar o modo `server`.
 - Nunca subir `.env` para o GitHub.
 - Use senha forte e `ADMIN_SESSION_SECRET` longo.
 - Troque imediatamente qualquer chave/token exposto.
+
+<!-- deploy-check: 2026-04-14T15:02:00-03:00 -->
