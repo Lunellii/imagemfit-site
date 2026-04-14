@@ -77,14 +77,19 @@ function buildPrefixIndex(categories) {
     const baseWords = strongWords.length ? strongWords : words;
     const firstWord = baseWords[0] || "";
     const acronym = baseWords.map((word) => word[0] || "").join("");
+    const aliases = PREFIX_ALIASES_BY_CATEGORY[normalizedName] || [];
+
+    // If this category has explicit prefix aliases, use only those aliases.
+    // This avoids collisions like ESP (Espelhos vs Espiritualidade).
+    if (aliases.length > 0) {
+      aliases.forEach((alias) => addPrefix(alias, category));
+      continue;
+    }
 
     addPrefix(firstWord.slice(0, 3), category);
     if (acronym.length >= 3) {
       addPrefix(acronym.slice(0, 3), category);
     }
-
-    const aliases = PREFIX_ALIASES_BY_CATEGORY[normalizedName] || [];
-    aliases.forEach((alias) => addPrefix(alias, category));
   }
 
   return index;
