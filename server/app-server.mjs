@@ -264,10 +264,23 @@ const parseImageDataUrl = (value) => {
 };
 
 const extFromMime = (mime) => ({ "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/avif": "avif", "image/gif": "gif", "image/svg+xml": "svg" }[mime] || "bin");
+const hashBufferSha256 = (buffer) => crypto.createHash("sha256").update(buffer).digest("hex");
 
 const safeResolve = (base, relativePath) => {
   const resolved = path.resolve(base, `.${relativePath}`);
   return resolved.startsWith(base) ? resolved : null;
+};
+
+const uploadPathFromUrl = (imageUrl) => {
+  const value = String(imageUrl || "").trim();
+  if (!value.startsWith("/uploads/")) return null;
+  return safeResolve(uploadsDir, value.replace(/^\/uploads/, ""));
+};
+
+const isUploadStillReferenced = (imageUrl) => {
+  const value = String(imageUrl || "").trim();
+  if (!value) return false;
+  return db.images.some((image) => String(image?.image_url || "").trim() === value);
 };
 
 const serveFile = async (res, filePath) => {
@@ -475,11 +488,13 @@ const server = http.createServer(async (req, res) => {
       db.categories = db.categories.filter((item) => item.id !== categoryId);
       const removedImages = db.images.filter((img) => img.category_id === categoryId);
       db.images = db.images.filter((img) => img.category_id !== categoryId);
-      for (const image of removedImages) {
-        if (String(image.image_url || "").startsWith("/uploads/")) {
-          const target = safeResolve(uploadsDir, image.image_url.replace(/^\/uploads/, ""));
-          if (target) await fs.unlink(target).catch(() => null);
-        }
+      const removedUploadUrls = new Set(
+        removedImages.map((image) => String(image?.image_url || "").trim()).filter((value) => value.startsWith("/uploads/"))
+      );
+      for (const imageUrl of removedUploadUrls) {
+        if (isUploadStillReferenced(imageUrl)) continue;
+        const target = uploadPathFromUrl(imageUrl);
+        if (target) await fs.unlink(target).catch(() => null);
       }
       if (db.categories.length === before) return sendJson(res, 404, { error: "CATEGORY_NOT_FOUND" });
       await queueWrite();
@@ -535,7 +550,17 @@ const server = http.createServer(async (req, res) => {
       if (!db.categories.some((category) => category.id === categoryId)) return sendJson(res, 400, { error: "CATEGORY_NOT_FOUND" });
       const imageUrl = String(body.image_url || "").trim();
       if (!imageUrl) return sendJson(res, 400, { error: "IMAGE_URL_REQUIRED" });
-      const item = { id: uid(), title: String(body.title || code), code, image_url: imageUrl, category_id: categoryId, is_new: body.is_new !== undefined ? Boolean(body.is_new) : true, created_date: nowIso() };
+      const imageHash = String(body.image_hash || "").trim().toLowerCase();
+      const item = {
+        id: uid(),
+        title: String(body.title || code),
+        code,
+        image_url: imageUrl,
+        image_hash: imageHash || undefined,
+        category_id: categoryId,
+        is_new: body.is_new !== undefined ? Boolean(body.is_new) : true,
+        created_date: nowIso()
+      };
       db.images.push(item);
       await queueWrite();
       return sendJson(res, 201, item);
@@ -546,8 +571,9 @@ const server = http.createServer(async (req, res) => {
       const index = db.images.findIndex((item) => item.id === imageId);
       if (index < 0) return sendJson(res, 404, { error: "IMAGE_NOT_FOUND" });
       const [removed] = db.images.splice(index, 1);
-      if (String(removed.image_url || "").startsWith("/uploads/")) {
-        const target = safeResolve(uploadsDir, removed.image_url.replace(/^\/uploads/, ""));
+      const removedImageUrl = String(removed?.image_url || "").trim();
+      if (removedImageUrl.startsWith("/uploads/") && !isUploadStillReferenced(removedImageUrl)) {
+        const target = uploadPathFromUrl(removedImageUrl);
         if (target) await fs.unlink(target).catch(() => null);
       }
       await queueWrite();
@@ -557,8 +583,27 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && pathname === "/api/uploads/base64") {
       const body = await readBody(req).catch((err) => ({ __error: err.message }));
       if (body.__error) return sendJson(res, body.__error === "PAYLOAD_TOO_LARGE" ? 413 : 400, { error: body.__error });
+      const requestedCode = normalizeCode(body.code || "");
+      if (requestedCode && db.images.some((item) => normalizeCode(item?.code) === requestedCode)) {
+        return sendJson(res, 409, { error: "DUPLICATE_IMAGE_CODE", duplicate_code: requestedCode });
+      }
       const parsed = parseImageDataUrl(body.data_url);
       if (!parsed) return sendJson(res, 400, { error: "INVALID_IMAGE_DATA" });
+      const imageHash = hashBufferSha256(parsed.buffer);
+      const existingByHash = db.images.find((image) => String(image?.image_hash || "").trim().toLowerCase() === imageHash);
+      if (existingByHash) {
+        const existingUrl = String(existingByHash?.image_url || "").trim();
+        const existingPath = uploadPathFromUrl(existingUrl);
+        if (existingPath) {
+          const exists = await fs
+            .access(existingPath)
+            .then(() => true)
+            .catch(() => false);
+          if (exists) {
+            return sendJson(res, 200, { file_url: existingUrl, image_hash: imageHash, deduplicated: true });
+          }
+        }
+      }
       const ext = extFromMime(parsed.mime);
       const folder = `${new Date().getUTCFullYear()}-${String(new Date().getUTCMonth() + 1).padStart(2, "0")}`;
       const folderPath = path.resolve(uploadsDir, folder);
@@ -572,7 +617,7 @@ const server = http.createServer(async (req, res) => {
       const finalName = `${base || "img"}-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.${ext}`;
       const target = path.resolve(folderPath, finalName);
       await fs.writeFile(target, parsed.buffer);
-      return sendJson(res, 201, { file_url: `/uploads/${folder}/${finalName}` });
+      return sendJson(res, 201, { file_url: `/uploads/${folder}/${finalName}`, image_hash: imageHash, deduplicated: false });
     }
 
     if (req.method === "POST" && pathname === "/api/classify-category") {
