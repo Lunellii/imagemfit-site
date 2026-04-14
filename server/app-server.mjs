@@ -62,19 +62,21 @@ const REQUIRED_CATEGORIES = [
   { name: "Mar e Praia", description: "Paisagens maritimas e clima praiano para ambientes leves." },
   { name: "Natureza", description: "Paisagens e elementos naturais para ambientes leves." },
   { name: "Pinturas Manuais", description: "Obras autorais com toque artesanal e acabamento exclusivo." },
-  { name: "Ponte", description: "Tematica de pontes e arquitetura urbana em diferentes estilos." },
+  { name: "Pontes", description: "Tematica de pontes e arquitetura urbana em diferentes estilos." },
   { name: "Tridimensional", description: "Pecas com profundidade, relevo e textura para destaque visual." },
   { name: "Urbano", description: "Referencias de cidade, arquitetura e estilo contemporaneo." },
   { name: "Vida", description: "Obras que celebram movimento, cotidiano e expressoes da vida." }
 ];
 
 const CATEGORY_DESCRIPTION_ALIASES = {
-  pontes: "ponte",
+  ponte: "pontes",
+  pontes: "pontes",
   "pintura manual": "pinturas manuais",
   tridmensional: "tridimensional"
 };
 
 const requiredDescriptionByName = new Map(REQUIRED_CATEGORIES.map((category) => [normalizeCategoryName(category.name), category.description]));
+const requiredNameByNormalized = new Map(REQUIRED_CATEGORIES.map((category) => [normalizeCategoryName(category.name), category.name]));
 const hasBrokenEncoding = (value) => /Ã|Â|\uFFFD/.test(String(value || ""));
 
 const resolveCategoryDescription = (categoryName) => {
@@ -319,16 +321,20 @@ const bootstrap = async () => {
     const normalizedCategories = [];
 
     for (const raw of db.categories) {
-      const name = String(raw?.name || "").trim();
-      const key = normalizeCategoryName(name);
-      if (!name || !key || seen.has(key)) continue;
-      seen.add(key);
+      const rawName = String(raw?.name || "").trim();
+      const normalizedName = normalizeCategoryName(rawName);
+      if (!rawName || !normalizedName) continue;
+
+      const canonicalKey = CATEGORY_DESCRIPTION_ALIASES[normalizedName] || normalizedName;
+      const canonicalName = requiredNameByNormalized.get(canonicalKey) || rawName;
+      if (seen.has(canonicalKey)) continue;
+      seen.add(canonicalKey);
 
       const currentDescription = String(raw?.description || "").trim();
       normalizedCategories.push({
         id: String(raw?.id || uid()),
-        name,
-        description: currentDescription && !hasBrokenEncoding(currentDescription) ? currentDescription : resolveCategoryDescription(name),
+        name: canonicalName,
+        description: currentDescription && !hasBrokenEncoding(currentDescription) ? currentDescription : resolveCategoryDescription(canonicalName),
         cover_enabled: typeof raw?.cover_enabled === "boolean" ? raw.cover_enabled : true,
         order: Number.isFinite(Number(raw?.order)) ? Number(raw.order) : normalizedCategories.length,
         created_date: String(raw?.created_date || nowIso())
