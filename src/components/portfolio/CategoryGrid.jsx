@@ -30,7 +30,7 @@ export default function CategoryGrid({ categories, imagesByCategory = {} }) {
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {categories.map((cat, i) => (
         <motion.div key={cat.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}>
-          <RotatingCategoryCard category={cat} linkTo={getLink(cat)} coverImages={imagesByCategory[cat.id] || []} imageHeight="h-36 sm:h-44 lg:h-56" />
+          <RotatingCategoryCard category={cat} linkTo={getLink(cat)} coverImages={imagesByCategory[cat.id] || []} imageHeight="h-40 sm:h-48 lg:h-64" />
         </motion.div>
       ))}
     </div>
