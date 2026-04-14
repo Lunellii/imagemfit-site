@@ -279,12 +279,15 @@ export default function ImageUploader({ categories, onUploaded }) {
         const assignment = uploadAssignments[i];
         const file = assignment.file;
         const code = assignment.code;
-        const { file_url } = await localClient.integrations.Core.UploadFile({ file });
+        const uploadResult = await localClient.integrations.Core.UploadFile({ file, code });
+        const fileUrl = uploadResult?.file_url;
+        const imageHash = uploadResult?.image_hash;
 
         await localClient.entities.PortfolioImage.create({
           title: code,
           code,
-          image_url: file_url,
+          image_url: fileUrl,
+          image_hash: imageHash,
           category_id: assignment.category_id,
           is_new: true
         });
