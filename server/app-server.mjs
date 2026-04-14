@@ -7,7 +7,19 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const distDir = path.resolve(rootDir, "dist");
-const storageRoot = path.resolve(process.env.IFQ_STORAGE_DIR || path.resolve(rootDir, "storage"));
+const resolveStorageRoot = () => {
+  const raw = String(process.env.IFQ_STORAGE_DIR || "").trim();
+  if (!raw) {
+    return path.resolve(process.env.HOME || rootDir, "ifq-storage");
+  }
+  if (path.isAbsolute(raw)) {
+    return path.resolve(raw);
+  }
+  const baseDir = process.env.HOME || rootDir;
+  return path.resolve(baseDir, raw);
+};
+const storageRoot = resolveStorageRoot();
+const legacyStorageRoot = path.resolve(rootDir, "storage");
 const uploadsDir = path.resolve(storageRoot, "uploads");
 const dataDir = path.resolve(storageRoot, "data");
 const categoriesFile = path.resolve(dataDir, "categories.json");
@@ -113,6 +125,29 @@ const readJson = async (filePath, fallback) => {
   } catch (_err) {
     return fallback;
   }
+};
+
+const pathExists = async (targetPath) => {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch (_err) {
+    return false;
+  }
+};
+
+const migrateLegacyStorageIfNeeded = async () => {
+  if (storageRoot === legacyStorageRoot) return;
+  const legacyExists = await pathExists(legacyStorageRoot);
+  if (!legacyExists) return;
+
+  const hasCurrentCategories = await pathExists(categoriesFile);
+  const hasCurrentImages = await pathExists(imagesFile);
+  const hasCurrentUploads = await pathExists(uploadsDir);
+  const currentHasData = hasCurrentCategories || hasCurrentImages || hasCurrentUploads;
+  if (currentHasData) return;
+
+  await fs.cp(legacyStorageRoot, storageRoot, { recursive: true, force: false });
 };
 
 const writeJsonAtomic = async (filePath, value) => {
@@ -299,6 +334,8 @@ const serveFile = async (res, filePath) => {
 
 const bootstrap = async () => {
   if (dbReady) return;
+  await fs.mkdir(storageRoot, { recursive: true });
+  await migrateLegacyStorageIfNeeded();
   await fs.mkdir(uploadsDir, { recursive: true });
   await fs.mkdir(dataDir, { recursive: true });
 
