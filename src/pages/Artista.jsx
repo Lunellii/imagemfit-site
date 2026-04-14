@@ -1,15 +1,19 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { localClient } from "@/api/localClient";
 import { motion } from "framer-motion";
-import { Loader2, ShoppingCart, Check } from "lucide-react";
+import { Loader2, ShoppingCart, Check, ArrowRight } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
+import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
 
 const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png?v=20260409`;
 const ARTIST_CATEGORY_NAMES = ["pinturas manuais", "tridimensional"];
 
 export default function Artista() {
+  const [artistCategories, setArtistCategories] = useState([]);
+  const [coversByCategory, setCoversByCategory] = useState({});
   const [images, setImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,19 +21,46 @@ export default function Artista() {
 
   useEffect(() => {
     const load = async () => {
-      const [cats, allImgs, newImgs] = await Promise.all([
-        localClient.entities.Category.list("name", 100),
-        localClient.entities.PortfolioImage.list("-created_date", 1000),
-        localClient.entities.PortfolioImage.list("-created_date", 20)
-      ]);
+      try {
+        const categories = await localClient.entities.Category.list("order", 100);
+        const selectedCategories = categories
+          .filter((category) => ARTIST_CATEGORY_NAMES.includes(String(category?.name || "").toLowerCase()))
+          .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+        const artistCategoryIds = selectedCategories.map((category) => category.id);
 
-      const artistCatIds = cats.filter((c) => ARTIST_CATEGORY_NAMES.includes(c.name.toLowerCase())).map((c) => c.id);
-      const artistImgs = allImgs.filter((img) => artistCatIds.includes(img.category_id));
+        if (!artistCategoryIds.length) {
+          setArtistCategories([]);
+          setCoversByCategory({});
+          setImages([]);
+          setNewImages([]);
+          return;
+        }
 
-      setImages(artistImgs);
-      setNewImages(newImgs.filter((img) => artistCatIds.includes(img.category_id)));
-      setLoading(false);
+        const [groupedCovers, newestImages, ...imagesPerCategory] = await Promise.all([
+          localClient.entities.PortfolioImage.groupedByCategory("-created_date", 10, artistCategoryIds),
+          localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 80),
+          ...artistCategoryIds.map((categoryId) => localClient.entities.PortfolioImage.filter({ category_id: categoryId }, "-created_date", 2000))
+        ]);
+
+        const mergedImages = imagesPerCategory
+          .flat()
+          .sort((a, b) => new Date(b.created_date || 0).getTime() - new Date(a.created_date || 0).getTime());
+
+        setArtistCategories(selectedCategories);
+        setCoversByCategory(groupedCovers || {});
+        setImages(mergedImages);
+        setNewImages(newestImages.filter((image) => artistCategoryIds.includes(image.category_id)));
+      } catch (_error) {
+        toast({
+          variant: "destructive",
+          title: "Falha ao carregar a página do artista",
+          description: "Atualize a página e tente novamente."
+        });
+      } finally {
+        setLoading(false);
+      }
     };
+
     load();
   }, []);
 
@@ -46,11 +77,11 @@ export default function Artista() {
   return (
     <div className="pt-28 pb-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <section className="mb-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }} className="relative">
-              <div className="overflow-hidden">
-                <img src={ARTIST_PHOTO} alt="Almir Donizete Gonçalves" className="w-full h-auto" />
+        <section className="mb-16 sm:mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+            <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }} className="relative mx-auto w-full max-w-[520px]">
+              <div className="overflow-hidden border border-gold/20 bg-black/40 aspect-[4/5] sm:aspect-[3/4]">
+                <img src={ARTIST_PHOTO} alt="Almir Donizete Gonçalves" className="w-full h-full object-cover object-top" />
               </div>
               <div className="absolute -bottom-5 -right-5 w-28 h-28 border border-gold/30 hidden sm:block" />
               <div className="absolute -top-5 -left-5 w-16 h-16 border border-gold/20 hidden sm:block" />
@@ -64,7 +95,7 @@ export default function Artista() {
                 <span className="text-gold">Gonçalves</span>
               </h1>
               <div className="gold-line w-16 mb-7" />
-              <div className="space-y-4 text-white/60 text-sm leading-relaxed">
+              <div className="space-y-4 text-white/60 text-sm sm:text-[15px] leading-relaxed">
                 <p>
                   Artista plástico contemporâneo cuja produção transita entre o abstrato e o experimental. Utiliza tinta acrílica, colagem e técnicas digitais em
                   composições tridimensionais que exploram cor, textura e profundidade.
@@ -78,21 +109,47 @@ export default function Artista() {
                   residenciais e comerciais.
                 </p>
               </div>
-              <div className="mt-10 grid grid-cols-3 gap-6 border-t border-gold/20 pt-8">
+              <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-6 border-t border-gold/20 pt-6 sm:pt-8">
                 {[
                   { n: "30+", l: "Anos de experiência" },
                   { n: "+2000", l: "Obras criadas" },
                   { n: "300+", l: "Clientes satisfeitos" }
                 ].map((s) => (
-                  <div key={s.l}>
-                    <p className="font-heading text-3xl font-bold text-gold">{s.n}</p>
-                    <p className="text-white/40 text-xs mt-1 leading-tight">{s.l}</p>
+                  <div key={s.l} className="min-w-0">
+                    <p className="font-heading text-2xl sm:text-3xl font-bold text-gold">{s.n}</p>
+                    <p className="text-white/45 text-[11px] sm:text-xs mt-1 leading-tight">{s.l}</p>
                   </div>
                 ))}
               </div>
             </motion.div>
           </div>
         </section>
+
+        {artistCategories.length > 0 ? (
+          <section className="mb-12">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div>
+                <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-2">Categorias do artista</span>
+                <h2 className="font-heading text-2xl sm:text-3xl font-bold text-white">Pinturas Manuais e Tridimensional</h2>
+              </div>
+              <Link to="/portfolio" className="hidden sm:inline-flex items-center gap-2 text-gold text-xs tracking-widest uppercase hover:gap-3 transition-all">
+                Ver portfólio <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {artistCategories.map((category) => (
+                <RotatingCategoryCard
+                  key={category.id}
+                  category={category}
+                  linkTo={`/portfolio/categoria/${category.id}`}
+                  coverImages={coversByCategory[category.id] || []}
+                  imageHeight="h-48 sm:h-56 md:h-60"
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {newImages.length > 0 && <NewArrivalsCarousel images={newImages} />}
 
