@@ -36,22 +36,36 @@ export default function RotatingCategoryCard({ category, linkTo, coverImages = [
         {activeImage ? (
           <>
             <AnimatePresence mode="wait">
-              <motion.img
+              <motion.div
                 key={`${category.id}-${activeImage.id || imageIndex}`}
-                src={activeImage.image_url}
-                alt={`${category.name} - capa`}
-                loading="lazy"
-                decoding="async"
-                draggable={false}
-                onContextMenu={(event) => event.preventDefault()}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0"
                 initial={{ opacity: 0.2, scale: 1.04 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.7, ease: "easeOut" }}
-              />
+              >
+                <img
+                  src={activeImage.image_url}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                  onContextMenu={(event) => event.preventDefault()}
+                  className="absolute inset-0 w-full h-full object-cover scale-110 blur-[2px] opacity-45"
+                />
+                <img
+                  src={activeImage.image_url}
+                  alt={`${category.name} - capa`}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                  onContextMenu={(event) => event.preventDefault()}
+                  className="absolute inset-0 w-full h-full object-contain p-2 sm:p-3"
+                />
+              </motion.div>
             </AnimatePresence>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/20" />
           </>
         ) : (
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(199,161,90,0.18),_rgba(0,0,0,0.95)_60%)] flex flex-col items-center justify-center">
