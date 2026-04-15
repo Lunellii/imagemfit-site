@@ -1,3 +1,5 @@
+import { withDisplayCategory } from "@/utils/categoryText";
+
 const ADMIN_BASE_PATH = "/admingustavoif";
 
 const MAX_UPLOAD_DIMENSION = 1600;
@@ -131,13 +133,16 @@ export function buildServerClient({ fallbackClient }) {
     entities: {
       Category: {
         async list(sort = "order", limit = 100) {
-          return apiRequest(withQuery("/api/categories", { sort, limit }));
+          const categories = await apiRequest(withQuery("/api/categories", { sort, limit }));
+          return Array.isArray(categories) ? categories.map((category) => withDisplayCategory(category)) : [];
         },
         async create(payload) {
-          return apiRequest("/api/categories", { method: "POST", body: payload });
+          const created = await apiRequest("/api/categories", { method: "POST", body: payload });
+          return withDisplayCategory(created);
         },
         async update(id, payload) {
-          return apiRequest(`/api/categories/${id}`, { method: "PATCH", body: payload });
+          const updated = await apiRequest(`/api/categories/${id}`, { method: "PATCH", body: payload });
+          return withDisplayCategory(updated);
         },
         async delete(id) {
           return apiRequest(`/api/categories/${id}`, { method: "DELETE" });
