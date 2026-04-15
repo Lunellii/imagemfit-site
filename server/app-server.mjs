@@ -57,30 +57,33 @@ const normalizeCategoryName = (value) =>
     .trim();
 
 const REQUIRED_CATEGORIES = [
-  { name: "Abstrato Arquitetonico", description: "Composicoes abstratas com linhas e formas inspiradas na arquitetura." },
-  { name: "Abstrato Fluido e Marmore", description: "Arte abstrata com movimento fluido e estetica de marmore." },
-  { name: "Abstrato Geometrico", description: "Formas geometricas e equilibrio visual para ambientes modernos." },
-  { name: "Abstrato Minimalista", description: "Pecas com estetica limpa, elegante e minimalista." },
+  { name: "Abstrato Arquitetônico", description: "Composições abstratas com linhas e formas inspiradas na arquitetura." },
+  { name: "Abstrato Fluido e Mármore", description: "Arte abstrata com movimento fluido e estética de mármore." },
+  { name: "Abstrato Geométrico", description: "Formas geométricas e equilíbrio visual para ambientes modernos." },
+  { name: "Abstrato Minimalista", description: "Peças com estética limpa, elegante e minimalista." },
   { name: "Abstrato Pintura e Aquarela", description: "Abstratos com pinceladas expressivas e leveza de aquarela." },
-  { name: "Animais", description: "Temas de fauna para dar personalidade e vida a decoracao." },
-  { name: "Arvores", description: "Obras com arvores e elementos naturais para ambientes acolhedores." },
-  { name: "Cozinha", description: "Quadros pensados para cozinhas e espacos gourmet." },
-  { name: "Diversos", description: "Selecao variada de estilos e temas para todos os gostos." },
-  { name: "Espelhos", description: "Pecas com espelhos para ampliar e valorizar o ambiente." },
-  { name: "Espiritualidade", description: "Temas de fe, energia e espiritualidade para ambientes de paz." },
-  { name: "Flores e Folhas", description: "Composicoes botanicas com delicadeza e frescor natural." },
+  { name: "Animais", description: "Temas de fauna para dar personalidade e vida à decoração." },
+  { name: "Árvores", description: "Obras com árvores e elementos naturais para ambientes acolhedores." },
+  { name: "Cozinha", description: "Quadros pensados para cozinhas e espaços gourmet." },
+  { name: "Diversos", description: "Seleção variada de estilos e temas para todos os gostos." },
+  { name: "Espelhos", description: "Peças com espelhos para ampliar e valorizar o ambiente." },
+  { name: "Espiritualidade", description: "Temas de fé, energia e espiritualidade para ambientes de paz." },
+  { name: "Flores e Folhas", description: "Composições botânicas com delicadeza e frescor natural." },
   { name: "Frases", description: "Quadros com frases inspiradoras e mensagens decorativas." },
-  { name: "Infantil", description: "Arte ludica e delicada para quartos e espacos infantis." },
-  { name: "Mar e Praia", description: "Paisagens maritimas e clima praiano para ambientes leves." },
+  { name: "Infantil", description: "Arte lúdica e delicada para quartos e espaços infantis." },
+  { name: "Mar e Praia", description: "Paisagens marítimas e clima praiano para ambientes leves." },
   { name: "Natureza", description: "Paisagens e elementos naturais para ambientes leves." },
   { name: "Pinturas Manuais", description: "Obras autorais com toque artesanal e acabamento exclusivo." },
-  { name: "Pontes", description: "Tematica de pontes e arquitetura urbana em diferentes estilos." },
-  { name: "Tridimensional", description: "Pecas com profundidade, relevo e textura para destaque visual." },
-  { name: "Urbano", description: "Referencias de cidade, arquitetura e estilo contemporaneo." },
-  { name: "Vida", description: "Obras que celebram movimento, cotidiano e expressoes da vida." }
+  { name: "Pontes", description: "Temática de pontes e arquitetura urbana em diferentes estilos." },
+  { name: "Tridimensional", description: "Peças com profundidade, relevo e textura para destaque visual." },
+  { name: "Urbano", description: "Referências de cidade, arquitetura e estilo contemporâneo." },
+  { name: "Vida", description: "Obras que celebram movimento, cotidiano e expressões da vida." }
 ];
 
 const CATEGORY_DESCRIPTION_ALIASES = {
+  "abstrato fluido e marmora": "abstrato fluido e marmore",
+  "abstrato gometrico": "abstrato geometrico",
+  "abstrato arquitotonico": "abstrato arquitetonico",
   ponte: "pontes",
   pontes: "pontes",
   "pintura manual": "pinturas manuais",
@@ -97,7 +100,7 @@ const resolveCategoryDescription = (categoryName) => {
   const canonical = CATEGORY_DESCRIPTION_ALIASES[normalizedName] || normalizedName;
   const requiredDescription = requiredDescriptionByName.get(canonical);
   if (requiredDescription) return requiredDescription;
-  return `Colecao ${String(categoryName || "").trim()} com curadoria para compor ambientes com estilo.`;
+  return `Coleção ${String(categoryName || "").trim()} com curadoria para compor ambientes com estilo.`;
 };
 
 const MIME = {
@@ -381,10 +384,15 @@ const bootstrap = async () => {
       seen.add(canonicalKey);
 
       const currentDescription = String(raw?.description || "").trim();
+      const resolvedDescription = resolveCategoryDescription(canonicalName);
+      const shouldUseResolvedDescription =
+        !currentDescription ||
+        hasBrokenEncoding(currentDescription) ||
+        normalizeCategoryName(currentDescription) === normalizeCategoryName(resolvedDescription);
       normalizedCategories.push({
         id: String(raw?.id || uid()),
         name: canonicalName,
-        description: currentDescription && !hasBrokenEncoding(currentDescription) ? currentDescription : resolveCategoryDescription(canonicalName),
+        description: shouldUseResolvedDescription ? resolvedDescription : currentDescription,
         cover_enabled: typeof raw?.cover_enabled === "boolean" ? raw.cover_enabled : true,
         order: Number.isFinite(Number(raw?.order)) ? Number(raw.order) : normalizedCategories.length,
         created_date: String(raw?.created_date || nowIso())
@@ -660,7 +668,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && pathname === "/api/classify-category") {
       return sendJson(res, 501, {
         error: "AI_CLASSIFICATION_DISABLED",
-        message: "A classificacao automatica por IA foi desativada."
+        message: "A classificação automática por IA foi desativada."
       });
     }
 
