@@ -1,5 +1,7 @@
 ﻿import seedCatalog from "@/data/seedCatalog.json";
 import { buildServerClient } from "@/api/serverClient";
+import { withDisplayCategory } from "@/utils/categoryText";
+
 
 const CATEGORY_KEY = "ifq_categories";
 
@@ -243,10 +245,13 @@ const normalizeCategoryName = (value) =>
     .trim();
 
 const normalizeDescription = (value) => String(value || "").trim();
-const hasBrokenEncoding = (value) => /Ã|Â|�/.test(String(value || ""));
+const hasBrokenEncoding = (value) => /Ã|Â|\uFFFD/.test(String(value || ""));
 const normalizeImageCode = (value) => String(value || "").trim().replace(/^#+/, "").toUpperCase();
 
 const CATEGORY_DESCRIPTION_ALIASES = {
+  "abstrato fluido e marmora": "abstrato fluido e marmore",
+  "abstrato gometrico": "abstrato geometrico",
+  "abstrato arquitotonico": "abstrato arquitetonico",
   "abstrato arquitetonico": "abstrato arquitetônico",
   "abstrato fluido e marmore": "abstrato fluido e mármore",
   "abstrato geometrico": "abstrato geométrico",
@@ -417,7 +422,11 @@ const migrateRequiredCategoriesOnce = () => {
 
     const currentDescription = normalizeDescription(category.description);
     const resolvedDescription = resolveCategoryDescription(canonicalName);
-    const description = currentDescription && !hasBrokenEncoding(currentDescription) ? currentDescription : resolvedDescription;
+    const shouldUseResolvedDescription =
+      !currentDescription ||
+      hasBrokenEncoding(currentDescription) ||
+      normalizeCategoryName(currentDescription) === normalizeCategoryName(resolvedDescription);
+    const description = shouldUseResolvedDescription ? resolvedDescription : currentDescription;
     if (canonicalName !== rawName || description !== currentDescription) {
       changed = true;
     }
@@ -783,7 +792,9 @@ const CategoryEntity = {
   async list(sort = "order", limit = 100) {
     ensureSeed();
     const categories = normalizeCategories(readJson(CATEGORY_KEY, []));
-    return sortBy(categories, sort).slice(0, limit);
+    return sortBy(categories, sort)
+      .slice(0, limit)
+      .map((category) => withDisplayCategory(category));
   },
   async create(payload) {
     requireAdmin();
@@ -799,7 +810,7 @@ const CategoryEntity = {
     };
     categories.push(item);
     writeJson(CATEGORY_KEY, categories);
-    return item;
+    return withDisplayCategory(item);
   },
   async update(id, payload) {
     requireAdmin();
@@ -825,7 +836,7 @@ const CategoryEntity = {
     }
 
     writeJson(CATEGORY_KEY, nextCategories);
-    return updated;
+    return withDisplayCategory(updated);
   },
   async delete(id) {
     requireAdmin();
@@ -1079,3 +1090,5 @@ const looksLikeHostinger = runtimeHost.endsWith(".hostingersite.com") || runtime
 const useServerStorage = storageModeEnv === "server" || (storageModeEnv !== "local" && looksLikeHostinger);
 
 export const localClient = useServerStorage ? buildServerClient({ fallbackClient: browserLocalClient }) : browserLocalClient;
+
+
