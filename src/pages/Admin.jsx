@@ -80,7 +80,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="upload">
-          <TabsList className="bg-card border border-border rounded-none mb-8 h-auto p-1 gap-1">
+          <TabsList className="bg-card border border-border rounded-none mb-8 h-auto p-1 gap-1 flex flex-wrap justify-start">
             {[
               { value: "upload", label: "Adicionar Imagens" },
               { value: "manage", label: `Imagens (${images.length})` },
