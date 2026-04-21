@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -83,23 +83,23 @@ export default function HeroSlideshow() {
             Ver Portfólio <ChevronRight size={14} />
           </Link>
         </motion.div>
-      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.1, duration: 0.6 }}
-        className="absolute bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center pointer-events-none"
-      >
-        <span className="text-[10px] md:text-xs tracking-[0.35em] uppercase text-white/65">Role para ver mais</span>
         <motion.div
-          animate={{ y: [0, 6, 0], opacity: [0.55, 1, 0.55] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          className="mt-1 text-gold"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.1, duration: 0.6 }}
+          className="mt-10 md:mt-12 z-10 flex flex-col items-center pointer-events-none"
         >
-          <ChevronDown size={16} />
+          <span className="text-[10px] md:text-xs tracking-[0.35em] uppercase text-white/65">Role para ver mais</span>
+          <motion.div
+            animate={{ y: [0, 6, 0], opacity: [0.55, 1, 0.55] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            className="mt-1 text-gold"
+          >
+            <ChevronDown size={16} />
+          </motion.div>
         </motion.div>
-      </motion.div>
+      </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {SLIDES.map((_, i) => (
