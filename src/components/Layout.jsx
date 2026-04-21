@@ -100,8 +100,9 @@ export default function Layout() {
     { to: "/contato", label: "Contato" }
   ];
 
-  const showPausedView = !siteStateLoading && siteState.paused && !isAdmin;
-  const holdWhileLoading = siteStateLoading && !isAdmin;
+  const isAdminRoute = location.pathname.startsWith(ADMIN_BASE_PATH);
+  const showPausedView = !siteStateLoading && siteState.paused && !isAdminRoute;
+  const holdWhileLoading = siteStateLoading && !isAdminRoute;
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -264,7 +265,7 @@ export default function Layout() {
               </div>
             </div>
             <div className="gold-line mb-6" />
-            <p className="text-center text-white/30 text-xs tracking-widest">© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
+            <p className="text-center text-white/30 text-xs tracking-widest">Â© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
           </div>
         </footer>
       )}
