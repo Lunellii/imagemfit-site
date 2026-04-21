@@ -1,18 +1,27 @@
-﻿import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, X, Instagram, Mail, Phone } from "lucide-react";
+import { Menu, X, Instagram, Mail, Phone, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { localClient } from "@/api/localClient";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
 const ADMIN_BASE_PATH = "/admingustavoif";
+const DEFAULT_SITE_STATE = {
+  paused: false,
+  headline: "Catalogo em curadoria",
+  message: "Estamos preparando uma selecao especial de quadros. Volte em instantes.",
+  cta_label: "Falar no WhatsApp",
+  cta_url: "https://wa.me/5547999273809"
+};
 
 export default function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [siteState, setSiteState] = useState(DEFAULT_SITE_STATE);
+  const [siteStateLoading, setSiteStateLoading] = useState(true);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 30);
@@ -57,12 +66,42 @@ export default function Layout() {
     };
   }, [location.pathname]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const refreshSiteState = () => {
+      localClient.siteState
+        .get()
+        .then((state) => {
+          if (!mounted) return;
+          setSiteState({ ...DEFAULT_SITE_STATE, ...state });
+          setSiteStateLoading(false);
+        })
+        .catch(() => {
+          if (!mounted) return;
+          setSiteState(DEFAULT_SITE_STATE);
+          setSiteStateLoading(false);
+        });
+    };
+
+    refreshSiteState();
+    window.addEventListener("focus", refreshSiteState);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener("focus", refreshSiteState);
+    };
+  }, []);
+
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/portfolio", label: "Portfólio" },
+    { to: "/portfolio", label: "Portfolio" },
     { to: "/artista", label: "Artista" },
     { to: "/contato", label: "Contato" }
   ];
+
+  const showPausedView = !siteStateLoading && siteState.paused && !isAdmin;
+  const holdWhileLoading = siteStateLoading && !isAdmin;
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -135,76 +174,100 @@ export default function Layout() {
       </header>
 
       <main>
-        <Outlet />
+        {holdWhileLoading ? (
+          <div className="min-h-screen flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-gold" />
+          </div>
+        ) : showPausedView ? (
+          <section className="min-h-screen pt-32 pb-16 px-6 flex items-center justify-center">
+            <div className="max-w-2xl w-full border border-gold/30 bg-black/60 backdrop-blur-sm p-8 md:p-12 text-center">
+              <span className="text-gold text-xs tracking-[0.32em] uppercase">Atualizacao de vitrine</span>
+              <h1 className="font-heading text-4xl md:text-5xl text-white mt-4">{siteState.headline}</h1>
+              <p className="text-white/70 text-base leading-relaxed mt-4">{siteState.message}</p>
+              <a
+                href={siteState.cta_url || "https://wa.me/5547999273809"}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex mt-8 px-7 py-3 border border-gold text-gold text-xs tracking-[0.24em] uppercase hover:bg-gold hover:text-black transition-colors"
+              >
+                {siteState.cta_label || "Falar no WhatsApp"}
+              </a>
+            </div>
+          </section>
+        ) : (
+          <Outlet />
+        )}
       </main>
 
-      <WhatsAppButton />
+      {!showPausedView && <WhatsAppButton />}
 
-      <footer className="bg-black border-t border-gold/20 pt-16 pb-8 mt-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            <div className="md:col-span-1">
-              <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-14 w-auto object-contain mb-4" />
-              <p className="text-white/50 text-xs leading-relaxed">Arte que transforma ambientes. Quadros exclusivos para sua casa e empresa.</p>
-            </div>
+      {!showPausedView && (
+        <footer className="bg-black border-t border-gold/20 pt-16 pb-8 mt-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+              <div className="md:col-span-1">
+                <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-14 w-auto object-contain mb-4" />
+                <p className="text-white/50 text-xs leading-relaxed">Arte que transforma ambientes. Quadros exclusivos para sua casa e empresa.</p>
+              </div>
 
-            <div>
-              <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Sobre Nós</h4>
-              <div className="space-y-2">
-                {navLinks.map((l) => (
-                  <Link key={l.to} to={l.to} className="block text-white/50 hover:text-gold text-xs tracking-wide transition-colors">
-                    {l.label}
-                  </Link>
-                ))}
+              <div>
+                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Sobre Nos</h4>
+                <div className="space-y-2">
+                  {navLinks.map((l) => (
+                    <Link key={l.to} to={l.to} className="block text-white/50 hover:text-gold text-xs tracking-wide transition-colors">
+                      {l.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Contato</h4>
+                <div className="space-y-3">
+                  <a
+                    href="https://wa.me/5547999273809"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
+                  >
+                    <Phone size={13} /> (47) 99927-3809
+                  </a>
+                  <a
+                    href="https://instagram.com/imagemfit.quadros"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
+                  >
+                    <Instagram size={13} /> @imagemfit.quadros
+                  </a>
+                  <a
+                    href="mailto:atendimento.imagemfit@gmail.com"
+                    className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
+                  >
+                    <Mail size={13} /> atendimento.imagemfit@gmail.com
+                  </a>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Informacoes</h4>
+                <div className="space-y-2 text-white/50 text-xs">
+                  <p>CNPJ: 12.780.327/0001-02</p>
+                  <p className="leading-relaxed">
+                    Rua Sao Paulo, 649
+                    <br />
+                    Timbo - SC
+                    <br />
+                    CEP 89095-220
+                  </p>
+                </div>
               </div>
             </div>
-
-            <div>
-              <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Contato</h4>
-              <div className="space-y-3">
-                <a
-                  href="https://wa.me/5547999273809"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
-                >
-                  <Phone size={13} /> (47) 99927-3809
-                </a>
-                <a
-                  href="https://instagram.com/imagemfit.quadros"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
-                >
-                  <Instagram size={13} /> @imagemfit.quadros
-                </a>
-                <a
-                  href="mailto:atendimento.imagemfit@gmail.com"
-                  className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
-                >
-                  <Mail size={13} /> atendimento.imagemfit@gmail.com
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Informações</h4>
-              <div className="space-y-2 text-white/50 text-xs">
-                <p>CNPJ: 12.780.327/0001-02</p>
-                <p className="leading-relaxed">
-                  Rua São Paulo, 649
-                  <br />
-                  Timbó - SC
-                  <br />
-                  CEP 89095-220
-                </p>
-              </div>
-            </div>
+            <div className="gold-line mb-6" />
+            <p className="text-center text-white/30 text-xs tracking-widest">© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
           </div>
-          <div className="gold-line mb-6" />
-          <p className="text-center text-white/30 text-xs tracking-widest">© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 }
