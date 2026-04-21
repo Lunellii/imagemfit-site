@@ -1,6 +1,14 @@
 import { withDisplayCategory } from "@/utils/categoryText";
 
 const ADMIN_BASE_PATH = "/admingustavoif";
+const SITE_STATE_CATEGORY_NAME = "__ifq_site_state__";
+const DEFAULT_SITE_STATE = Object.freeze({
+  paused: false,
+  headline: "Catalogo em curadoria",
+  message: "Estamos preparando uma selecao especial de quadros. Volte em instantes.",
+  cta_label: "Falar no WhatsApp",
+  cta_url: "https://wa.me/5547999273809"
+});
 
 const MAX_UPLOAD_DIMENSION = 1600;
 const UPLOAD_DIMENSION_LARGE = 1440;
@@ -127,14 +135,77 @@ const apiRequest = async (path, { method = "GET", body } = {}) => {
 };
 
 const normalizeImageCode = (value) => String(value || "").trim().replace(/^#+/, "").toUpperCase();
+const normalizeSiteText = (value, fallback, max = 220) => {
+  const text = String(value || "").trim();
+  if (!text) return fallback;
+  return text.slice(0, max);
+};
+const normalizeSiteState = (value = {}) => ({
+  paused: Boolean(value?.paused),
+  headline: normalizeSiteText(value?.headline, DEFAULT_SITE_STATE.headline, 120),
+  message: normalizeSiteText(value?.message, DEFAULT_SITE_STATE.message, 260),
+  cta_label: normalizeSiteText(value?.cta_label, DEFAULT_SITE_STATE.cta_label, 40),
+  cta_url: normalizeSiteText(value?.cta_url, DEFAULT_SITE_STATE.cta_url, 260)
+});
+const parseSiteStateDescription = (description) => {
+  try {
+    return normalizeSiteState(JSON.parse(String(description || "{}")));
+  } catch (_error) {
+    return { ...DEFAULT_SITE_STATE };
+  }
+};
 
 export function buildServerClient({ fallbackClient }) {
+  const listRawCategories = async () => {
+    const categories = await apiRequest(withQuery("/api/categories", { sort: "order", limit: 500 }));
+    return Array.isArray(categories) ? categories : [];
+  };
+
   return {
+    siteState: {
+      async get() {
+        const categories = await listRawCategories();
+        const stateCategory = categories.find((category) => String(category?.name || "").trim() === SITE_STATE_CATEGORY_NAME);
+        if (!stateCategory) return { ...DEFAULT_SITE_STATE };
+        return parseSiteStateDescription(stateCategory.description);
+      },
+      async update(payload) {
+        const categories = await listRawCategories();
+        const stateCategory = categories.find((category) => String(category?.name || "").trim() === SITE_STATE_CATEGORY_NAME);
+        const currentState = stateCategory ? parseSiteStateDescription(stateCategory.description) : { ...DEFAULT_SITE_STATE };
+        const nextState = normalizeSiteState({ ...currentState, ...payload });
+
+        if (stateCategory?.id) {
+          await apiRequest(`/api/categories/${stateCategory.id}`, {
+            method: "PATCH",
+            body: {
+              description: JSON.stringify(nextState),
+              cover_enabled: false
+            }
+          });
+        } else {
+          await apiRequest("/api/categories", {
+            method: "POST",
+            body: {
+              name: SITE_STATE_CATEGORY_NAME,
+              description: JSON.stringify(nextState),
+              cover_enabled: false,
+              order: 9999
+            }
+          });
+        }
+
+        return nextState;
+      }
+    },
     entities: {
       Category: {
         async list(sort = "order", limit = 100) {
           const categories = await apiRequest(withQuery("/api/categories", { sort, limit }));
-          return Array.isArray(categories) ? categories.map((category) => withDisplayCategory(category)) : [];
+          if (!Array.isArray(categories)) return [];
+          return categories
+            .filter((category) => String(category?.name || "").trim() !== SITE_STATE_CATEGORY_NAME)
+            .map((category) => withDisplayCategory(category));
         },
         async create(payload) {
           const created = await apiRequest("/api/categories", { method: "POST", body: payload });
