@@ -4,9 +4,6 @@ Projeto React + Vite com painel administrativo e dois modos de armazenamento:
 - `local` (padrao): dados no `localStorage` do navegador
 - `server`: dados e imagens salvos no servidor (Hostinger)
 
-### Acesso admin
-- Login: `/#/admingustavoif/login`
-
 ### Rodar local (modo localStorage)
 1. Instale dependencias: `npm install`
 2. Copie `.env.example` para `.env`
