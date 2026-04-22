@@ -11,7 +11,7 @@ Projeto React + Vite com painel administrativo e dois modos de armazenamento:
 4. Execute: `npm run dev`
 5. Acesse:
 - site: `http://localhost:5173/`
-- admin: `http://localhost:5173/#/admingustavoif/login`
+- painel administrativo: rota interna configurada no app
 
 ### Rodar com armazenamento em servidor (Node)
 1. Gere build: `npm run build`
