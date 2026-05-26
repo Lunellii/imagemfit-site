@@ -18,6 +18,7 @@ function normalizeText(value) {
 
 const PREFIX_ALIASES_BY_CATEGORY = {
   "ABSTRATO ARQUITETONICO": ["ARQ", "AAR", "ABS"],
+  "ABSTRATO RELEVO": ["ABR", "REL", "ABS"],
   "ABSTRATO FLUIDO E MARMORE": ["AFM", "FLU", "ABS"],
   "ABSTRATO GEOMETRICO": ["AGT", "AGE", "GEO", "ABS"],
   "ABSTRATO MINIMALISTA": ["AMN", "AMI", "MIN", "ABS"],
@@ -37,6 +38,7 @@ const PREFIX_ALIASES_BY_CATEGORY = {
   "PINTURAS MANUAIS": ["PIT", "PIN", "PMA"],
   PONTE: ["PON"],
   PONTES: ["PON"],
+  "SALA DE JOGOS": ["SAL", "JOG"],
   TRIDIMENSIONAL: ["TRID", "TRI"],
   TRIDMENSIONAL: ["TRID", "TRI"],
   URBANO: ["URB"],
@@ -411,9 +413,10 @@ export default function ImageUploader({ categories, onUploaded }) {
       <div className="border border-border p-3 text-xs text-white/65 space-y-1">
         <p className="uppercase tracking-widest text-white/45">Siglas ativas para envio pelo nome</p>
         <p>
-          AFM=Abstrato Fluido e Marmore, AGT=Abstrato Geometrico, AMN=Abstrato Minimalista, ANI=Animais, APA=Abstrato Pintura e Aquarela,
-          ARQ=Abstrato Arquitetonico, ARV=Arvores, DIV=Diversos, ESD=Espiritualidade, ESP=Espelhos, FLO=Flores e Folhas, FRA=Frases,
-          INF=Infantil, MAR=Mar e Praia, NAT=Natureza, PIT=Pinturas Manuais, PON=Pontes, TRID=Tridimensional, URB=Urbano, VID=Vida.
+          ABR=Abstrato Relevo, AFM=Abstrato Fluido e Mármore, AGT=Abstrato Geométrico, AMN=Abstrato Minimalista, ANI=Animais,
+          APA=Abstrato Pintura e Aquarela, ARQ=Abstrato Arquitetônico, ARV=Árvores, COZ=Cozinha, DIV=Diversos, ESD=Espiritualidade,
+          ESP=Espelhos, FLO=Flores e Folhas, FRA=Frases, INF=Infantil, MAR=Mar e Praia, NAT=Natureza, PIT=Pinturas Manuais,
+          PON=Pontes, SAL=Sala de Jogos, TRID=Tridimensional, URB=Urbano, VID=Vida.
         </p>
         <p className="text-white/40">Exemplo de nome: AFM_00001.jpg, ANI_00045.png, URB_0102.webp</p>
       </div>
