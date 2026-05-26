@@ -48,8 +48,8 @@ export default function Admin() {
       });
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async ({ showSpinner = true } = {}) => {
+    if (showSpinner) setLoading(true);
     const [cats, imgs, state] = await Promise.all([
       localClient.entities.Category.list("order", 100),
       loadAllPortfolioImages(),
@@ -58,7 +58,7 @@ export default function Admin() {
     setCategories([...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")));
     setImages(imgs);
     setSiteState(state);
-    setLoading(false);
+    if (showSpinner) setLoading(false);
   };
 
   if (checkingAuth) {
@@ -111,16 +111,16 @@ export default function Admin() {
             ))}
           </TabsList>
           <TabsContent value="upload">
-            <ImageUploader categories={categories} onUploaded={loadData} />
+            <ImageUploader categories={categories} onUploaded={() => loadData({ showSpinner: false })} />
           </TabsContent>
           <TabsContent value="manage">
-            <ImageManager images={images} categories={categories} onDeleted={loadData} />
+            <ImageManager images={images} categories={categories} onDeleted={() => loadData({ showSpinner: false })} />
           </TabsContent>
           <TabsContent value="categories">
-            <CategoryManager categories={categories} images={images} onChanged={loadData} />
+            <CategoryManager categories={categories} images={images} onChanged={() => loadData({ showSpinner: false })} />
           </TabsContent>
           <TabsContent value="site">
-            <SiteModeManager initialState={siteState} onChanged={loadData} />
+            <SiteModeManager initialState={siteState} onChanged={() => loadData({ showSpinner: false })} />
           </TabsContent>
         </Tabs>
       </div>
