@@ -35,7 +35,7 @@ const PREFIX_ALIASES_BY_CATEGORY = {
   INFANTIL: ["INF"],
   "MAR E PRAIA": ["MAR"],
   NATUREZA: ["NAT"],
-  "PINTURAS MANUAIS": ["PIT", "PIN", "PMA"],
+  "PINTURAS MANUAIS": ["QD", "PIT", "PIN", "PMA"],
   PONTE: ["PON"],
   PONTES: ["PON"],
   "SALA DE JOGOS": ["SAL", "JOG"],
@@ -415,7 +415,7 @@ export default function ImageUploader({ categories, onUploaded }) {
         <p>
           ABR=Abstrato Relevo, AFM=Abstrato Fluido e Mármore, AGT=Abstrato Geométrico, AMN=Abstrato Minimalista, ANI=Animais,
           APA=Abstrato Pintura e Aquarela, ARQ=Abstrato Arquitetônico, ARV=Árvores, COZ=Cozinha, DIV=Diversos, ESD=Espiritualidade,
-          ESP=Espelhos, FLO=Flores e Folhas, FRA=Frases, INF=Infantil, MAR=Mar e Praia, NAT=Natureza, PIT=Pinturas Manuais,
+          ESP=Espelhos, FLO=Flores e Folhas, FRA=Frases, INF=Infantil, MAR=Mar e Praia, NAT=Natureza, QD=Pinturas Manuais,
           PON=Pontes, SAL=Sala de Jogos, TRID=Tridimensional, URB=Urbano, VID=Vida.
         </p>
         <p className="text-white/40">Exemplo de nome: AFM_00001.jpg, ANI_00045.png, URB_0102.webp</p>
