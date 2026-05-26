@@ -327,7 +327,15 @@ export default function ImageUploader({ categories, onUploaded }) {
         onUploaded();
       }
 
-      if (error?.message === "STORAGE_QUOTA_EXCEEDED") {
+      const isUnauthorized = error?.status === 401 || error?.status === 403 || error?.message === "UNAUTHORIZED" || error?.message === "ADMIN_DISABLED_PUBLIC";
+
+      if (isUnauthorized) {
+        toast({
+          title: "Sessão expirada",
+          description: "Entre no painel novamente e tente enviar as imagens.",
+          variant: "destructive"
+        });
+      } else if (error?.message === "STORAGE_QUOTA_EXCEEDED") {
         toast({
           title: "Espaço do navegador lotado",
           description: "Exclua algumas imagens no painel e tente novamente, ou envie em lotes menores.",
