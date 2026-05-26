@@ -7,6 +7,24 @@ import ImageManager from "@/components/admin/ImageManager";
 import CategoryManager from "@/components/admin/CategoryManager";
 import SiteModeManager from "@/components/admin/SiteModeManager";
 
+async function loadAllPortfolioImages() {
+  const pageSize = 200;
+  const allImages = [];
+  let page = 1;
+  let total = Number.POSITIVE_INFINITY;
+
+  while (allImages.length < total) {
+    const pageData = await localClient.entities.PortfolioImage.filterPage({}, "-created_date", page, pageSize);
+    const items = Array.isArray(pageData?.items) ? pageData.items : [];
+    total = Number(pageData?.total || items.length || allImages.length);
+    allImages.push(...items);
+    if (!items.length || allImages.length >= total) break;
+    page += 1;
+  }
+
+  return allImages;
+}
+
 export default function Admin() {
   const [categories, setCategories] = useState([]);
   const [images, setImages] = useState([]);
@@ -34,7 +52,7 @@ export default function Admin() {
     setLoading(true);
     const [cats, imgs, state] = await Promise.all([
       localClient.entities.Category.list("order", 100),
-      localClient.entities.PortfolioImage.list("-created_date", 500),
+      loadAllPortfolioImages(),
       localClient.siteState.get()
     ]);
     setCategories([...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")));
