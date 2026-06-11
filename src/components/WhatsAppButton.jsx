@@ -1,23 +1,54 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, X, Send, Trash2 } from "lucide-react";
+import { Check, ClipboardCopy, ShoppingCart, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-
-const WA_NUMBER = "47999273809";
 
 export default function WhatsAppButton() {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { cart, removeItem, clearCart } = useCart();
 
-  const handleSend = () => {
-    if (!cart.length) return;
+  const buildMessage = () => {
+    if (!cart.length) return "";
     const lines = cart
-      .map((i) => `• Código: #${i.code}${i.title && i.title !== i.code ? ` — ${i.title}` : ""}${i.category ? ` (${i.category})` : ""}`)
+      .map((item) => {
+        const title = item.title && item.title !== item.code ? ` - ${item.title}` : "";
+        const category = item.category ? ` (${item.category})` : "";
+        return `- Codigo: #${item.code}${title}${category}`;
+      })
       .join("\n");
-    const msg = `Olá! Tenho interesse nos seguintes quadros:\n\n${lines}\n\nGostaria de saber preço, tamanho, moldura e material disponíveis. 😊`;
-    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
-    clearCart();
-    setOpen(false);
+
+    return `Ola! Tenho interesse nos seguintes quadros:\n\n${lines}\n\nGostaria de saber preco, tamanho, moldura e material disponiveis.`;
+  };
+
+  const fallbackCopy = (message) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = message;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+  };
+
+  const handleCopy = async () => {
+    const message = buildMessage();
+    if (!message) return;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(message);
+      } else {
+        fallbackCopy(message);
+      }
+    } catch (_error) {
+      fallbackCopy(message);
+    }
+
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2500);
   };
 
   return (
@@ -65,10 +96,18 @@ export default function WhatsAppButton() {
             {cart.length > 0 && (
               <div className="p-4 border-t border-white/10 space-y-2">
                 <button
-                  onClick={handleSend}
-                  className="w-full bg-[#25D366] text-white py-3 text-xs font-semibold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-colors"
+                  onClick={handleCopy}
+                  className="w-full bg-gold text-black py-3 text-xs font-semibold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gold/90 transition-colors"
                 >
-                  <Send size={13} /> Enviar pelo WhatsApp
+                  {copied ? (
+                    <>
+                      <Check size={13} /> Mensagem copiada
+                    </>
+                  ) : (
+                    <>
+                      <ClipboardCopy size={13} /> Copiar mensagem
+                    </>
+                  )}
                 </button>
                 <button onClick={clearCart} className="w-full text-white/30 hover:text-white/60 text-xs py-1 transition-colors">
                   Limpar carrinho
