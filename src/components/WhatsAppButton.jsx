@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ClipboardCopy, ShoppingCart, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
+const REQUEST_TEXT = "Gostaria de saber preco, tamanho, moldura e material disponiveis.";
+
 export default function WhatsAppButton() {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState("");
@@ -26,7 +28,7 @@ export default function WhatsAppButton() {
       })
       .join("\n");
 
-    return `Ola! Tenho interesse nos seguintes quadros:\n\n${lines}\n\nGostaria de saber preco, tamanho, moldura e material disponiveis.`;
+    return `Ola! Tenho interesse nos seguintes quadros:\n\n${lines}\n\n${REQUEST_TEXT}`;
   };
 
   const loadImage = (src) =>
@@ -93,7 +95,32 @@ export default function WhatsAppButton() {
     return lines;
   };
 
-  const createOrderImage = async (message) => {
+  const blobToDataUrl = (blob) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+
+  const escapeHtml = (value) =>
+    String(value || "").replace(/[&<>"']/g, (char) => {
+      const entities = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      };
+      return entities[char] || char;
+    });
+
+  const buildClipboardHtml = (imageDataUrl, message) => {
+    const htmlMessage = escapeHtml(message).replace(/\n/g, "<br>");
+    return `<div><img src="${imageDataUrl}" alt="Imagem Fit Quadros - pedido" /><br><p>${htmlMessage}</p></div>`;
+  };
+
+  const createOrderImage = async () => {
     const items = await Promise.all(
       cart.map(async (item) => ({
         ...item,
@@ -101,23 +128,23 @@ export default function WhatsAppButton() {
       })),
     );
 
-    const columns = items.length > 4 ? 2 : 1;
-    const width = columns === 1 ? 1080 : 1480;
-    const padding = 44;
-    const gap = 30;
-    const headerHeight = 124;
-    const captionHeight = 112;
+    const columns = items.length === 1 ? 1 : items.length === 2 ? 2 : 3;
+    const width = columns === 1 ? 720 : columns === 2 ? 860 : 920;
+    const padding = 30;
+    const gap = 20;
+    const headerHeight = 92;
+    const cardPadding = 10;
+    const captionHeight = 76;
     const cardWidth = Math.floor((width - padding * 2 - gap * (columns - 1)) / columns);
-    const imageHeight = columns === 1 ? 620 : 430;
-    const cardHeight = imageHeight + captionHeight;
+    const imageHeight = columns === 1 ? 420 : columns === 2 ? 260 : 190;
+    const cardHeight = imageHeight + captionHeight + cardPadding * 2;
     const rows = Math.ceil(items.length / columns);
-    const messagePadding = 34;
     const tempCanvas = document.createElement("canvas");
     const tempContext = tempCanvas.getContext("2d");
-    tempContext.font = "26px Arial";
-    const messageLines = wrapText(tempContext, message, width - padding * 2 - messagePadding * 2);
-    const messageHeight = messagePadding * 2 + 42 + messageLines.length * 34;
-    const height = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap + messageHeight + padding;
+    tempContext.font = "20px Arial";
+    const footerLines = wrapText(tempContext, REQUEST_TEXT, width - padding * 2);
+    const footerHeight = footerLines.length * 28 + 28;
+    const height = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap + footerHeight + padding;
     const pixelRatio = 2;
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(width * pixelRatio);
@@ -129,50 +156,44 @@ export default function WhatsAppButton() {
     context.fillRect(0, 0, width, height);
 
     context.fillStyle = "#c7a15a";
-    context.font = "700 42px Arial";
-    context.fillText("Pedido de quadros", padding, padding + 46);
+    context.font = "700 31px Arial";
+    context.fillText("Imagem Fit Quadros", padding, padding + 36);
     context.fillStyle = "#ffffff";
-    context.font = "24px Arial";
-    context.fillText(`${items.length} ${items.length === 1 ? "item" : "itens"} no carrinho`, padding, padding + 84);
+    context.font = "17px Arial";
+    context.fillText("Quadros selecionados para orcamento", padding, padding + 66);
 
     items.forEach((item, index) => {
       const col = index % columns;
       const row = Math.floor(index / columns);
       const x = padding + col * (cardWidth + gap);
       const y = padding + headerHeight + row * (cardHeight + gap);
+      const imageX = x + cardPadding;
+      const imageY = y + cardPadding;
+      const imageWidth = cardWidth - cardPadding * 2;
 
+      context.fillStyle = "#f4efe5";
+      context.fillRect(x, y, cardWidth, cardHeight);
       context.fillStyle = "#ffffff";
-      context.fillRect(x, y, cardWidth, imageHeight);
-      drawFittedImage(context, item.image, x, y, cardWidth, imageHeight);
+      context.fillRect(imageX, imageY, imageWidth, imageHeight);
+      drawFittedImage(context, item.image, imageX, imageY, imageWidth, imageHeight);
 
-      context.fillStyle = "#191919";
-      context.fillRect(x, y + imageHeight, cardWidth, captionHeight);
-      context.fillStyle = "#c7a15a";
-      context.font = columns === 1 ? "700 40px Arial" : "700 34px Arial";
-      context.fillText(`#${item.code}`, x + 28, y + imageHeight + 48);
+      const captionY = y + cardPadding + imageHeight;
+      context.fillStyle = "#111111";
+      context.font = columns === 1 ? "700 34px Arial" : columns === 2 ? "700 28px Arial" : "700 23px Arial";
+      context.fillText(`#${item.code}`, x + 12, captionY + 36);
 
-      const subtitle = item.title && item.title !== item.code ? item.title : item.category || "";
-      const detail = item.category && subtitle !== item.category ? item.category : "";
-      context.fillStyle = "#ffffff";
-      context.font = columns === 1 ? "23px Arial" : "20px Arial";
-      if (subtitle) context.fillText(subtitle, x + 28, y + imageHeight + 82);
-      if (detail) {
-        context.fillStyle = "#b7b7b7";
-        context.font = columns === 1 ? "20px Arial" : "18px Arial";
-        context.fillText(detail, x + 28, y + imageHeight + 106);
-      }
+      const label = item.category || (item.title && item.title !== item.code ? item.title : "");
+      context.fillStyle = "#5f5f5f";
+      context.font = columns === 1 ? "21px Arial" : columns === 2 ? "17px Arial" : "14px Arial";
+      if (label) context.fillText(label, x + 12, captionY + 60);
     });
 
-    const messageY = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap;
-    context.fillStyle = "#f7f3ec";
-    context.fillRect(padding, messageY, width - padding * 2, messageHeight);
-    context.fillStyle = "#111111";
-    context.font = "700 30px Arial";
-    context.fillText("Mensagem", padding + messagePadding, messageY + messagePadding + 28);
-    context.font = "26px Arial";
-    messageLines.forEach((line, index) => {
+    const footerY = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap;
+    context.fillStyle = "#ffffff";
+    context.font = "20px Arial";
+    footerLines.forEach((line, index) => {
       if (!line) return;
-      context.fillText(line, padding + messagePadding, messageY + messagePadding + 78 + index * 34);
+      context.fillText(line, padding, footerY + 24 + index * 28);
     });
 
     return new Promise((resolve, reject) => {
@@ -198,9 +219,11 @@ export default function WhatsAppButton() {
 
     try {
       if (navigator.clipboard?.write && window.ClipboardItem) {
-        const orderImageBlob = await createOrderImage(message);
+        const orderImageBlob = await createOrderImage();
         const messageBlob = new Blob([message], { type: "text/plain" });
-        await navigator.clipboard.write([new ClipboardItem({ "image/png": orderImageBlob, "text/plain": messageBlob })]);
+        const imageDataUrl = await blobToDataUrl(orderImageBlob);
+        const htmlBlob = new Blob([buildClipboardHtml(imageDataUrl, message)], { type: "text/html" });
+        await navigator.clipboard.write([new ClipboardItem({ "text/html": htmlBlob, "image/png": orderImageBlob, "text/plain": messageBlob })]);
         setCopied("order");
       } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(message);
