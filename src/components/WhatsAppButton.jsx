@@ -22,8 +22,7 @@ export default function WhatsAppButton() {
       .map((item) => {
         const title = item.title && item.title !== item.code ? ` - ${item.title}` : "";
         const category = item.category ? ` (${item.category})` : "";
-        const image = item.image_url ? `\n  Imagem: ${absoluteUrl(item.image_url)}` : "";
-        return `- Codigo: #${item.code}${title}${category}${image}`;
+        return `- Codigo: #${item.code}${title}${category}`;
       })
       .join("\n");
 
@@ -133,7 +132,12 @@ export default function WhatsAppButton() {
     try {
       if (navigator.clipboard?.write && window.ClipboardItem) {
         const imageBlobs = await createCaptionedImages();
-        const clipboardItems = imageBlobs.map((imageBlob) => new ClipboardItem({ "image/png": imageBlob }));
+        const messageBlob = new Blob([message], { type: "text/plain" });
+        const clipboardItems = imageBlobs.map((imageBlob, index) => {
+          const data = { "image/png": imageBlob };
+          if (index === 0) data["text/plain"] = messageBlob;
+          return new ClipboardItem(data);
+        });
         try {
           await navigator.clipboard.write(clipboardItems);
           setCopied(imageBlobs.length > 1 ? "images" : "image");
@@ -206,11 +210,11 @@ export default function WhatsAppButton() {
                 >
                   {copied ? (
                     <>
-                      <Check size={13} /> {copied === "images" ? "Imagens copiadas" : copied === "image" ? "Imagem copiada" : "Mensagem copiada"}
+                      <Check size={13} /> {copied === "images" ? "Imagens e mensagem copiadas" : copied === "image" ? "Imagem e mensagem copiadas" : "Mensagem copiada"}
                     </>
                   ) : (
                     <>
-                      <ClipboardCopy size={13} /> Copiar imagens dos quadros
+                      <ClipboardCopy size={13} /> Copiar imagens e mensagem
                     </>
                   )}
                 </button>
