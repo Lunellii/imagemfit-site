@@ -4,9 +4,9 @@ import { Check, ClipboardCopy, ShoppingCart, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
-const REQUEST_TEXT = "Ola! Tenho interesse nos quadros selecionados. Pode me enviar valores, tamanhos e opcoes de moldura e material disponiveis?";
+const REQUEST_TEXT = "Olá! Tenho interesse nos quadros selecionados. Você pode me enviar os valores, tamanhos e opções de moldura e materiais disponíveis?";
 const CATEGORY_BY_PREFIX = {
-  AFM: "Abstrato Fluido e Marmore",
+  AFM: "Abstrato Fluido e Mármore",
   ANI: "Animais",
   APA: "Abstrato Pintura e Aquarela",
   FOL: "Flores e Folhas",
@@ -54,7 +54,7 @@ export default function WhatsAppButton() {
       })
       .join("\n");
 
-    return `Ola, tudo bem? Tenho interesse nestes quadros:\n\n${lines}\n\n${REQUEST_TEXT}`;
+    return `Olá, tudo bem? Tenho interesse nestes quadros:\n\n${lines}\n\n${REQUEST_TEXT}`;
   };
 
   const loadImage = (src) =>
@@ -85,7 +85,7 @@ export default function WhatsAppButton() {
       context.fillStyle = "#777";
       context.font = "14px Arial";
       context.textAlign = "center";
-      context.fillText("Imagem indisponivel", x + width / 2, y + height / 2);
+      context.fillText("Imagem indisponível", x + width / 2, y + height / 2);
       context.textAlign = "left";
       return;
     }
@@ -207,7 +207,7 @@ export default function WhatsAppButton() {
     context.fillText("Imagem Fit Quadros", brandX, padding + 30);
     context.fillStyle = "#ffffff";
     context.font = "16px Arial";
-    context.fillText("Selecao de quadros para orcamento", brandX, padding + 57);
+    context.fillText("Seleção de quadros para orçamento", brandX, padding + 57);
 
     const summaryText = `${items.length} ${items.length === 1 ? "quadro" : "quadros"}`;
     context.font = "700 15px Arial";
@@ -256,7 +256,7 @@ export default function WhatsAppButton() {
     context.fillRect(padding, footerY, 8, footerHeight);
     context.fillStyle = "#111111";
     context.font = "700 18px Arial";
-    context.fillText("Mensagem para orcamento", padding + 28, footerY + 34);
+    context.fillText("Mensagem para orçamento", padding + 28, footerY + 34);
     context.fillStyle = "#303030";
     context.font = "19px Arial";
     footerLines.forEach((line, index) => {
