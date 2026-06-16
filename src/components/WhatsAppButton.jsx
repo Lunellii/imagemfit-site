@@ -30,14 +30,6 @@ export default function WhatsAppButton() {
     return `Ola! Tenho interesse nos seguintes quadros:\n\n${lines}\n\nGostaria de saber preco, tamanho, moldura e material disponiveis.`;
   };
 
-  const shortenText = (text, context, maxWidth) => {
-    let value = String(text || "");
-    while (value && context.measureText(value).width > maxWidth) {
-      value = value.slice(0, -1);
-    }
-    return value.length < String(text || "").length ? `${value.trimEnd()}...` : value;
-  };
-
   const loadImage = (src) =>
     new Promise((resolve) => {
       const url = absoluteUrl(src);
@@ -59,6 +51,15 @@ export default function WhatsAppButton() {
       image.src = url;
     });
 
+  const fitImageRect = (image, maxWidth, maxHeight) => {
+    if (!image) return { width: 900, height: 900 };
+    const scale = Math.min(maxWidth / image.width, maxHeight / image.height, 1);
+    return {
+      width: Math.max(360, Math.round(image.width * scale)),
+      height: Math.max(360, Math.round(image.height * scale)),
+    };
+  };
+
   const drawFittedImage = (context, image, x, y, width, height) => {
     if (!image) {
       context.fillStyle = "#e7e2d7";
@@ -77,21 +78,12 @@ export default function WhatsAppButton() {
     context.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
   };
 
-  const createCartImage = async () => {
-    const visibleItems = cart.slice(0, 24);
-    const hiddenCount = cart.length - visibleItems.length;
-    const images = await Promise.all(visibleItems.map((item) => loadImage(item.image_url)));
-    const columns = visibleItems.length === 1 ? 1 : visibleItems.length === 2 ? 2 : 3;
-    const width = columns === 1 ? 720 : 960;
-    const padding = 32;
-    const gap = 20;
-    const headerHeight = 112;
-    const cardWidth = (width - padding * 2 - gap * (columns - 1)) / columns;
-    const imageHeight = Math.round(cardWidth * 0.72);
-    const cardHeight = imageHeight + 82;
-    const rows = Math.ceil(visibleItems.length / columns);
-    const footerHeight = hiddenCount ? 90 : 66;
-    const height = padding + headerHeight + rows * cardHeight + gap * (rows - 1) + footerHeight + padding;
+  const createCaptionedImage = async (item) => {
+    const image = await loadImage(item.image_url);
+    const imageBox = fitImageRect(image, 1200, 1200);
+    const captionHeight = 118;
+    const width = imageBox.width;
+    const height = imageBox.height + captionHeight;
     const pixelRatio = 2;
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(width * pixelRatio);
@@ -99,54 +91,28 @@ export default function WhatsAppButton() {
 
     const context = canvas.getContext("2d");
     context.scale(pixelRatio, pixelRatio);
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, imageBox.height);
+    drawFittedImage(context, image, 0, 0, imageBox.width, imageBox.height);
+
     context.fillStyle = "#111111";
-    context.fillRect(0, 0, width, height);
+    context.fillRect(0, imageBox.height, width, captionHeight);
     context.fillStyle = "#c7a15a";
-    context.font = "700 28px Arial";
-    context.fillText("Imagem Fit Quadros", padding, padding + 34);
-    context.fillStyle = "#ffffff";
-    context.font = "16px Arial";
-    context.fillText("Quadros selecionados para orcamento", padding, padding + 64);
-
-    visibleItems.forEach((item, index) => {
-      const col = index % columns;
-      const row = Math.floor(index / columns);
-      const x = padding + col * (cardWidth + gap);
-      const y = padding + headerHeight + row * (cardHeight + gap);
-
-      context.fillStyle = "#f7f2e8";
-      context.fillRect(x, y, cardWidth, cardHeight);
+    context.font = "700 42px Arial";
+    context.fillText(`#${item.code}`, 34, imageBox.height + 52);
+    const subtitle = item.title && item.title !== item.code ? item.title : item.category || "";
+    if (subtitle) {
       context.fillStyle = "#ffffff";
-      context.fillRect(x + 10, y + 10, cardWidth - 20, imageHeight);
-      drawFittedImage(context, images[index], x + 10, y + 10, cardWidth - 20, imageHeight);
-      context.strokeStyle = "#d6cfbf";
-      context.strokeRect(x + 10, y + 10, cardWidth - 20, imageHeight);
-      context.fillStyle = "#111111";
-      context.font = "700 20px Arial";
-      context.fillText(`#${item.code}`, x + 12, y + imageHeight + 38);
-      context.font = "14px Arial";
-      context.fillStyle = "#555555";
-      const subtitle = item.title && item.title !== item.code ? item.title : item.category || "";
-      if (subtitle) context.fillText(shortenText(subtitle, context, cardWidth - 24), x + 12, y + imageHeight + 60);
-      if (item.category && subtitle !== item.category) {
-        context.fillText(shortenText(item.category, context, cardWidth - 24), x + 12, y + imageHeight + 78);
-      }
-    });
-
-    const footerY = padding + headerHeight + rows * cardHeight + gap * (rows - 1) + 30;
-    context.fillStyle = "#ffffff";
-    context.font = "17px Arial";
-    context.fillText("Gostaria de saber preco, tamanho, moldura e material disponiveis.", padding, footerY);
-    if (hiddenCount) {
-      context.fillStyle = "#c7a15a";
-      context.font = "15px Arial";
-      context.fillText(`+ ${hiddenCount} outro(s) quadro(s) no texto copiado.`, padding, footerY + 28);
+      context.font = "24px Arial";
+      context.fillText(subtitle, 34, imageBox.height + 88);
     }
 
     return new Promise((resolve, reject) => {
       canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("PNG_FAILED"))), "image/png");
     });
   };
+
+  const createCaptionedImages = async () => Promise.all(cart.map((item) => createCaptionedImage(item)));
 
   const fallbackCopy = (message) => {
     const textarea = document.createElement("textarea");
@@ -166,9 +132,15 @@ export default function WhatsAppButton() {
 
     try {
       if (navigator.clipboard?.write && window.ClipboardItem) {
-        const imageBlob = await createCartImage();
-        await navigator.clipboard.write([new ClipboardItem({ "image/png": imageBlob })]);
-        setCopied("image");
+        const imageBlobs = await createCaptionedImages();
+        const clipboardItems = imageBlobs.map((imageBlob) => new ClipboardItem({ "image/png": imageBlob }));
+        try {
+          await navigator.clipboard.write(clipboardItems);
+          setCopied(imageBlobs.length > 1 ? "images" : "image");
+        } catch (_multipleError) {
+          await navigator.clipboard.write([clipboardItems[0]]);
+          setCopied("image");
+        }
       } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(message);
         setCopied("text");
@@ -234,11 +206,11 @@ export default function WhatsAppButton() {
                 >
                   {copied ? (
                     <>
-                      <Check size={13} /> {copied === "image" ? "Imagem copiada" : "Mensagem copiada"}
+                      <Check size={13} /> {copied === "images" ? "Imagens copiadas" : copied === "image" ? "Imagem copiada" : "Mensagem copiada"}
                     </>
                   ) : (
                     <>
-                      <ClipboardCopy size={13} /> Copiar imagem dos quadros
+                      <ClipboardCopy size={13} /> Copiar imagens dos quadros
                     </>
                   )}
                 </button>
