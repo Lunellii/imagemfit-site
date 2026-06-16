@@ -50,15 +50,6 @@ export default function WhatsAppButton() {
       image.src = url;
     });
 
-  const fitImageRect = (image, maxWidth, maxHeight) => {
-    if (!image) return { width: 900, height: 900 };
-    const scale = Math.min(maxWidth / image.width, maxHeight / image.height, 1);
-    return {
-      width: Math.max(360, Math.round(image.width * scale)),
-      height: Math.max(360, Math.round(image.height * scale)),
-    };
-  };
-
   const drawFittedImage = (context, image, x, y, width, height) => {
     if (!image) {
       context.fillStyle = "#e7e2d7";
@@ -77,12 +68,56 @@ export default function WhatsAppButton() {
     context.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
   };
 
-  const createCaptionedImage = async (item) => {
-    const image = await loadImage(item.image_url);
-    const imageBox = fitImageRect(image, 1200, 1200);
-    const captionHeight = 118;
-    const width = imageBox.width;
-    const height = imageBox.height + captionHeight;
+  const wrapText = (context, text, maxWidth) => {
+    const lines = [];
+    text.split("\n").forEach((paragraph) => {
+      if (!paragraph.trim()) {
+        lines.push("");
+        return;
+      }
+
+      const words = paragraph.split(" ");
+      let currentLine = "";
+      words.forEach((word) => {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        if (context.measureText(testLine).width <= maxWidth || !currentLine) {
+          currentLine = testLine;
+        } else {
+          lines.push(currentLine);
+          currentLine = word;
+        }
+      });
+      if (currentLine) lines.push(currentLine);
+    });
+
+    return lines;
+  };
+
+  const createOrderImage = async (message) => {
+    const items = await Promise.all(
+      cart.map(async (item) => ({
+        ...item,
+        image: await loadImage(item.image_url),
+      })),
+    );
+
+    const columns = items.length > 4 ? 2 : 1;
+    const width = columns === 1 ? 1080 : 1480;
+    const padding = 44;
+    const gap = 30;
+    const headerHeight = 124;
+    const captionHeight = 112;
+    const cardWidth = Math.floor((width - padding * 2 - gap * (columns - 1)) / columns);
+    const imageHeight = columns === 1 ? 620 : 430;
+    const cardHeight = imageHeight + captionHeight;
+    const rows = Math.ceil(items.length / columns);
+    const messagePadding = 34;
+    const tempCanvas = document.createElement("canvas");
+    const tempContext = tempCanvas.getContext("2d");
+    tempContext.font = "26px Arial";
+    const messageLines = wrapText(tempContext, message, width - padding * 2 - messagePadding * 2);
+    const messageHeight = messagePadding * 2 + 42 + messageLines.length * 34;
+    const height = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap + messageHeight + padding;
     const pixelRatio = 2;
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(width * pixelRatio);
@@ -90,28 +125,60 @@ export default function WhatsAppButton() {
 
     const context = canvas.getContext("2d");
     context.scale(pixelRatio, pixelRatio);
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, width, imageBox.height);
-    drawFittedImage(context, image, 0, 0, imageBox.width, imageBox.height);
-
     context.fillStyle = "#111111";
-    context.fillRect(0, imageBox.height, width, captionHeight);
+    context.fillRect(0, 0, width, height);
+
     context.fillStyle = "#c7a15a";
     context.font = "700 42px Arial";
-    context.fillText(`#${item.code}`, 34, imageBox.height + 52);
-    const subtitle = item.title && item.title !== item.code ? item.title : item.category || "";
-    if (subtitle) {
+    context.fillText("Pedido de quadros", padding, padding + 46);
+    context.fillStyle = "#ffffff";
+    context.font = "24px Arial";
+    context.fillText(`${items.length} ${items.length === 1 ? "item" : "itens"} no carrinho`, padding, padding + 84);
+
+    items.forEach((item, index) => {
+      const col = index % columns;
+      const row = Math.floor(index / columns);
+      const x = padding + col * (cardWidth + gap);
+      const y = padding + headerHeight + row * (cardHeight + gap);
+
       context.fillStyle = "#ffffff";
-      context.font = "24px Arial";
-      context.fillText(subtitle, 34, imageBox.height + 88);
-    }
+      context.fillRect(x, y, cardWidth, imageHeight);
+      drawFittedImage(context, item.image, x, y, cardWidth, imageHeight);
+
+      context.fillStyle = "#191919";
+      context.fillRect(x, y + imageHeight, cardWidth, captionHeight);
+      context.fillStyle = "#c7a15a";
+      context.font = columns === 1 ? "700 40px Arial" : "700 34px Arial";
+      context.fillText(`#${item.code}`, x + 28, y + imageHeight + 48);
+
+      const subtitle = item.title && item.title !== item.code ? item.title : item.category || "";
+      const detail = item.category && subtitle !== item.category ? item.category : "";
+      context.fillStyle = "#ffffff";
+      context.font = columns === 1 ? "23px Arial" : "20px Arial";
+      if (subtitle) context.fillText(subtitle, x + 28, y + imageHeight + 82);
+      if (detail) {
+        context.fillStyle = "#b7b7b7";
+        context.font = columns === 1 ? "20px Arial" : "18px Arial";
+        context.fillText(detail, x + 28, y + imageHeight + 106);
+      }
+    });
+
+    const messageY = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap;
+    context.fillStyle = "#f7f3ec";
+    context.fillRect(padding, messageY, width - padding * 2, messageHeight);
+    context.fillStyle = "#111111";
+    context.font = "700 30px Arial";
+    context.fillText("Mensagem", padding + messagePadding, messageY + messagePadding + 28);
+    context.font = "26px Arial";
+    messageLines.forEach((line, index) => {
+      if (!line) return;
+      context.fillText(line, padding + messagePadding, messageY + messagePadding + 78 + index * 34);
+    });
 
     return new Promise((resolve, reject) => {
       canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("PNG_FAILED"))), "image/png");
     });
   };
-
-  const createCaptionedImages = async () => Promise.all(cart.map((item) => createCaptionedImage(item)));
 
   const fallbackCopy = (message) => {
     const textarea = document.createElement("textarea");
@@ -131,20 +198,10 @@ export default function WhatsAppButton() {
 
     try {
       if (navigator.clipboard?.write && window.ClipboardItem) {
-        const imageBlobs = await createCaptionedImages();
+        const orderImageBlob = await createOrderImage(message);
         const messageBlob = new Blob([message], { type: "text/plain" });
-        const clipboardItems = imageBlobs.map((imageBlob, index) => {
-          const data = { "image/png": imageBlob };
-          if (index === 0) data["text/plain"] = messageBlob;
-          return new ClipboardItem(data);
-        });
-        try {
-          await navigator.clipboard.write(clipboardItems);
-          setCopied(imageBlobs.length > 1 ? "images" : "image");
-        } catch (_multipleError) {
-          await navigator.clipboard.write([clipboardItems[0]]);
-          setCopied("image");
-        }
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": orderImageBlob, "text/plain": messageBlob })]);
+        setCopied("order");
       } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(message);
         setCopied("text");
@@ -210,11 +267,11 @@ export default function WhatsAppButton() {
                 >
                   {copied ? (
                     <>
-                      <Check size={13} /> {copied === "images" ? "Imagens e mensagem copiadas" : copied === "image" ? "Imagem e mensagem copiadas" : "Mensagem copiada"}
+                      <Check size={13} /> {copied === "order" ? "Pedido completo copiado" : "Mensagem copiada"}
                     </>
                   ) : (
                     <>
-                      <ClipboardCopy size={13} /> Copiar imagens e mensagem
+                      <ClipboardCopy size={13} /> Copiar pedido completo
                     </>
                   )}
                 </button>
