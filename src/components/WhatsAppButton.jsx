@@ -37,8 +37,7 @@ export default function WhatsAppButton() {
   const { cart, removeItem, clearCart } = useCart();
 
   useEffect(() => {
-    const isTouchDevice = window.matchMedia?.("(pointer: coarse)").matches || navigator.maxTouchPoints > 1;
-    setNativeShareAvailable(Boolean(isTouchDevice && navigator.share));
+    setNativeShareAvailable(Boolean(navigator.share));
   }, []);
 
   const absoluteUrl = (src) => {
