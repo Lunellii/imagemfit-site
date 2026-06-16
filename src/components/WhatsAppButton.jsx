@@ -3,7 +3,32 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ClipboardCopy, ShoppingCart, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
-const REQUEST_TEXT = "Gostaria de saber preco, tamanho, moldura e material disponiveis.";
+const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
+const REQUEST_TEXT = "Ola! Tenho interesse nos quadros selecionados. Pode me enviar valores, tamanhos e opcoes de moldura e material disponiveis?";
+const CATEGORY_BY_PREFIX = {
+  AFM: "Abstrato Fluido e Marmore",
+  ANI: "Animais",
+  APA: "Abstrato Pintura e Aquarela",
+  FOL: "Flores e Folhas",
+  MAR: "Mar e Praia",
+  NAT: "Natureza",
+  PON: "Pontes",
+  SIMU: "Espelhos",
+  URB: "Urbano",
+  VID: "Vida",
+};
+
+const getCodePrefix = (code) =>
+  String(code || "")
+    .replace(/^#+/, "")
+    .split(/[_-]/)[0]
+    .toUpperCase();
+
+const getItemCategory = (item) => {
+  const explicitCategory = String(item?.category || item?.category_name || "").trim();
+  if (explicitCategory) return explicitCategory;
+  return CATEGORY_BY_PREFIX[getCodePrefix(item?.code)] || "";
+};
 
 export default function WhatsAppButton() {
   const [open, setOpen] = useState(false);
@@ -23,12 +48,13 @@ export default function WhatsAppButton() {
     const lines = cart
       .map((item) => {
         const title = item.title && item.title !== item.code ? ` - ${item.title}` : "";
-        const category = item.category ? ` (${item.category})` : "";
-        return `- Codigo: #${item.code}${title}${category}`;
+        const categoryName = getItemCategory(item);
+        const category = categoryName ? ` (${categoryName})` : "";
+        return `- #${item.code}${title}${category}`;
       })
       .join("\n");
 
-    return `Ola! Tenho interesse nos seguintes quadros:\n\n${lines}\n\n${REQUEST_TEXT}`;
+    return `Ola, tudo bem? Tenho interesse nestes quadros:\n\n${lines}\n\n${REQUEST_TEXT}`;
   };
 
   const loadImage = (src) =>
@@ -95,6 +121,17 @@ export default function WhatsAppButton() {
     return lines;
   };
 
+  const truncateText = (context, text, maxWidth) => {
+    const value = String(text || "").trim();
+    if (!value || context.measureText(value).width <= maxWidth) return value;
+
+    let truncated = value;
+    while (truncated.length > 0 && context.measureText(`${truncated}...`).width > maxWidth) {
+      truncated = truncated.slice(0, -1);
+    }
+    return truncated ? `${truncated}...` : "";
+  };
+
   const blobToDataUrl = (blob) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -121,29 +158,32 @@ export default function WhatsAppButton() {
   };
 
   const createOrderImage = async () => {
-    const items = await Promise.all(
-      cart.map(async (item) => ({
-        ...item,
-        image: await loadImage(item.image_url),
-      })),
-    );
+    const [logo, items] = await Promise.all([
+      loadImage(LOGO_URL),
+      Promise.all(
+        cart.map(async (item) => ({
+          ...item,
+          image: await loadImage(item.image_url),
+        })),
+      ),
+    ]);
 
     const columns = items.length === 1 ? 1 : items.length === 2 ? 2 : 3;
-    const width = columns === 1 ? 720 : columns === 2 ? 860 : 920;
-    const padding = 30;
-    const gap = 20;
-    const headerHeight = 92;
-    const cardPadding = 10;
-    const captionHeight = 76;
+    const width = columns === 1 ? 760 : columns === 2 ? 900 : 1020;
+    const padding = 38;
+    const gap = 22;
+    const headerHeight = 122;
+    const cardPadding = 12;
+    const captionHeight = 88;
     const cardWidth = Math.floor((width - padding * 2 - gap * (columns - 1)) / columns);
-    const imageHeight = columns === 1 ? 420 : columns === 2 ? 260 : 190;
+    const imageHeight = columns === 1 ? 440 : columns === 2 ? 280 : 205;
     const cardHeight = imageHeight + captionHeight + cardPadding * 2;
     const rows = Math.ceil(items.length / columns);
     const tempCanvas = document.createElement("canvas");
     const tempContext = tempCanvas.getContext("2d");
-    tempContext.font = "20px Arial";
-    const footerLines = wrapText(tempContext, REQUEST_TEXT, width - padding * 2);
-    const footerHeight = footerLines.length * 28 + 28;
+    tempContext.font = "19px Arial";
+    const footerLines = wrapText(tempContext, REQUEST_TEXT, width - padding * 2 - 58);
+    const footerHeight = footerLines.length * 27 + 84;
     const height = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap + footerHeight + padding;
     const pixelRatio = 2;
     const canvas = document.createElement("canvas");
@@ -155,12 +195,28 @@ export default function WhatsAppButton() {
     context.fillStyle = "#111111";
     context.fillRect(0, 0, width, height);
 
+    const logoHeight = 58;
+    const logoWidth = logo ? Math.round((logo.width / logo.height) * logoHeight) : 0;
+    if (logo) {
+      context.drawImage(logo, padding, padding - 2, logoWidth, logoHeight);
+    }
+
+    const brandX = logo ? padding + logoWidth + 18 : padding;
     context.fillStyle = "#c7a15a";
-    context.font = "700 31px Arial";
-    context.fillText("Imagem Fit Quadros", padding, padding + 36);
+    context.font = "700 28px Arial";
+    context.fillText("Imagem Fit Quadros", brandX, padding + 30);
     context.fillStyle = "#ffffff";
-    context.font = "17px Arial";
-    context.fillText("Quadros selecionados para orcamento", padding, padding + 66);
+    context.font = "16px Arial";
+    context.fillText("Selecao de quadros para orcamento", brandX, padding + 57);
+
+    const summaryText = `${items.length} ${items.length === 1 ? "quadro" : "quadros"}`;
+    context.font = "700 15px Arial";
+    const summaryWidth = context.measureText(summaryText).width + 30;
+    context.strokeStyle = "#c7a15a";
+    context.lineWidth = 1;
+    context.strokeRect(width - padding - summaryWidth, padding + 10, summaryWidth, 34);
+    context.fillStyle = "#c7a15a";
+    context.fillText(summaryText, width - padding - summaryWidth + 15, padding + 32);
 
     items.forEach((item, index) => {
       const col = index % columns;
@@ -173,27 +229,39 @@ export default function WhatsAppButton() {
 
       context.fillStyle = "#f4efe5";
       context.fillRect(x, y, cardWidth, cardHeight);
+      context.strokeStyle = "#d7c7a5";
+      context.lineWidth = 1;
+      context.strokeRect(x + 0.5, y + 0.5, cardWidth - 1, cardHeight - 1);
       context.fillStyle = "#ffffff";
       context.fillRect(imageX, imageY, imageWidth, imageHeight);
       drawFittedImage(context, item.image, imageX, imageY, imageWidth, imageHeight);
 
       const captionY = y + cardPadding + imageHeight;
       context.fillStyle = "#111111";
-      context.font = columns === 1 ? "700 34px Arial" : columns === 2 ? "700 28px Arial" : "700 23px Arial";
-      context.fillText(`#${item.code}`, x + 12, captionY + 36);
+      context.font = columns === 1 ? "700 32px Arial" : columns === 2 ? "700 27px Arial" : "700 22px Arial";
+      const codeText = truncateText(context, `#${item.code}`, cardWidth - 28);
+      context.fillText(codeText, x + 14, captionY + 36);
 
-      const label = item.category || (item.title && item.title !== item.code ? item.title : "");
+      const label = getItemCategory(item) || (item.title && item.title !== item.code ? item.title : "");
       context.fillStyle = "#5f5f5f";
-      context.font = columns === 1 ? "21px Arial" : columns === 2 ? "17px Arial" : "14px Arial";
-      if (label) context.fillText(label, x + 12, captionY + 60);
+      context.font = columns === 1 ? "20px Arial" : columns === 2 ? "17px Arial" : "14px Arial";
+      const labelText = truncateText(context, label, cardWidth - 28);
+      if (labelText) context.fillText(labelText, x + 14, captionY + 62);
     });
 
     const footerY = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap;
-    context.fillStyle = "#ffffff";
-    context.font = "20px Arial";
+    context.fillStyle = "#f4efe5";
+    context.fillRect(padding, footerY, width - padding * 2, footerHeight);
+    context.fillStyle = "#c7a15a";
+    context.fillRect(padding, footerY, 8, footerHeight);
+    context.fillStyle = "#111111";
+    context.font = "700 18px Arial";
+    context.fillText("Mensagem para orcamento", padding + 28, footerY + 34);
+    context.fillStyle = "#303030";
+    context.font = "19px Arial";
     footerLines.forEach((line, index) => {
       if (!line) return;
-      context.fillText(line, padding, footerY + 24 + index * 28);
+      context.fillText(line, padding + 28, footerY + 66 + index * 27);
     });
 
     return new Promise((resolve, reject) => {
