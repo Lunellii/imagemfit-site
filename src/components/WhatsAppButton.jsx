@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ClipboardCopy, ShoppingCart, X, Trash2 } from "lucide-react";
+import { Check, ClipboardCopy, Share2, ShoppingCart, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
@@ -33,7 +33,13 @@ const getItemCategory = (item) => {
 export default function WhatsAppButton() {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState("");
+  const [nativeShareAvailable, setNativeShareAvailable] = useState(false);
   const { cart, removeItem, clearCart } = useCart();
+
+  useEffect(() => {
+    const isTouchDevice = window.matchMedia?.("(pointer: coarse)").matches || navigator.maxTouchPoints > 1;
+    setNativeShareAvailable(Boolean(isTouchDevice && navigator.share));
+  }, []);
 
   const absoluteUrl = (src) => {
     try {
@@ -281,13 +287,53 @@ export default function WhatsAppButton() {
     document.body.removeChild(textarea);
   };
 
+  const tryNativeShare = async (message, orderImageBlob) => {
+    if (!nativeShareAvailable || typeof navigator.share !== "function" || typeof File === "undefined") {
+      return false;
+    }
+
+    const file = new File([orderImageBlob], "imagem-fit-quadros.png", { type: "image/png" });
+    const shareData = {
+      title: "Imagem Fit Quadros",
+      text: message,
+      files: [file],
+    };
+    const fileOnlyShareData = {
+      title: "Imagem Fit Quadros",
+      files: [file],
+    };
+
+    if (typeof navigator.canShare === "function" && !navigator.canShare(shareData)) {
+      if (!navigator.canShare(fileOnlyShareData)) {
+        await navigator.share({ title: "Imagem Fit Quadros", text: message });
+        setCopied("sharedText");
+        return true;
+      }
+
+      await navigator.clipboard?.writeText?.(message).catch(() => {});
+      await navigator.share(fileOnlyShareData);
+      setCopied("sharedImage");
+      return true;
+    }
+
+    await navigator.share(shareData);
+    setCopied("shared");
+    return true;
+  };
+
   const handleCopy = async () => {
     const message = buildMessage();
     if (!message) return;
 
     try {
+      const orderImageBlob = await createOrderImage();
+      const shared = await tryNativeShare(message, orderImageBlob);
+      if (shared) {
+        window.setTimeout(() => setCopied(""), 2500);
+        return;
+      }
+
       if (navigator.clipboard?.write && window.ClipboardItem) {
-        const orderImageBlob = await createOrderImage();
         const messageBlob = new Blob([message], { type: "text/plain" });
         const imageDataUrl = await blobToDataUrl(orderImageBlob);
         const htmlBlob = new Blob([buildClipboardHtml(imageDataUrl, message)], { type: "text/html" });
@@ -300,7 +346,11 @@ export default function WhatsAppButton() {
         fallbackCopy(message);
         setCopied("text");
       }
-    } catch (_error) {
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        return;
+      }
+
       fallbackCopy(message);
       setCopied("text");
     }
@@ -358,7 +408,20 @@ export default function WhatsAppButton() {
                 >
                   {copied ? (
                     <>
-                      <Check size={13} /> {copied === "order" ? "Pedido completo copiado" : "Mensagem copiada"}
+                      <Check size={13} />{" "}
+                      {copied === "order"
+                        ? "Pedido completo copiado"
+                        : copied === "shared"
+                          ? "Pedido compartilhado"
+                          : copied === "sharedImage"
+                            ? "Imagem compartilhada e texto copiado"
+                            : copied === "sharedText"
+                              ? "Mensagem compartilhada"
+                              : "Mensagem copiada"}
+                    </>
+                  ) : nativeShareAvailable ? (
+                    <>
+                      <Share2 size={13} /> Compartilhar pedido
                     </>
                   ) : (
                     <>
