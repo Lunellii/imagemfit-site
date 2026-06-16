@@ -19,6 +19,7 @@ export default function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminStateLoading, setAdminStateLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [siteState, setSiteState] = useState(DEFAULT_SITE_STATE);
   const [siteStateLoading, setSiteStateLoading] = useState(true);
@@ -37,15 +38,18 @@ export default function Layout() {
     let mounted = true;
 
     const refreshAdminState = () => {
+      setAdminStateLoading(true);
       localClient.auth
         .me()
         .then((user) => {
           if (!mounted) return;
           setIsAdmin(user?.role === "admin");
+          setAdminStateLoading(false);
         })
         .catch(() => {
           if (!mounted) return;
           setIsAdmin(false);
+          setAdminStateLoading(false);
         });
     };
 
@@ -101,8 +105,9 @@ export default function Layout() {
   ];
 
   const isAdminRoute = location.pathname.startsWith(ADMIN_BASE_PATH);
-  const showPausedView = !siteStateLoading && siteState.paused && !isAdminRoute;
-  const holdWhileLoading = siteStateLoading && !isAdminRoute;
+  const canBypassPausedView = isAdminRoute || isAdmin;
+  const showPausedView = !siteStateLoading && !adminStateLoading && siteState.paused && !canBypassPausedView;
+  const holdWhileLoading = !canBypassPausedView && (siteStateLoading || (!siteStateLoading && siteState.paused && adminStateLoading));
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -265,7 +270,7 @@ export default function Layout() {
               </div>
             </div>
             <div className="gold-line mb-6" />
-            <p className="text-center text-white/30 text-xs tracking-widest">Â© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
+            <p className="text-center text-white/30 text-xs tracking-widest">© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
           </div>
         </footer>
       )}
