@@ -21,7 +21,7 @@ export default function CategoryGrid({ categories, imagesByCategory = {} }) {
       <div className="border border-dashed border-gold/20 py-20 text-center">
         <ImageIcon className="w-10 h-10 text-gold/30 mx-auto mb-4" />
         <p className="text-white/40 text-sm">Nenhuma categoria cadastrada ainda.</p>
-        <p className="text-white/25 text-xs mt-2">Acesse o painel Admin para criar categorias e adicionar imagens.</p>
+        <p className="text-white/25 text-xs mt-2">Acesse o painel administrativo para criar categorias e adicionar imagens.</p>
       </div>
     );
   }
