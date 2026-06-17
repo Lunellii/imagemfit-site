@@ -111,7 +111,7 @@ export default function Artista() {
                   São obras com textura, cor e presença visual, indicadas para projetos que pedem mais exclusividade e destaque no ambiente.
                 </p>
                 <p>
-                  Você pode adicionar os códigos ao carrinho e solicitar orçamento da mesma forma que no restante do catálogo.
+                  Você pode adicionar os códigos ao carrinho e solicitar orçamento da mesma forma que no restante do portfólio.
                 </p>
               </div>
               <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-6 border-t border-gold/20 pt-6 sm:pt-8">
@@ -138,7 +138,7 @@ export default function Artista() {
                 <h2 className="font-heading text-2xl sm:text-3xl font-bold text-white">Pinturas manuais e tridimensionais</h2>
               </div>
               <Link to="/portfolio" className="hidden sm:inline-flex items-center gap-2 text-gold text-xs tracking-widest uppercase hover:gap-3 transition-all">
-                Ver catálogo <ArrowRight size={13} />
+                Ver portfólio <ArrowRight size={13} />
               </Link>
             </div>
 
