@@ -1,4 +1,4 @@
-﻿import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Loader2, Instagram } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
@@ -56,11 +56,11 @@ export default function Contact() {
     <div className="pt-28 pb-16 min-h-screen">
       <div className="max-w-6xl mx-auto px-6">
         <motion.div className="mb-14" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Fale Conosco</span>
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Atendimento</span>
           <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Contato</h1>
           <div className="gold-line w-20 mb-6" />
           <p className="text-white/60 max-w-xl text-sm leading-relaxed">
-            Tem interesse em um quadro especial ou quer saber mais sobre nossos trabalhos? Entre em contato.
+            Para orçamento, monte sua seleção no catálogo e envie pelo carrinho. Para dúvidas, atendimento comercial ou pedidos específicos, fale conosco por aqui.
           </p>
         </motion.div>
 
@@ -87,7 +87,7 @@ export default function Contact() {
               <textarea
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
-                placeholder="Descreva o que você procura..."
+                placeholder="Conte quais quadros, medidas ou informações você precisa..."
                 rows={5}
                 className="w-full bg-card border border-border text-white placeholder-white/30 px-4 py-3.5 text-sm outline-none focus:border-gold transition-colors resize-none"
               />
@@ -98,7 +98,7 @@ export default function Contact() {
               className="w-full bg-gold text-black py-4 text-xs tracking-[0.3em] uppercase font-semibold hover:bg-gold/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send size={14} />}
-              {sending ? "Abrindo email..." : "Enviar Mensagem"}
+              {sending ? "Abrindo email..." : "Preparar mensagem"}
             </button>
           </motion.form>
 
