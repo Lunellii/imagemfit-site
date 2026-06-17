@@ -5,20 +5,20 @@ const steps = [
   {
     icon: Search,
     number: "01",
-    title: "Pesquise no catálogo",
-    desc: "Procure por código, categoria ou estilo e abra os modelos que combinam com o ambiente."
+    title: "Escolha o quadro",
+    desc: "Navegue pelo portfólio e encontre o quadro ideal para o seu espaço."
   },
   {
     icon: ShoppingCart,
     number: "02",
-    title: "Monte sua seleção",
-    desc: 'Clique em "Adicionar" nos quadros desejados. O carrinho guarda os códigos para orçamento.'
+    title: "Adicione ao carrinho",
+    desc: 'Clique em "Adicionar" e selecione quantos quadros quiser para montar seu pedido.'
   },
   {
     icon: MessageCircle,
     number: "03",
-    title: "Envie para orçamento",
-    desc: "Compartilhe a seleção pelo WhatsApp e receba informações de valores, tamanhos, molduras e materiais."
+    title: "Solicite pelo WhatsApp",
+    desc: "Envie o carrinho direto pelo WhatsApp e receba o orçamento personalizado em instantes."
   }
 ];
 
@@ -27,8 +27,8 @@ export default function HowItWorks() {
     <section className="py-20 px-6 bg-black/5">
       <div className="max-w-5xl mx-auto">
         <motion.div className="text-center mb-14" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Pedido sem complicação</span>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Como pedir orçamento</h2>
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Simples assim</span>
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Como funciona</h2>
           <div className="gold-line w-16 mx-auto mt-5" />
         </motion.div>
 
