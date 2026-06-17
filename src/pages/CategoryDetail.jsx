@@ -96,7 +96,7 @@ export default function CategoryDetail() {
     <div className="pt-28 pb-16 min-h-screen bg-[#111]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <Link to="/portfolio" className="inline-flex items-center gap-2 text-white/50 hover:text-gold text-xs tracking-widest uppercase transition-colors mb-10">
-          <ChevronLeft size={14} /> Voltar ao catálogo
+          <ChevronLeft size={14} /> Voltar ao portfólio
         </Link>
 
         <motion.div className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
