@@ -4,7 +4,7 @@ import { Check, ClipboardCopy, Share2, ShoppingCart, X, Trash2 } from "lucide-re
 import { useCart } from "@/hooks/useCart";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
-const REQUEST_TEXT = "Olá! Tenho interesse nos quadros selecionados. Você pode me enviar os valores, tamanhos e opções de moldura e materiais disponíveis?";
+const REQUEST_TEXT = "Pode me enviar os valores, tamanhos, opções de moldura e materiais disponíveis para esta seleção?";
 const CATEGORY_BY_PREFIX = {
   AFM: "Abstrato Fluido e Mármore",
   ANI: "Animais",
@@ -60,7 +60,7 @@ export default function WhatsAppButton() {
       })
       .join("\n");
 
-    return `Olá, tudo bem? Tenho interesse nestes quadros:\n\n${lines}\n\n${REQUEST_TEXT}`;
+    return `Olá, tudo bem? Separei estes quadros no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}`;
   };
 
   const loadImage = (src) =>
@@ -213,7 +213,7 @@ export default function WhatsAppButton() {
     context.fillText("Imagem Fit Quadros", brandX, padding + 30);
     context.fillStyle = "#ffffff";
     context.font = "16px Arial";
-    context.fillText("Seleção de quadros para orçamento", brandX, padding + 57);
+    context.fillText("Códigos selecionados para orçamento", brandX, padding + 57);
 
     const summaryText = `${items.length} ${items.length === 1 ? "quadro" : "quadros"}`;
     context.font = "700 15px Arial";
@@ -262,7 +262,7 @@ export default function WhatsAppButton() {
     context.fillRect(padding, footerY, 8, footerHeight);
     context.fillStyle = "#111111";
     context.font = "700 18px Arial";
-    context.fillText("Mensagem para orçamento", padding + 28, footerY + 34);
+    context.fillText("Pedido de orçamento", padding + 28, footerY + 34);
     context.fillStyle = "#303030";
     context.font = "19px Arial";
     footerLines.forEach((line, index) => {
@@ -380,7 +380,7 @@ export default function WhatsAppButton() {
 
             <div className="max-h-72 overflow-y-auto">
               {cart.length === 0 ? (
-                <p className="text-white/40 text-xs text-center py-8">Nenhum produto no carrinho.</p>
+                <p className="text-white/40 text-xs text-center py-8">Nenhum quadro no carrinho.</p>
               ) : (
                 <ul className="divide-y divide-white/5">
                   {cart.map((item) => (
