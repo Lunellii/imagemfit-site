@@ -73,8 +73,8 @@ export default function Admin() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <ShieldAlert className="w-14 h-14 text-destructive" />
-        <h2 className="font-heading text-2xl font-bold text-white">Acesso Restrito</h2>
-        <p className="text-white/50 text-sm">Voce nao tem permissao para acessar esta area.</p>
+        <h2 className="font-heading text-2xl font-bold text-white">Acesso restrito</h2>
+        <p className="text-white/50 text-sm">Você não tem permissão para acessar esta área.</p>
       </div>
     );
   }
@@ -91,19 +91,19 @@ export default function Admin() {
     <div className="py-12 min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-10">
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Area Restrita</span>
-          <h1 className="font-heading text-4xl font-bold text-white mb-2">Painel Administrativo</h1>
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Área restrita</span>
+          <h1 className="font-heading text-4xl font-bold text-white mb-2">Painel administrativo</h1>
           <div className="gold-line w-20 mb-4" />
-          <p className="text-white/50 text-sm">Gerencie categorias, adicione e remova imagens do portfolio.</p>
+          <p className="text-white/50 text-sm">Gerencie categorias, adicione e remova imagens do catálogo.</p>
         </div>
 
         <Tabs defaultValue="upload">
           <TabsList className="bg-card border border-border rounded-none mb-8 h-auto p-1 gap-1 flex flex-wrap justify-start">
             {[
-              { value: "upload", label: "Adicionar Imagens" },
+              { value: "upload", label: "Adicionar imagens" },
               { value: "manage", label: `Imagens (${images.length})` },
               { value: "categories", label: `Categorias (${categories.length})` },
-              { value: "site", label: "Operacao do Site" }
+              { value: "site", label: "Operação do site" }
             ].map((t) => (
               <TabsTrigger key={t.value} value={t.value} className="rounded-none text-xs tracking-widest uppercase px-5 py-3 data-[state=active]:bg-gold data-[state=active]:text-black">
                 {t.label}
