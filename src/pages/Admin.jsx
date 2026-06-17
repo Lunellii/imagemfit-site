@@ -94,7 +94,7 @@ export default function Admin() {
           <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Área restrita</span>
           <h1 className="font-heading text-4xl font-bold text-white mb-2">Painel administrativo</h1>
           <div className="gold-line w-20 mb-4" />
-          <p className="text-white/50 text-sm">Gerencie categorias, adicione e remova imagens do catálogo.</p>
+          <p className="text-white/50 text-sm">Gerencie categorias, adicione e remova imagens do portfólio.</p>
         </div>
 
         <Tabs defaultValue="upload">
