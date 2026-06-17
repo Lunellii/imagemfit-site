@@ -13,7 +13,7 @@ const getErrorMessage = (error) => {
     return "Credenciais administrativas não configuradas.";
   }
   if (error?.message === "INVALID_ADMIN_CREDENTIALS") {
-    return "Email ou senha inválidos.";
+    return "E-mail ou senha inválidos.";
   }
   return "Não foi possível entrar agora. Tente novamente.";
 };
