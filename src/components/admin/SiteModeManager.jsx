@@ -5,8 +5,8 @@ import { useToast } from "@/components/ui/use-toast";
 
 const DEFAULT_FORM = {
   paused: false,
-  headline: "Catálogo em atualização",
-  message: "Estamos atualizando algumas categorias do catálogo. Volte em instantes ou fale conosco pelo WhatsApp.",
+  headline: "Portfólio em atualização",
+  message: "Estamos atualizando algumas categorias do portfólio. Volte em instantes ou fale conosco pelo WhatsApp.",
   cta_label: "Falar no WhatsApp",
   cta_url: "https://wa.me/5547999273809"
 };
@@ -53,7 +53,7 @@ export default function SiteModeManager({ initialState, onChanged }) {
     <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8">
       <div className="border border-border p-6 space-y-5">
         <h3 className="font-heading text-lg font-semibold text-white">Operação do site</h3>
-        <p className="text-white/45 text-sm">Ative uma tela temporária para visitantes enquanto você organiza o catálogo.</p>
+        <p className="text-white/45 text-sm">Ative uma tela temporária para visitantes enquanto você organiza o portfólio.</p>
 
         <label className="flex items-center justify-between gap-3 border border-border bg-card px-4 py-3">
           <div>
@@ -74,7 +74,7 @@ export default function SiteModeManager({ initialState, onChanged }) {
             value={form.headline}
             onChange={(event) => setForm((current) => ({ ...current, headline: event.target.value.slice(0, 120) }))}
             className="w-full bg-card border border-border text-white placeholder-white/30 px-4 py-3 text-sm outline-none focus:border-gold transition-colors"
-            placeholder="Ex: Catálogo em atualização"
+            placeholder="Ex: Portfólio em atualização"
           />
         </div>
 
