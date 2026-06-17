@@ -19,7 +19,7 @@ export default function AdminLayout({ children }) {
           <div className="flex items-center gap-3">
             <Shield className="w-4 h-4 text-gold" />
             <span className="text-gold text-xs tracking-[0.3em] uppercase font-semibold">
-              Painel Admin
+              Painel administrativo
             </span>
           </div>
           <div className="flex items-center gap-2">
