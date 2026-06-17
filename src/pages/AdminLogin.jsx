@@ -7,10 +7,10 @@ const ADMIN_BASE_PATH = "/admingustavoif";
 
 const getErrorMessage = (error) => {
   if (error?.message === "ADMIN_DISABLED_PUBLIC") {
-    return "Painel admin desativado no site público por segurança.";
+    return "Painel administrativo desativado no site público por segurança.";
   }
   if (error?.message === "ADMIN_CREDENTIALS_NOT_CONFIGURED") {
-    return "Credenciais de admin não configuradas.";
+    return "Credenciais administrativas não configuradas.";
   }
   if (error?.message === "INVALID_ADMIN_CREDENTIALS") {
     return "Email ou senha inválidos.";
@@ -77,13 +77,13 @@ export default function AdminLogin() {
       <div className="w-full max-w-md border border-gold/20 bg-black/50 p-8">
         <div className="text-center mb-8">
           <Lock className="w-6 h-6 text-gold mx-auto mb-3" />
-          <h1 className="font-heading text-3xl text-white mb-2">Acesso Admin</h1>
-          <p className="text-white/60 text-sm">{adminEnabled ? "Entre com email e senha para acessar o painel." : "O acesso admin está desativado neste ambiente público."}</p>
+          <h1 className="font-heading text-3xl text-white mb-2">Acesso administrativo</h1>
+          <p className="text-white/60 text-sm">{adminEnabled ? "Entre com e-mail e senha para acessar o painel." : "O acesso administrativo está desativado neste ambiente público."}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 mb-6">
           <div className="space-y-1.5">
-            <label className="text-white/50 text-xs tracking-[0.2em] uppercase">Email</label>
+            <label className="text-white/50 text-xs tracking-[0.2em] uppercase">E-mail</label>
             <input
               type="email"
               value={form.email}
