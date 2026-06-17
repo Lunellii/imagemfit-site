@@ -1,10 +1,11 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { localClient } from "@/api/localClient";
 import { Loader2, ChevronLeft, ShoppingCart, Check, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
+import { withDisplayCategory } from "@/utils/categoryText";
 
 const PAGE_SIZE = 35;
 const normalizeCategoryName = (value) =>
@@ -50,7 +51,7 @@ export default function CategoryDetail() {
         ]);
 
         if (!mounted) return;
-        setCategory(cats.find((c) => c.id === id) || null);
+        setCategory(withDisplayCategory(cats.find((c) => c.id === id) || null));
         setImages(pageData.items || []);
         setTotalImages(pageData.total || 0);
       } catch (_error) {
@@ -95,7 +96,7 @@ export default function CategoryDetail() {
     <div className="pt-28 pb-16 min-h-screen bg-[#111]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <Link to="/portfolio" className="inline-flex items-center gap-2 text-white/50 hover:text-gold text-xs tracking-widest uppercase transition-colors mb-10">
-          <ChevronLeft size={14} /> Voltar ao Portfólio
+          <ChevronLeft size={14} /> Voltar ao catálogo
         </Link>
 
         <motion.div className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -104,14 +105,14 @@ export default function CategoryDetail() {
           <div className="gold-line w-16 mb-4" />
           {category?.description && <p className="text-white/60 text-sm max-w-xl">{category.description}</p>}
           <p className="text-white/30 text-xs mt-2">
-            {totalImages} produto(s)
+            {totalImages} quadro(s)
             {totalPages > 1 ? ` - página ${currentPage} de ${totalPages}` : ""}
           </p>
         </motion.div>
 
         {!images.length ? (
           <div className="border border-dashed border-gold/20 py-20 text-center">
-            <p className="text-white/30 text-sm">Nenhuma imagem nesta categoria ainda.</p>
+            <p className="text-white/30 text-sm">Nenhum quadro cadastrado nesta categoria ainda.</p>
           </div>
         ) : (
           <>
