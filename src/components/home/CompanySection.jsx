@@ -12,7 +12,7 @@ export default function CompanySection() {
         <motion.div className="text-center mb-16" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Sobre a Imagem Fit</span>
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">
-            Um catálogo pensado para <span className="text-gold italic">facilitar</span> sua escolha
+            Um portfólio pensado para <span className="text-gold italic">facilitar</span> sua escolha
           </h2>
           <div className="gold-line w-20 mx-auto mb-8" />
           <p className="text-white/60 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
@@ -45,7 +45,7 @@ export default function CompanySection() {
             to="/portfolio"
             className="inline-flex items-center gap-3 border border-gold text-gold px-10 py-4 text-xs tracking-[0.3em] uppercase font-medium hover:bg-gold hover:text-black transition-all duration-300"
           >
-            Ver catálogo completo <ArrowRight size={14} />
+            Ver portfólio completo <ArrowRight size={14} />
           </Link>
         </div>
       </div>
