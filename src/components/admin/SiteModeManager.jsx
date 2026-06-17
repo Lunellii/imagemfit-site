@@ -5,8 +5,8 @@ import { useToast } from "@/components/ui/use-toast";
 
 const DEFAULT_FORM = {
   paused: false,
-  headline: "Catalogo em curadoria",
-  message: "Estamos preparando uma selecao especial de quadros. Volte em instantes.",
+  headline: "Catálogo em atualização",
+  message: "Estamos atualizando algumas categorias do catálogo. Volte em instantes ou fale conosco pelo WhatsApp.",
   cta_label: "Falar no WhatsApp",
   cta_url: "https://wa.me/5547999273809"
 };
@@ -35,13 +35,13 @@ export default function SiteModeManager({ initialState, onChanged }) {
       setSaving(true);
       await localClient.siteState.update(form);
       toast({
-        title: "Operacao atualizada",
-        description: form.paused ? "Tela especial ativa para visitantes." : "Site publico liberado normalmente."
+        title: "Operação atualizada",
+        description: form.paused ? "Tela especial ativa para visitantes." : "Site público liberado normalmente."
       });
       onChanged?.();
     } catch (_error) {
       toast({
-        title: "Erro ao salvar operacao",
+        title: "Erro ao salvar operação",
         variant: "destructive"
       });
     } finally {
@@ -52,13 +52,13 @@ export default function SiteModeManager({ initialState, onChanged }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8">
       <div className="border border-border p-6 space-y-5">
-        <h3 className="font-heading text-lg font-semibold text-white">Operacao do Site</h3>
-        <p className="text-white/45 text-sm">Ative uma tela temporaria para visitantes enquanto voce organiza o catalogo.</p>
+        <h3 className="font-heading text-lg font-semibold text-white">Operação do site</h3>
+        <p className="text-white/45 text-sm">Ative uma tela temporária para visitantes enquanto você organiza o catálogo.</p>
 
         <label className="flex items-center justify-between gap-3 border border-border bg-card px-4 py-3">
           <div>
             <p className="text-white text-sm font-medium">Ativar modo pausa</p>
-            <p className="text-white/50 text-xs">Nao usa o termo manutencao. Mostra uma mensagem personalizada.</p>
+            <p className="text-white/50 text-xs">Mostra uma mensagem personalizada sem chamar de manutenção.</p>
           </div>
           <input
             type="checkbox"
@@ -69,12 +69,12 @@ export default function SiteModeManager({ initialState, onChanged }) {
         </label>
 
         <div className="space-y-1.5">
-          <label className="text-white/50 text-xs tracking-widest uppercase">Titulo da tela</label>
+          <label className="text-white/50 text-xs tracking-widest uppercase">Título da tela</label>
           <input
             value={form.headline}
             onChange={(event) => setForm((current) => ({ ...current, headline: event.target.value.slice(0, 120) }))}
             className="w-full bg-card border border-border text-white placeholder-white/30 px-4 py-3 text-sm outline-none focus:border-gold transition-colors"
-            placeholder="Ex: Curadoria em andamento"
+            placeholder="Ex: Catálogo em atualização"
           />
         </div>
 
@@ -90,7 +90,7 @@ export default function SiteModeManager({ initialState, onChanged }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label className="text-white/50 text-xs tracking-widest uppercase">Texto do botao</label>
+            <label className="text-white/50 text-xs tracking-widest uppercase">Texto do botão</label>
             <input
               value={form.cta_label}
               onChange={(event) => setForm((current) => ({ ...current, cta_label: event.target.value.slice(0, 40) }))}
@@ -99,7 +99,7 @@ export default function SiteModeManager({ initialState, onChanged }) {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-white/50 text-xs tracking-widest uppercase">URL do botao</label>
+            <label className="text-white/50 text-xs tracking-widest uppercase">URL do botão</label>
             <input
               value={form.cta_url}
               onChange={(event) => setForm((current) => ({ ...current, cta_url: event.target.value.slice(0, 260) }))}
@@ -114,7 +114,7 @@ export default function SiteModeManager({ initialState, onChanged }) {
           className="w-full bg-gold text-black py-3 text-xs tracking-widest uppercase font-semibold hover:bg-gold/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={14} />}
-          {saving ? "Salvando..." : "Salvar Operacao"}
+          {saving ? "Salvando..." : "Salvar operação"}
         </button>
       </div>
 
