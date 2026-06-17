@@ -4,8 +4,8 @@ const ADMIN_BASE_PATH = "/admingustavoif";
 const SITE_STATE_CATEGORY_NAME = "__ifq_site_state__";
 const DEFAULT_SITE_STATE = Object.freeze({
   paused: false,
-  headline: "Catálogo em atualização",
-  message: "Estamos atualizando algumas categorias do catálogo. Volte em instantes ou fale conosco pelo WhatsApp.",
+  headline: "Portfólio em atualização",
+  message: "Estamos atualizando algumas categorias do portfólio. Volte em instantes ou fale conosco pelo WhatsApp.",
   cta_label: "Falar no WhatsApp",
   cta_url: "https://wa.me/5547999273809"
 });
