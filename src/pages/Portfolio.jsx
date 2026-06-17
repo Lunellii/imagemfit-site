@@ -50,7 +50,7 @@ export default function Portfolio() {
         setImagesByCategory({});
         toast({
           variant: "destructive",
-          title: "Falha ao carregar o portfólio",
+          title: "Falha ao carregar o catálogo",
           description: "Atualize a página e tente novamente."
         });
       } finally {
