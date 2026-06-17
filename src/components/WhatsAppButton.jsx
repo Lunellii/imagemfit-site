@@ -60,7 +60,7 @@ export default function WhatsAppButton() {
       })
       .join("\n");
 
-    return `Olá, tudo bem? Separei estes quadros no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}`;
+    return `Olá, tudo bem? Separei estes quadros no portfólio da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}`;
   };
 
   const loadImage = (src) =>
