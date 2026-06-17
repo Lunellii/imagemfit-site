@@ -1,4 +1,4 @@
-﻿import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
@@ -10,19 +10,18 @@ export default function CompanySection() {
     <section className="py-24 px-6">
       <div className="max-w-7xl mx-auto">
         <motion.div className="text-center mb-16" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Nossa História</span>
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Sobre a Imagem Fit</span>
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">
-            Arte que <span className="text-gold italic">transforma</span> ambientes
+            Um catálogo pensado para <span className="text-gold italic">facilitar</span> sua escolha
           </h2>
           <div className="gold-line w-20 mx-auto mb-8" />
           <p className="text-white/60 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-            A <strong className="text-gold">Imagem Fit Quadros</strong> nasceu em 2016 da paixão pela decoração de ambientes e pelo significado que a arte pode ter
-            na vida das pessoas. Fundada por um casal apaixonado, a empresa acredita que cada quadro representa uma história, uma lembrança especial ou um
-            momento que merece ser eternizado.
+            A <strong className="text-gold">Imagem Fit Quadros</strong> reúne quadros decorativos, espelhos, pinturas manuais e peças especiais para ambientes
+            residenciais e comerciais. O site foi organizado para você navegar por categorias, escolher os códigos favoritos e montar uma seleção com calma.
           </p>
           <p className="text-white/50 max-w-2xl mx-auto text-sm leading-relaxed mt-4">
-            Trabalhamos com quadros decorativos, pinturas feitas à mão, peças tridimensionais e espelhos - sempre com atenção aos detalhes e foco no projeto
-            personalizado de cada cliente. Nosso objetivo é decorar ambientes, levar arte para as pessoas e eternizar momentos especiais.
+            Depois de escolher, envie o carrinho pelo WhatsApp. A equipe retorna com valores, medidas, molduras e materiais disponíveis para cada modelo,
+            ajudando você a encontrar a composição certa para o seu espaço.
           </p>
         </motion.div>
 
@@ -46,7 +45,7 @@ export default function CompanySection() {
             to="/portfolio"
             className="inline-flex items-center gap-3 border border-gold text-gold px-10 py-4 text-xs tracking-[0.3em] uppercase font-medium hover:bg-gold hover:text-black transition-all duration-300"
           >
-            Ver Portfólio Completo <ArrowRight size={14} />
+            Ver catálogo completo <ArrowRight size={14} />
           </Link>
         </div>
       </div>
