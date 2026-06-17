@@ -1,26 +1,26 @@
-﻿import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Frame, Palette, Ruler, Sparkles } from "lucide-react";
 
 const items = [
   {
     icon: Frame,
-    title: "Quadros Decorativos",
-    text: "Modelos para sala, quarto, escritório e ambientes comerciais."
+    title: "Catálogo organizado",
+    text: "Categorias para sala, quarto, escritório e ambientes comerciais."
   },
   {
     icon: Palette,
-    title: "Arte Autoral",
-    text: "Coleções com estilo moderno, abstrato e artístico."
+    title: "Escolha por código",
+    text: "Cada quadro tem uma identificação clara para facilitar o orçamento."
   },
   {
     icon: Ruler,
-    title: "Tamanhos Sob Medida",
-    text: "Você escolhe o formato ideal para o seu espaço."
+    title: "Opções sob consulta",
+    text: "Tamanhos, molduras e materiais são informados conforme o modelo escolhido."
   },
   {
     icon: Sparkles,
-    title: "Acabamento Premium",
-    text: "Peças com atenção ao detalhe para valorizar o ambiente."
+    title: "Atendimento direcionado",
+    text: "Você envia sua seleção e recebe orientação para fechar a melhor composição."
   }
 ];
 
@@ -34,8 +34,8 @@ export default function FramesHighlights() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Especialidades</span>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Quadros que combinam com seu estilo</h2>
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Vitrine prática</span>
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Encontre, salve e solicite</h2>
           <div className="gold-line w-20 mx-auto mt-5" />
         </motion.div>
 
