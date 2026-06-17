@@ -21,7 +21,7 @@ export default function AlmirTeaser() {
             </h2>
             <div className="gold-line w-16 mb-6" />
             <p className="text-white/60 text-sm leading-relaxed mb-4">
-              Além do catálogo decorativo, a Imagem Fit reúne pinturas manuais e composições tridimensionais assinadas por Almir Gonçalves.
+              Além do portfólio decorativo, a Imagem Fit reúne pinturas manuais e composições tridimensionais assinadas por Almir Gonçalves.
             </p>
             <p className="text-white/50 text-sm leading-relaxed mb-8">
               São peças com linguagem autoral, textura e presença visual para quem procura uma escolha mais exclusiva.
