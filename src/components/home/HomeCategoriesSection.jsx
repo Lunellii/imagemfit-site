@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { localClient } from "@/api/localClient";
@@ -51,12 +51,12 @@ export default function HomeCategoriesSection() {
           viewport={{ once: true }}
         >
           <div>
-            <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Coleções</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Categorias</h2>
+            <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Escolha por estilo</span>
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Categorias do catálogo</h2>
             <div className="gold-line w-16 mt-4" />
           </div>
           <Link to="/portfolio" className="inline-flex items-center gap-2 text-gold text-xs tracking-widest uppercase hover:gap-3 transition-all">
-            Ver todas <ArrowRight size={13} />
+            Ver catálogo <ArrowRight size={13} />
           </Link>
         </motion.div>
 
@@ -81,4 +81,3 @@ export default function HomeCategoriesSection() {
     </section>
   );
 }
-
