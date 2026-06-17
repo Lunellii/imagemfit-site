@@ -60,7 +60,7 @@ export default function Contact() {
           <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Contato</h1>
           <div className="gold-line w-20 mb-6" />
           <p className="text-white/60 max-w-xl text-sm leading-relaxed">
-            Para orçamento, monte sua seleção no catálogo e envie pelo carrinho. Para dúvidas, atendimento comercial ou pedidos específicos, fale conosco por aqui.
+            Para orçamento, monte sua seleção no portfólio e envie pelo carrinho. Para dúvidas, atendimento comercial ou pedidos específicos, fale conosco por aqui.
           </p>
         </motion.div>
 
