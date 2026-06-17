@@ -32,7 +32,7 @@ export default function NewArrivalsCarousel({ images }) {
       <div className="flex items-end justify-between mb-6">
         <div>
           <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-2">Recém adicionados</span>
-          <h3 className="font-heading text-2xl md:text-3xl font-bold text-white">Novidades do catálogo</h3>
+          <h3 className="font-heading text-2xl md:text-3xl font-bold text-white">Novidades do portfólio</h3>
         </div>
         <div className="flex gap-2">
           <button
