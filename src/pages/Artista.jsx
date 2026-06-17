@@ -61,7 +61,7 @@ export default function Artista() {
       } catch (_error) {
         toast({
           variant: "destructive",
-          title: "Falha ao carregar a página do artista",
+          title: "Falha ao carregar as obras autorais",
           description: "Atualize a página e tente novamente."
         });
       } finally {
@@ -135,7 +135,7 @@ export default function Artista() {
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-2">Categorias autorais</span>
-                <h2 className="font-heading text-2xl sm:text-3xl font-bold text-white">Pinturas Manuais e Tridimensional</h2>
+                <h2 className="font-heading text-2xl sm:text-3xl font-bold text-white">Pinturas manuais e tridimensionais</h2>
               </div>
               <Link to="/portfolio" className="hidden sm:inline-flex items-center gap-2 text-gold text-xs tracking-widest uppercase hover:gap-3 transition-all">
                 Ver catálogo <ArrowRight size={13} />
@@ -160,7 +160,7 @@ export default function Artista() {
 
         <section className="mt-8">
           <div className="mb-10">
-            <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Pinturas Manuais & Tridimensional</span>
+            <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Pinturas manuais e tridimensionais</span>
             <h2 className="font-heading text-3xl font-bold text-white mb-2">Códigos autorais disponíveis</h2>
             <div className="gold-line w-16 mb-2" />
           </div>
@@ -171,7 +171,7 @@ export default function Artista() {
             </div>
           ) : images.length === 0 ? (
             <div className="border border-dashed border-gold/20 py-20 text-center">
-              <p className="text-white/40 text-sm">Nenhum quadro encontrado nas categorias de pinturas manuais e tridimensional.</p>
+              <p className="text-white/40 text-sm">Nenhum quadro encontrado nas categorias de pinturas manuais e tridimensionais.</p>
             </div>
           ) : (
             <div className="columns-2 sm:columns-3 lg:columns-4 gap-4 space-y-4">
