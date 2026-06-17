@@ -4,7 +4,7 @@ import { Frame, Palette, Ruler, Sparkles } from "lucide-react";
 const items = [
   {
     icon: Frame,
-    title: "Catálogo organizado",
+    title: "Portfólio organizado",
     text: "Categorias para sala, quarto, escritório e ambientes comerciais."
   },
   {
