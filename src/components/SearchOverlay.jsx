@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2, Search, ShoppingCart, X } from "lucide-react";
 import { localClient } from "@/api/localClient";
@@ -12,12 +12,62 @@ const normalizeSearchText = (value) =>
     .toLowerCase()
     .trim();
 
+const compactSearchText = (value) => normalizeSearchText(value).replace(/[^a-z0-9]/g, "");
+
+const matchesSearch = (image, query, categoryName = "") => {
+  const term = normalizeSearchText(query).replace(/^#+/, "");
+  const compactTerm = compactSearchText(query);
+  if (!term && !compactTerm) return false;
+
+  const searchable = normalizeSearchText(`${image.code || ""} ${image.title || ""} ${categoryName}`);
+  const compactSearchable = compactSearchText(`${image.code || ""} ${image.title || ""} ${categoryName}`);
+
+  return Boolean(
+    (term && searchable.includes(term)) ||
+      (compactTerm && compactSearchable.includes(compactTerm))
+  );
+};
+
+const searchViaApi = async (query) => {
+  const params = new URLSearchParams({ q: query, limit: "48" });
+  const response = await fetch(`/api/images/search?${params.toString()}`, {
+    credentials: "include"
+  });
+
+  if (!response.ok) throw new Error("SEARCH_FAILED");
+  return response.json();
+};
+
+const fallbackSearch = async (query) => {
+  const [categories, portfolioImages] = await Promise.all([
+    localClient.entities.Category.list("order", 500),
+    localClient.entities.PortfolioImage.list("-created_date", 5000)
+  ]);
+  const categoryById = Object.fromEntries(
+    (categories || []).map((category) => [category.id, category])
+  );
+
+  return (Array.isArray(portfolioImages) ? portfolioImages : [])
+    .filter((image) => matchesSearch(image, query, categoryById[image.category_id]?.name || ""))
+    .slice(0, 48)
+    .map((image) => ({
+      ...image,
+      category_name: categoryById[image.category_id]?.name || image.category_name || image.category || ""
+    }));
+};
+
+const searchPortfolioImages = async (query) => {
+  try {
+    return await searchViaApi(query);
+  } catch {
+    return fallbackSearch(query);
+  }
+};
+
 export default function SearchOverlay({ open, onClose }) {
   const [query, setQuery] = useState("");
-  const [images, setImages] = useState([]);
-  const [categoryById, setCategoryById] = useState({});
+  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
   const inputRef = useRef(null);
   const { addItem, isInCart } = useCart();
 
@@ -28,34 +78,46 @@ export default function SearchOverlay({ open, onClose }) {
   }, [open]);
 
   useEffect(() => {
-    if (!open || loaded || loading) return;
+    if (!open) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+
+    const searchTerm = query.trim();
+    if (!searchTerm) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
 
     let mounted = true;
-    setLoading(true);
+    const timer = window.setTimeout(() => {
+      setLoading(true);
 
-    Promise.all([localClient.entities.Category.list("order", 500), localClient.entities.PortfolioImage.list("-created_date", 5000)])
-      .then(([categories, portfolioImages]) => {
-        if (!mounted) return;
-        setCategoryById(Object.fromEntries((categories || []).map((category) => [category.id, category])));
-        setImages(Array.isArray(portfolioImages) ? portfolioImages : []);
-        setLoaded(true);
-      })
-      .catch(() => {
-        if (!mounted) return;
-        toast({
-          variant: "destructive",
-          title: "Falha ao carregar a busca",
-          description: "Atualize a página e tente novamente."
+      searchPortfolioImages(searchTerm)
+        .then((items) => {
+          if (mounted) setResults(Array.isArray(items) ? items : []);
+        })
+        .catch(() => {
+          if (!mounted) return;
+          setResults([]);
+          toast({
+            variant: "destructive",
+            title: "Falha ao pesquisar",
+            description: "Tente novamente em instantes."
+          });
+        })
+        .finally(() => {
+          if (mounted) setLoading(false);
         });
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
+    }, 220);
 
     return () => {
       mounted = false;
+      window.clearTimeout(timer);
     };
-  }, [loaded, loading, open]);
+  }, [open, query]);
 
   useEffect(() => {
     if (!open) return;
@@ -68,22 +130,7 @@ export default function SearchOverlay({ open, onClose }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose, open]);
 
-  const getCategoryName = (image) => {
-    const category = categoryById[image.category_id];
-    return category?.name || image.category || image.category_name || "";
-  };
-
-  const results = useMemo(() => {
-    const searchTerm = normalizeSearchText(query);
-    if (!searchTerm) return [];
-
-    return images
-      .filter((image) => {
-        const searchable = normalizeSearchText(`${image.code || ""} ${image.title || ""} ${getCategoryName(image)}`);
-        return searchable.includes(searchTerm);
-      })
-      .slice(0, 48);
-  }, [categoryById, images, query]);
+  const getCategoryName = (image) => image.category_name || image.category || "";
 
   const addToCart = (image) => {
     if (isInCart(image.id)) {
@@ -104,7 +151,12 @@ export default function SearchOverlay({ open, onClose }) {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] bg-black/96 backdrop-blur-lg px-4 py-5 sm:px-6 sm:py-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[70] bg-black/96 backdrop-blur-lg px-4 py-5 sm:px-6 sm:py-8"
+        >
           <div className="mx-auto flex h-full max-w-5xl flex-col">
             <div className="flex items-center justify-between gap-4 border-b border-gold/20 pb-4">
               <div>
