@@ -18,13 +18,13 @@ export default function Contact() {
     try {
       setSending(true);
       const subject = `Contato de ${form.name} - Imagem Fit`;
-      const body = `Nome: ${form.name}\nEmail: ${form.email}\nTelefone: ${form.phone}\n\nMensagem:\n${form.message}`;
+      const body = `Nome: ${form.name}\nE-mail: ${form.email}\nTelefone: ${form.phone}\n\nMensagem:\n${form.message}`;
       const mailto = `mailto:atendimento.imagemfit@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.open(mailto, "_self");
-      toast({ title: "Mensagem preparada no seu email.", description: "Finalize o envio no app de email." });
+      toast({ title: "Mensagem preparada no seu e-mail.", description: "Finalize o envio no aplicativo de e-mail." });
       setForm({ name: "", email: "", phone: "", message: "" });
     } catch (_err) {
-      toast({ title: "Erro ao abrir o email.", variant: "destructive" });
+      toast({ title: "Erro ao abrir o e-mail.", variant: "destructive" });
     } finally {
       setSending(false);
     }
@@ -33,7 +33,7 @@ export default function Contact() {
   const info = [
     { icon: Phone, label: "WhatsApp", value: "(47) 99927-3809", href: "https://wa.me/5547999273809" },
     { icon: Instagram, label: "Instagram", value: "@imagemfit.quadros", href: "https://instagram.com/imagemfit.quadros" },
-    { icon: Mail, label: "Email", value: "atendimento.imagemfit@gmail.com", href: "mailto:atendimento.imagemfit@gmail.com" },
+    { icon: Mail, label: "E-mail", value: "atendimento.imagemfit@gmail.com", href: "mailto:atendimento.imagemfit@gmail.com" },
     { icon: MapPin, label: "Endereço", value: "Rua São Paulo, 649 - Timbó, SC - CEP 89095-220", href: null }
   ];
 
@@ -68,7 +68,7 @@ export default function Contact() {
           <motion.form onSubmit={handleSubmit} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-3 space-y-5">
             {[
               { key: "name", label: "Nome *", placeholder: "Seu nome completo", type: "text" },
-              { key: "email", label: "Email *", placeholder: "seu@email.com", type: "email" },
+              { key: "email", label: "E-mail *", placeholder: "seu@email.com", type: "email" },
               { key: "phone", label: "Telefone / WhatsApp", placeholder: "(11) 99999-9999", type: "tel" }
             ].map((f) => (
               <div key={f.key} className="space-y-1.5">
@@ -98,7 +98,7 @@ export default function Contact() {
               className="w-full bg-gold text-black py-4 text-xs tracking-[0.3em] uppercase font-semibold hover:bg-gold/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send size={14} />}
-              {sending ? "Abrindo email..." : "Preparar mensagem"}
+              {sending ? "Abrindo e-mail..." : "Preparar mensagem"}
             </button>
           </motion.form>
 
