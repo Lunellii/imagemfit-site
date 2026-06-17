@@ -163,7 +163,7 @@ export default function SearchOverlay({ open, onClose }) {
             <div className="flex items-center justify-between gap-4 border-b border-gold/20 pb-4">
               <div>
                 <span className="text-gold text-[11px] tracking-[0.32em] uppercase">Buscar</span>
-                <h2 className="font-heading text-2xl text-white mt-1">Buscar no catálogo</h2>
+                <h2 className="font-heading text-2xl text-white mt-1">Buscar no portfólio</h2>
               </div>
               <button
                 type="button"
