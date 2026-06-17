@@ -50,7 +50,7 @@ export default function Portfolio() {
         setImagesByCategory({});
         toast({
           variant: "destructive",
-          title: "Falha ao carregar o catálogo",
+          title: "Falha ao carregar o portfólio",
           description: "Atualize a página e tente novamente."
         });
       } finally {
@@ -76,7 +76,7 @@ export default function Portfolio() {
       <div className="relative h-64 md:h-80 overflow-hidden">
         <img
           src="https://picsum.photos/seed/ifq-portfolio-banner/1920/1080"
-          alt="Catálogo de quadros"
+          alt="Portfólio de quadros"
           draggable={false}
           onContextMenu={(event) => event.preventDefault()}
           className="w-full h-full object-cover"
@@ -88,7 +88,7 @@ export default function Portfolio() {
           transition={{ duration: 0.7 }}
           className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
         >
-          <span className="text-gold text-xs tracking-[0.5em] uppercase font-medium block mb-3">Catálogo</span>
+          <span className="text-gold text-xs tracking-[0.5em] uppercase font-medium block mb-3">Portfólio</span>
           <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Quadros por categoria</h1>
           <div className="gold-line w-20 mx-auto" />
         </motion.div>
@@ -105,7 +105,7 @@ export default function Portfolio() {
         <div className="mb-8 flex items-center gap-4">
           <LayoutGrid className="text-gold" size={20} />
           <div>
-            <h2 className="font-heading text-2xl font-bold text-white">Categorias do catálogo</h2>
+            <h2 className="font-heading text-2xl font-bold text-white">Categorias do portfólio</h2>
             <p className="text-white/40 text-xs mt-0.5">{categories.length} categoria(s) disponível(is)</p>
           </div>
         </div>
