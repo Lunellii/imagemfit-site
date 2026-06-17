@@ -1,4 +1,4 @@
-﻿import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
@@ -15,23 +15,22 @@ export default function AlmirTeaser() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.2 }}>
-            <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Conheça o artista</span>
+            <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Obras autorais</span>
             <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-3 leading-tight">
               Almir <span className="text-gold italic">Gonçalves</span>
             </h2>
             <div className="gold-line w-16 mb-6" />
             <p className="text-white/60 text-sm leading-relaxed mb-4">
-              Artista plástico contemporâneo com mais de 30 anos de experiência, Almir Gonçalves cria obras que transitam entre o abstrato e o experimental -
-              usando tinta acrílica, colagem e técnicas digitais em composições tridimensionais únicas.
+              Além do catálogo decorativo, a Imagem Fit reúne pinturas manuais e composições tridimensionais assinadas por Almir Gonçalves.
             </p>
             <p className="text-white/50 text-sm leading-relaxed mb-8">
-              Fundador da <strong className="text-gold">Imagem Fit Quadros</strong>, seu trabalho é uma síntese de sensibilidade estética e inovação constante.
+              São peças com linguagem autoral, textura e presença visual para quem procura uma escolha mais exclusiva.
             </p>
             <Link
               to="/artista"
               className="inline-flex items-center gap-3 border border-gold text-gold px-8 py-3.5 text-xs tracking-[0.3em] uppercase font-medium hover:bg-gold hover:text-black transition-all duration-300"
             >
-              Ver obras <ArrowRight size={13} />
+              Ver obras autorais <ArrowRight size={13} />
             </Link>
           </motion.div>
         </div>
