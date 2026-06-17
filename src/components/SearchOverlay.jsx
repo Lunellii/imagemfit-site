@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2, Search, ShoppingCart, X } from "lucide-react";
-import { localClient } from "@/api/localClient";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 
@@ -39,13 +38,16 @@ const searchViaApi = async (query) => {
 };
 
 const fallbackSearch = async (query) => {
-  const [categories, portfolioImages] = await Promise.all([
-    localClient.entities.Category.list("order", 500),
-    localClient.entities.PortfolioImage.list("-created_date", 5000)
+  const [imagesResponse, categoriesResponse] = await Promise.all([
+    fetch("/api/images?sort=-created_date&limit=5000", { credentials: "include" }),
+    fetch("/api/categories?sort=order&limit=500", { credentials: "include" }).catch(() => null)
   ]);
-  const categoryById = Object.fromEntries(
-    (categories || []).map((category) => [category.id, category])
-  );
+
+  if (!imagesResponse.ok) throw new Error("SEARCH_FALLBACK_FAILED");
+
+  const portfolioImages = await imagesResponse.json();
+  const categories = categoriesResponse?.ok ? await categoriesResponse.json() : [];
+  const categoryById = Object.fromEntries((categories || []).map((category) => [category.id, category]));
 
   return (Array.isArray(portfolioImages) ? portfolioImages : [])
     .filter((image) => matchesSearch(image, query, categoryById[image.category_id]?.name || ""))
