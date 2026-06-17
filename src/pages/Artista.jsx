@@ -96,7 +96,7 @@ export default function Artista() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
-              <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">O Artista</span>
+              <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Obras autorais</span>
               <h1 className="font-heading text-4xl md:text-5xl font-bold text-white mb-2 leading-tight">
                 Almir
                 <br />
@@ -105,16 +105,13 @@ export default function Artista() {
               <div className="gold-line w-16 mb-7" />
               <div className="space-y-4 text-white/60 text-sm sm:text-[15px] leading-relaxed">
                 <p>
-                  Artista plástico contemporâneo cuja produção transita entre o abstrato e o experimental. Utiliza tinta acrílica, colagem e técnicas digitais em
-                  composições tridimensionais que exploram cor, textura e profundidade.
+                  Esta página reúne as pinturas manuais e composições tridimensionais de Almir Gonçalves, pensadas para quem busca peças com assinatura autoral.
                 </p>
                 <p>
-                  Sua obra reflete uma busca constante por novas formas de expressão visual, unindo sensibilidade estética e inovação. Cada peça carrega uma
-                  identidade única - fruto da experiência acumulada e de um olhar atento às transformações da arte contemporânea.
+                  São obras com textura, cor e presença visual, indicadas para projetos que pedem mais exclusividade e destaque no ambiente.
                 </p>
                 <p>
-                  É também fundador da <strong className="text-gold">Imagem Fit Quadros</strong>, empresa dedicada a levar arte e decoração personalizada para ambientes
-                  residenciais e comerciais.
+                  Você pode adicionar os códigos ao carrinho e solicitar orçamento da mesma forma que no restante do catálogo.
                 </p>
               </div>
               <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-6 border-t border-gold/20 pt-6 sm:pt-8">
@@ -137,11 +134,11 @@ export default function Artista() {
           <section className="mb-12">
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
-                <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-2">Categorias do artista</span>
+                <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-2">Categorias autorais</span>
                 <h2 className="font-heading text-2xl sm:text-3xl font-bold text-white">Pinturas Manuais e Tridimensional</h2>
               </div>
               <Link to="/portfolio" className="hidden sm:inline-flex items-center gap-2 text-gold text-xs tracking-widest uppercase hover:gap-3 transition-all">
-                Ver portfólio <ArrowRight size={13} />
+                Ver catálogo <ArrowRight size={13} />
               </Link>
             </div>
 
@@ -164,7 +161,7 @@ export default function Artista() {
         <section className="mt-8">
           <div className="mb-10">
             <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Pinturas Manuais & Tridimensional</span>
-            <h2 className="font-heading text-3xl font-bold text-white mb-2">Obras do Artista</h2>
+            <h2 className="font-heading text-3xl font-bold text-white mb-2">Códigos autorais disponíveis</h2>
             <div className="gold-line w-16 mb-2" />
           </div>
 
@@ -174,7 +171,7 @@ export default function Artista() {
             </div>
           ) : images.length === 0 ? (
             <div className="border border-dashed border-gold/20 py-20 text-center">
-              <p className="text-white/40 text-sm">Nenhuma imagem encontrada nas categorias de pinturas manuais e tridimensional.</p>
+              <p className="text-white/40 text-sm">Nenhum quadro encontrado nas categorias de pinturas manuais e tridimensional.</p>
             </div>
           ) : (
             <div className="columns-2 sm:columns-3 lg:columns-4 gap-4 space-y-4">
