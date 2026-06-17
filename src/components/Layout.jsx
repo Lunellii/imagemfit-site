@@ -10,8 +10,8 @@ const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
 const ADMIN_BASE_PATH = "/admingustavoif";
 const DEFAULT_SITE_STATE = {
   paused: false,
-  headline: "Catalogo em curadoria",
-  message: "Estamos preparando uma selecao especial de quadros. Volte em instantes.",
+  headline: "Catálogo em atualização",
+  message: "Estamos ajustando a vitrine de quadros. Volte em instantes ou fale conosco pelo WhatsApp.",
   cta_label: "Falar no WhatsApp",
   cta_url: "https://wa.me/5547999273809"
 };
@@ -101,7 +101,7 @@ export default function Layout() {
 
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/portfolio", label: "Portfolio" },
+    { to: "/portfolio", label: "Catálogo" },
     { to: "/artista", label: "Artista" },
     { to: "/contato", label: "Contato" }
   ];
@@ -210,7 +210,7 @@ export default function Layout() {
         ) : showPausedView ? (
           <section className="min-h-screen pt-32 pb-16 px-6 flex items-center justify-center">
             <div className="max-w-2xl w-full border border-gold/30 bg-black/60 backdrop-blur-sm p-8 md:p-12 text-center">
-              <span className="text-gold text-xs tracking-[0.32em] uppercase">Atualizacao de vitrine</span>
+              <span className="text-gold text-xs tracking-[0.32em] uppercase">Atualização de catálogo</span>
               <h1 className="font-heading text-4xl md:text-5xl text-white mt-4">{siteState.headline}</h1>
               <p className="text-white/70 text-base leading-relaxed mt-4">{siteState.message}</p>
               <a
@@ -238,11 +238,11 @@ export default function Layout() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
               <div className="md:col-span-1">
                 <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-14 w-auto object-contain mb-4" />
-                <p className="text-white/50 text-xs leading-relaxed">Arte que transforma ambientes. Quadros exclusivos para sua casa e empresa.</p>
+                <p className="text-white/50 text-xs leading-relaxed">Catálogo de quadros por código para escolher, salvar e solicitar orçamento.</p>
               </div>
 
               <div>
-                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Sobre Nos</h4>
+                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Navegação</h4>
                 <div className="space-y-2">
                   {navLinks.map((l) => (
                     <Link key={l.to} to={l.to} className="block text-white/50 hover:text-gold text-xs tracking-wide transition-colors">
@@ -271,20 +271,23 @@ export default function Layout() {
                   >
                     <Instagram size={13} /> @imagemfit.quadros
                   </a>
-                  <a href="mailto:atendimento.imagemfit@gmail.com" className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors">
+                  <a
+                    href="mailto:atendimento.imagemfit@gmail.com"
+                    className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
+                  >
                     <Mail size={13} /> atendimento.imagemfit@gmail.com
                   </a>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Informacoes</h4>
+                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Informações</h4>
                 <div className="space-y-2 text-white/50 text-xs">
                   <p>CNPJ: 12.780.327/0001-02</p>
                   <p className="leading-relaxed">
-                    Rua Sao Paulo, 649
+                    Rua São Paulo, 649
                     <br />
-                    Timbo - SC
+                    Timbó - SC
                     <br />
                     CEP 89095-220
                   </p>
