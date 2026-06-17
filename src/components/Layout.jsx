@@ -11,7 +11,7 @@ const ADMIN_BASE_PATH = "/admingustavoif";
 const DEFAULT_SITE_STATE = {
   paused: false,
   headline: "Catálogo em atualização",
-  message: "Estamos ajustando a vitrine de quadros. Volte em instantes ou fale conosco pelo WhatsApp.",
+  message: "Estamos atualizando algumas categorias do catálogo. Volte em instantes ou fale conosco pelo WhatsApp.",
   cta_label: "Falar no WhatsApp",
   cta_url: "https://wa.me/5547999273809"
 };
@@ -100,7 +100,7 @@ export default function Layout() {
   }, []);
 
   const navLinks = [
-    { to: "/", label: "Home" },
+    { to: "/", label: "Início" },
     { to: "/portfolio", label: "Catálogo" },
     { to: "/artista", label: "Artista" },
     { to: "/contato", label: "Contato" }
