@@ -10,8 +10,8 @@ const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
 const ADMIN_BASE_PATH = "/admingustavoif";
 const DEFAULT_SITE_STATE = {
   paused: false,
-  headline: "Catálogo em atualização",
-  message: "Estamos atualizando algumas categorias do catálogo. Volte em instantes ou fale conosco pelo WhatsApp.",
+  headline: "Portfólio em atualização",
+  message: "Estamos atualizando algumas categorias do portfólio. Volte em instantes ou fale conosco pelo WhatsApp.",
   cta_label: "Falar no WhatsApp",
   cta_url: "https://wa.me/5547999273809"
 };
@@ -101,7 +101,7 @@ export default function Layout() {
 
   const navLinks = [
     { to: "/", label: "Início" },
-    { to: "/portfolio", label: "Catálogo" },
+    { to: "/portfolio", label: "Portfólio" },
     { to: "/artista", label: "Artista" },
     { to: "/contato", label: "Contato" }
   ];
@@ -210,7 +210,7 @@ export default function Layout() {
         ) : showPausedView ? (
           <section className="min-h-screen pt-32 pb-16 px-6 flex items-center justify-center">
             <div className="max-w-2xl w-full border border-gold/30 bg-black/60 backdrop-blur-sm p-8 md:p-12 text-center">
-              <span className="text-gold text-xs tracking-[0.32em] uppercase">Atualização de catálogo</span>
+              <span className="text-gold text-xs tracking-[0.32em] uppercase">Atualização de portfólio</span>
               <h1 className="font-heading text-4xl md:text-5xl text-white mt-4">{siteState.headline}</h1>
               <p className="text-white/70 text-base leading-relaxed mt-4">{siteState.message}</p>
               <a
@@ -238,7 +238,7 @@ export default function Layout() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
               <div className="md:col-span-1">
                 <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-14 w-auto object-contain mb-4" />
-                <p className="text-white/50 text-xs leading-relaxed">Catálogo de quadros por código para escolher, salvar e solicitar orçamento.</p>
+                <p className="text-white/50 text-xs leading-relaxed">Portfólio de quadros por código para escolher, salvar e solicitar orçamento.</p>
               </div>
 
               <div>
