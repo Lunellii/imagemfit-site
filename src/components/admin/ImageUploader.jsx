@@ -18,11 +18,11 @@ function normalizeText(value) {
 
 const PREFIX_ALIASES_BY_CATEGORY = {
   "ABSTRATO ARQUITETONICO": ["ARQ", "AAR", "ABS"],
-  "ABSTRATO RELEVO": ["ABR", "REL", "ABS"],
   "ABSTRATO FLUIDO E MARMORE": ["AFM", "FLU", "ABS"],
   "ABSTRATO GEOMETRICO": ["AGT", "AGE", "GEO", "ABS"],
   "ABSTRATO MINIMALISTA": ["AMN", "AMI", "MIN", "ABS"],
   "ABSTRATO PINTURA E AQUARELA": ["APA", "AQU", "ABS"],
+  "ABSTRATO RELEVO": ["ABR", "REL", "ABS"],
   ANIMAIS: ["ANI"],
   ARVORES: ["ARV"],
   COZINHA: ["COZ"],
@@ -371,7 +371,7 @@ export default function ImageUploader({ categories, onUploaded }) {
 
   return (
     <div className="border border-border p-8 space-y-6 max-w-2xl">
-      <h3 className="font-heading text-xl font-semibold text-white">Adicionar Imagens em Massa</h3>
+      <h3 className="font-heading text-xl font-semibold text-white">Adicionar imagens em massa</h3>
 
       <div className="grid grid-cols-2 border border-border bg-card">
         <button
@@ -421,10 +421,9 @@ export default function ImageUploader({ categories, onUploaded }) {
       <div className="border border-border p-3 text-xs text-white/65 space-y-1">
         <p className="uppercase tracking-widest text-white/45">Siglas ativas para envio pelo nome</p>
         <p>
-          ABR=Abstrato Relevo, AFM=Abstrato Fluido e Mármore, AGT=Abstrato Geométrico, AMN=Abstrato Minimalista, ANI=Animais,
-          APA=Abstrato Pintura e Aquarela, ARQ=Abstrato Arquitetônico, ARV=Árvores, COZ=Cozinha, DIV=Diversos, ESD=Espiritualidade,
-          ESP=Espelhos, FLO=Flores e Folhas, FRA=Frases, INF=Infantil, MAR=Mar e Praia, NAT=Natureza, QD=Pinturas Manuais,
-          PON=Pontes, SAL=Sala de Jogos, TRID=Tridimensional, URB=Urbano, VID=Vida.
+          ABR=Abstrato Relevo, AFM=Abstrato Fluido e Mármore, AGT=Abstrato Geométrico, AMN=Abstrato Minimalista, ANI=Animais, APA=Abstrato Pintura e Aquarela,
+          ARQ=Abstrato Arquitetônico, ARV=Árvores, COZ=Cozinha, DIV=Diversos, ESD=Espiritualidade, ESP=Espelhos, FLO=Flores e Folhas, FRA=Frases,
+          INF=Infantil, MAR=Mar e Praia, NAT=Natureza, QD=Pinturas Manuais, PON=Pontes, SAL=Sala de Jogos, TRID=Tridimensionais, URB=Urbano, VID=Vida.
         </p>
         <p className="text-white/40">Exemplo de nome: AFM_00001.jpg, ANI_00045.png, URB_0102.webp</p>
       </div>
@@ -519,7 +518,7 @@ export default function ImageUploader({ categories, onUploaded }) {
         className="w-full bg-gold text-black py-4 text-xs tracking-[0.3em] uppercase font-semibold hover:bg-gold/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
       >
         {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload size={14} />}
-        {uploading ? `Enviando (${progress.done}/${progress.total})...` : "Enviar Imagens"}
+        {uploading ? `Enviando (${progress.done}/${progress.total})...` : "Enviar imagens"}
       </button>
     </div>
   );
