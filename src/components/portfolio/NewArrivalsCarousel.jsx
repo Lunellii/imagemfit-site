@@ -31,8 +31,8 @@ export default function NewArrivalsCarousel({ images }) {
     <section className="py-12 mb-8">
       <div className="flex items-end justify-between mb-6">
         <div>
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-2">Em destaque</span>
-          <h3 className="font-heading text-2xl md:text-3xl font-bold text-white">Novidades</h3>
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-2">Recém adicionados</span>
+          <h3 className="font-heading text-2xl md:text-3xl font-bold text-white">Novidades do catálogo</h3>
         </div>
         <div className="flex gap-2">
           <button
