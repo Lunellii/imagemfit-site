@@ -52,11 +52,11 @@ export default function HomeCategoriesSection() {
         >
           <div>
             <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Escolha por estilo</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Categorias do catálogo</h2>
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Categorias do portfólio</h2>
             <div className="gold-line w-16 mt-4" />
           </div>
           <Link to="/portfolio" className="inline-flex items-center gap-2 text-gold text-xs tracking-widest uppercase hover:gap-3 transition-all">
-            Ver catálogo <ArrowRight size={13} />
+            Ver portfólio <ArrowRight size={13} />
           </Link>
         </motion.div>
 
