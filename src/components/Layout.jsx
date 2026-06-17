@@ -1,8 +1,9 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, X, Instagram, Mail, Phone, Loader2 } from "lucide-react";
+import { Menu, X, Instagram, Mail, Phone, Loader2, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import SearchOverlay from "@/components/SearchOverlay";
 import { localClient } from "@/api/localClient";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
@@ -23,6 +24,7 @@ export default function Layout() {
   const [scrolled, setScrolled] = useState(false);
   const [siteState, setSiteState] = useState(DEFAULT_SITE_STATE);
   const [siteStateLoading, setSiteStateLoading] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 30);
@@ -133,6 +135,17 @@ export default function Layout() {
                 {l.label}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className={`w-9 h-9 border transition-colors flex items-center justify-center ${
+                searchOpen ? "border-gold text-gold" : "border-white/25 text-white/60 hover:border-gold hover:text-gold"
+              }`}
+              aria-label="Pesquisar"
+              title="Pesquisar"
+            >
+              <Search size={15} />
+            </button>
             {isAdmin && (
               <Link
                 to={ADMIN_BASE_PATH}
@@ -159,6 +172,16 @@ export default function Layout() {
               className="md:hidden bg-black/98 border-b border-gold/20"
             >
               <div className="px-6 py-6 flex flex-col gap-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setSearchOpen(true);
+                  }}
+                  className="flex items-center gap-3 text-xs tracking-[0.25em] uppercase font-medium text-white/70"
+                >
+                  <Search size={15} className="text-gold" /> Pesquisar
+                </button>
                 {navLinks.map((l) => (
                   <Link
                     key={l.to}
@@ -207,6 +230,8 @@ export default function Layout() {
 
       {!showPausedView && <WhatsAppButton />}
 
+      {!showPausedView && <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />}
+
       {!showPausedView && (
         <footer className="bg-black border-t border-gold/20 pt-16 pb-8 mt-20">
           <div className="max-w-7xl mx-auto px-6">
@@ -246,10 +271,7 @@ export default function Layout() {
                   >
                     <Instagram size={13} /> @imagemfit.quadros
                   </a>
-                  <a
-                    href="mailto:atendimento.imagemfit@gmail.com"
-                    className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
-                  >
+                  <a href="mailto:atendimento.imagemfit@gmail.com" className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors">
                     <Mail size={13} /> atendimento.imagemfit@gmail.com
                   </a>
                 </div>
