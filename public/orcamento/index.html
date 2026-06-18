@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orçamento de Quadros e Espelhos</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="quote-app">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Orçamento</p>
+          <h1>Quadros decorativos e espelhos</h1>
+        </div>
+        <div class="header-actions">
+          <button class="ghost-button" type="button" id="resetQuote">
+            <span aria-hidden="true">×</span>
+            Limpar
+          </button>
+          <button class="primary-button" type="button" id="printQuote">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 9V3h12v6" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <path d="M6 14h12v7H6z" />
+            </svg>
+            Gerar PDF
+          </button>
+        </div>
+      </header>
+
+      <section class="workspace" aria-label="Editor de orçamento">
+        <aside class="form-panel">
+          <section class="panel-section">
+            <div class="section-heading">
+              <h2>Empresa</h2>
+            </div>
+            <label>
+              Nome
+              <input data-path="company.name" type="text" placeholder="Nome da empresa" />
+            </label>
+            <div class="two-columns">
+              <label>
+                Telefone
+                <input data-path="company.phone" type="tel" placeholder="(00) 00000-0000" />
+              </label>
+              <label>
+                E-mail
+                <input data-path="company.email" type="email" placeholder="contato@empresa.com" />
+              </label>
+            </div>
+            <label>
+              Endereço
+              <input data-path="company.address" type="text" placeholder="Cidade, UF" />
+            </label>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-heading">
+              <h2>Cliente</h2>
+            </div>
+            <label>
+              Nome
+              <input data-path="customer.name" type="text" placeholder="Cliente ou empresa" />
+            </label>
+            <div class="two-columns">
+              <label>
+                Telefone
+                <input data-path="customer.phone" type="tel" placeholder="(00) 00000-0000" />
+              </label>
+              <label>
+                E-mail
+                <input data-path="customer.email" type="email" placeholder="cliente@email.com" />
+              </label>
+            </div>
+            <label>
+              Endereço de entrega
+              <input data-path="customer.address" type="text" placeholder="Rua, número, bairro" />
+            </label>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-heading">
+              <h2>Condições</h2>
+            </div>
+            <div class="two-columns">
+              <label>
+                Nº do orçamento
+                <input data-path="quote.number" type="text" />
+              </label>
+              <label>
+                Data
+                <input data-path="quote.date" type="date" />
+              </label>
+            </div>
+            <div class="two-columns">
+              <label>
+                Validade
+                <input data-path="quote.validUntil" type="date" />
+              </label>
+              <label>
+                Vendedor
+                <input data-path="quote.seller" type="text" placeholder="Responsável" />
+              </label>
+            </div>
+            <label>
+              Pagamento
+              <input data-path="quote.payment" type="text" placeholder="Pix, cartão, entrada + saldo" />
+            </label>
+            <label>
+              Prazo
+              <input data-path="quote.delivery" type="text" placeholder="Ex.: 10 dias úteis" />
+            </label>
+            <div class="two-columns">
+              <label>
+                Desconto
+                <input data-path="quote.discount" type="text" inputmode="decimal" placeholder="0,00" />
+              </label>
+              <label>
+                Frete
+                <input data-path="quote.freight" type="text" inputmode="decimal" placeholder="0,00" />
+              </label>
+            </div>
+            <label>
+              Observações gerais
+              <textarea data-path="quote.notes" rows="4" placeholder="Instalação, retirada, medição, garantia"></textarea>
+            </label>
+          </section>
+        </aside>
+
+        <section class="items-panel">
+          <div class="items-toolbar">
+            <div>
+              <p class="eyebrow">Itens</p>
+              <h2>Produtos do orçamento</h2>
+            </div>
+            <button class="secondary-button" type="button" id="addItem">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
+              </svg>
+              Adicionar
+            </button>
+          </div>
+          <div id="itemsList" class="items-list"></div>
+        </section>
+
+        <aside class="preview-panel" aria-label="Resumo do orçamento">
+          <div class="preview-sticky">
+            <div class="section-heading">
+              <h2>Resumo</h2>
+            </div>
+            <div id="quotePreview" class="quote-preview"></div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <section id="printArea" class="print-area" aria-hidden="true"></section>
+
+    <template id="itemTemplate">
+      <article class="item-card">
+        <div class="item-card-header">
+          <div>
+            <p class="eyebrow">Item <span data-role="item-number"></span></p>
+            <h3 data-role="item-title">Produto</h3>
+          </div>
+          <button class="icon-button danger" type="button" data-action="remove-item" title="Remover item" aria-label="Remover item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 6h18" />
+              <path d="M8 6V4h8v2" />
+              <path d="M19 6l-1 15H6L5 6" />
+              <path d="M10 11v6" />
+              <path d="M14 11v6" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Tipo
+            <select data-field="type">
+              <option value="quadro">Quadro decorativo</option>
+              <option value="espelho">Espelho</option>
+              <option value="outro">Outro</option>
+            </select>
+          </label>
+          <label>
+            Código da imagem
+            <input data-field="imageCode" type="text" placeholder="Ex.: IMG-2048" />
+          </label>
+          <label class="wide">
+            Descrição
+            <input data-field="description" type="text" placeholder="Tema, ambiente, referência ou coleção" />
+          </label>
+          <label>
+            Largura (cm)
+            <input data-field="width" type="number" min="0" step="0.1" placeholder="0" />
+          </label>
+          <label>
+            Altura (cm)
+            <input data-field="height" type="number" min="0" step="0.1" placeholder="0" />
+          </label>
+          <label>
+            Quantidade
+            <input data-field="quantity" type="number" min="1" step="1" />
+          </label>
+          <label>
+            Valor unitário
+            <input data-field="unitPrice" type="text" inputmode="decimal" placeholder="0,00" />
+          </label>
+        </div>
+
+        <div class="option-band" data-for="quadro">
+          <div class="form-grid">
+            <label>
+              Técnica
+              <select data-field="technique">
+                <option value="Impressão">Impressão</option>
+                <option value="Pintura">Pintura</option>
+              </select>
+            </label>
+            <label>
+              Material
+              <select data-field="material">
+                <option value="Canvas">Canvas</option>
+                <option value="Vidro comum">Vidro comum</option>
+                <option value="Vidro antirreflexo">Vidro antirreflexo</option>
+              </select>
+            </label>
+            <label>
+              Vidro
+              <select data-field="glass">
+                <option value="Sem vidro">Sem vidro</option>
+                <option value="Com vidro comum">Com vidro comum</option>
+                <option value="Com vidro antirreflexo">Com vidro antirreflexo</option>
+              </select>
+            </label>
+            <label>
+              Moldura
+              <select data-field="frame">
+                <option value="Sem moldura">Sem moldura</option>
+                <option value="Caixa">Caixa</option>
+                <option value="Filete">Filete</option>
+                <option value="Clássica">Clássica</option>
+                <option value="Personalizada">Personalizada</option>
+              </select>
+            </label>
+            <label>
+              Cor/acabamento da moldura
+              <input data-field="frameColor" type="text" placeholder="Preto, branco, madeira, dourado" />
+            </label>
+            <label class="toggle-row">
+              <input data-field="infiniteEdge" type="checkbox" />
+              <span>Canvas com borda infinita</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="option-band" data-for="espelho">
+          <div class="form-grid">
+            <label>
+              Formato
+              <select data-field="mirrorShape">
+                <option value="Orgânico">Orgânico</option>
+                <option value="Gota">Gota</option>
+                <option value="Circular">Circular</option>
+                <option value="Quadrado">Quadrado</option>
+                <option value="Retangular">Retangular</option>
+              </select>
+            </label>
+            <label>
+              LED
+              <select data-field="led">
+                <option value="Sem LED">Sem LED</option>
+                <option value="Com LED">Com LED</option>
+              </select>
+            </label>
+            <label>
+              Fita de borda
+              <select data-field="edgeTape">
+                <option value="Sem fita de borda">Sem fita de borda</option>
+                <option value="Com fita de borda">Com fita de borda</option>
+              </select>
+            </label>
+            <label>
+              Cor da fita
+              <input data-field="edgeTapeColor" type="text" placeholder="Dourado, preto, prata, bronze" />
+            </label>
+            <label>
+              Acabamento
+              <input data-field="mirrorFinish" type="text" placeholder="Lapidado, bisotê, polido" />
+            </label>
+          </div>
+        </div>
+
+        <label class="wide-label">
+          Observações do item
+          <textarea data-field="notes" rows="3" placeholder="Detalhes de instalação, referência visual, ajustes de cor"></textarea>
+        </label>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
