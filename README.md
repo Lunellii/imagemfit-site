@@ -1,60 +1,57 @@
-## Imagem Fit Quadros
+# Imagem Fit Quadros
 
-Projeto React + Vite com painel administrativo e dois modos de armazenamento:
-- `local` (padrao): dados no `localStorage` do navegador
-- `server`: dados e imagens salvos no servidor (Hostinger)
+Código do catálogo online da [Imagem Fit Quadros](https://imagemfitquadros.com.br/).
 
-### Rodar local (modo localStorage)
-1. Instale dependencias: `npm install`
-2. Copie `.env.example` para `.env`
-3. Ajuste `VITE_ADMIN_EMAIL` e `VITE_ADMIN_PASSWORD`
-4. Execute: `npm run dev`
-5. Acesse:
-- site: `http://localhost:5173/`
-- painel administrativo: rota interna configurada no app
+O site reúne o portfólio por categorias e códigos. O cliente escolhe os quadros, monta uma seleção e envia o pedido de orçamento pelo WhatsApp. Também há um painel reservado para administrar categorias, imagens e a disponibilidade do catálogo.
 
-### Rodar com armazenamento em servidor (Node)
-1. Gere build: `npm run build`
-2. Configure variaveis de ambiente:
-- `VITE_STORAGE_MODE=server`
-- `VITE_ENABLE_ADMIN=true`
-- `VITE_ADMIN_EMAIL=seu-email-admin`
-- `VITE_ADMIN_PASSWORD=sua-senha-forte`
-- `ENABLE_ADMIN=true`
-- `ADMIN_EMAIL=seu-email-admin`
-- `ADMIN_PASSWORD=sua-senha-forte`
-- `ADMIN_SESSION_SECRET=chave-longa-aleatoria`
-- `IFQ_STORAGE_DIR=./storage` (opcional)
-3. Inicie servidor: `npm run start`
+## Desenvolvimento local
 
-No modo `server`, arquivos enviados no admin vao para:
-- imagens: `storage/uploads`
-- metadados: `storage/data/categories.json` e `storage/data/images.json`
-- uploads sao otimizados automaticamente no navegador (WebP com compressao adaptativa) para manter boa qualidade com menor peso.
+O projeto usa React, Vite e Tailwind CSS. Para rodar:
 
-### Deploy Hostinger (Web App Node.js)
-Use:
-- Framework: `Vite`
-- Branch: `main`
-- Node: `20.x` (ou superior suportado)
-- Diretorio raiz: `./`
-- Comando de build: `npm run build`
-- Comando de start: `npm run start`
+```bash
+npm install
+npm run dev
+```
 
-Adicione as variaveis acima no painel da Hostinger para ativar o modo `server`.
+O Vite abre o catálogo em `http://localhost:5173/`. No ambiente local, categorias e imagens ficam salvas no próprio navegador.
 
-### Scripts
-- `npm run dev` - frontend Vite
-- `npm run dev:api` - API privada local de classificacao IA
-- `npm run dev:app` - servidor Node da aplicacao
-- `npm run dev:secure` - frontend + API privada local
-- `npm run build`
-- `npm run start`
-- `npm run preview`
+Para testar o painel administrativo, copie `.env.example` para `.env` e preencha as credenciais indicadas no arquivo. A rota do painel é mantida na configuração interna do projeto.
 
-### Seguranca
-- Nunca subir `.env` para o GitHub.
-- Use senha forte e `ADMIN_SESSION_SECRET` longo.
-- Troque imediatamente qualquer chave/token exposto.
+## Armazenamento no servidor
 
-<!-- deploy-check: 2026-04-14T15:02:00-03:00 -->
+Em produção, o frontend usa a API Node do projeto. As variáveis necessárias estão documentadas em `.env.hostinger.example`.
+
+Os arquivos enviados pelo painel são gravados em `storage/uploads`. Categorias, imagens e demais dados do catálogo ficam em `storage/data`. O caminho pode ser alterado pela variável `IFQ_STORAGE_DIR`; na hospedagem, prefira um diretório persistente fora da pasta de cada deploy.
+
+As imagens enviadas pelo painel são redimensionadas e convertidas para WebP antes do upload, reduzindo o peso sem comprometer a apresentação no catálogo.
+
+## Comandos úteis
+
+| Comando | Uso |
+| --- | --- |
+| `npm run dev` | Abre o frontend local |
+| `npm run dev:app` | Inicia a aplicação pelo servidor Node |
+| `npm run dev:api` | Inicia somente a API local de classificação |
+| `npm run dev:secure` | Inicia frontend e API local juntos |
+| `npm run build` | Gera a versão de produção em `dist` |
+| `npm run start` | Inicia o servidor de produção |
+| `npm run lint` | Verifica o código com ESLint |
+
+## Publicação
+
+O site oficial roda como uma aplicação Node.js na Hostinger. A hospedagem acompanha a branch `main` deste repositório e executa:
+
+```text
+Build: npm run build
+Start: npm run start
+```
+
+As variáveis de produção devem ser configuradas no painel da Hostinger, nunca salvas no repositório. Isso inclui credenciais administrativas e `ADMIN_SESSION_SECRET`.
+
+## Pastas principais
+
+- `src/`: páginas, componentes e integração com os dados do catálogo
+- `public/`: imagens e arquivos estáticos publicados com o site
+- `server/`: servidor Node e endpoints privados
+- `storage/`: dados locais usados pelo modo servidor
+- `scripts/`: utilitários de desenvolvimento e importação
