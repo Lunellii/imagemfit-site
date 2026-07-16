@@ -2,7 +2,7 @@
 
 Código do catálogo online da [Imagem Fit Quadros](https://imagemfitquadros.com.br/).
 
-O site reúne o portfólio por categorias e códigos. O cliente escolhe os quadros, monta uma seleção e envia o pedido de orçamento pelo WhatsApp. Também há um painel reservado para administrar categorias, imagens e a disponibilidade do catálogo.
+O site reúne o portfólio por categorias e códigos. O cliente escolhe os quadros, monta uma seleção e compartilha as imagens e referências com o contato desejado. Também há um painel reservado para administrar categorias, imagens e a disponibilidade do catálogo.
 
 ## Desenvolvimento local
 

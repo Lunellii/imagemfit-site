@@ -35,7 +35,7 @@ export default function CompanySection() {
             </div>
             <div className="pl-5">
               <span className="block font-heading text-2xl italic text-gold">Atendimento</span>
-              <span className="mt-1 block text-[9px] uppercase tracking-[0.22em] text-white/40">comercial pelo WhatsApp</span>
+              <span className="mt-1 block text-[9px] uppercase tracking-[0.22em] text-white/40">comercial e personalizado</span>
             </div>
           </div>
 

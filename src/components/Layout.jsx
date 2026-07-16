@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, X, Instagram, Mail, Phone, Loader2, Search } from "lucide-react";
+import { Menu, X, Instagram, Mail, Loader2, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import SearchOverlay from "@/components/SearchOverlay";
@@ -11,10 +11,12 @@ const ADMIN_BASE_PATH = "/admingustavoif";
 const DEFAULT_SITE_STATE = {
   paused: false,
   headline: "Portfólio em atualização",
-  message: "Estamos atualizando algumas categorias do portfólio. Volte em instantes ou fale conosco pelo WhatsApp.",
-  cta_label: "Falar no WhatsApp",
-  cta_url: "https://wa.me/5547999273809"
+  message: "Estamos atualizando algumas categorias do portfólio. Volte em instantes ou entre em contato por e-mail.",
+  cta_label: "Enviar e-mail",
+  cta_url: "mailto:atendimento.imagemfit@gmail.com"
 };
+
+const isWhatsAppUrl = (value) => /(?:wa\.me|whatsapp\.com)/i.test(String(value || ""));
 
 export default function Layout() {
   const location = useLocation();
@@ -111,6 +113,9 @@ export default function Layout() {
   const canBypassPausedView = isAdminRoute || isAdmin;
   const showPausedView = !siteStateLoading && !adminStateLoading && siteState.paused && !canBypassPausedView;
   const holdWhileLoading = !canBypassPausedView && (siteStateLoading || (!siteStateLoading && siteState.paused && adminStateLoading));
+  const pausedCtaUsesWhatsApp = isWhatsAppUrl(siteState.cta_url);
+  const pausedCtaUrl = pausedCtaUsesWhatsApp ? DEFAULT_SITE_STATE.cta_url : siteState.cta_url || DEFAULT_SITE_STATE.cta_url;
+  const pausedCtaLabel = pausedCtaUsesWhatsApp ? DEFAULT_SITE_STATE.cta_label : siteState.cta_label || DEFAULT_SITE_STATE.cta_label;
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -215,12 +220,12 @@ export default function Layout() {
               <h1 className="font-heading text-4xl md:text-5xl text-white mt-4">{siteState.headline}</h1>
               <p className="text-white/70 text-base leading-relaxed mt-4">{siteState.message}</p>
               <a
-                href={siteState.cta_url || "https://wa.me/5547999273809"}
+                href={pausedCtaUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex mt-8 px-7 py-3 border border-gold text-gold text-xs tracking-[0.24em] uppercase hover:bg-gold hover:text-black transition-colors"
               >
-                {siteState.cta_label || "Falar no WhatsApp"}
+                {pausedCtaLabel}
               </a>
             </div>
           </section>
@@ -256,14 +261,6 @@ export default function Layout() {
               <div>
                 <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Contato</h4>
                 <div className="space-y-3">
-                  <a
-                    href="https://wa.me/5547999273809"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
-                  >
-                    <Phone size={13} /> (47) 99927-3809
-                  </a>
                   <a
                     href="https://instagram.com/imagemfit.quadros"
                     target="_blank"

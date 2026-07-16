@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ClipboardCopy, ListChecks, MessageCircle, Search, Share2, X, Trash2 } from "lucide-react";
+import { Check, ClipboardCopy, ListChecks, Search, Share2, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
@@ -34,11 +34,21 @@ export default function WhatsAppButton({ onSearch }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState("");
   const [nativeShareAvailable, setNativeShareAvailable] = useState(false);
+  const [preparedOrderImage, setPreparedOrderImage] = useState(null);
+  const [preparingOrderImage, setPreparingOrderImage] = useState(false);
+  const createOrderImageRef = useRef(null);
   const { cart, removeItem, clearCart } = useCart();
 
   useEffect(() => {
     const isTouchDevice = window.matchMedia?.("(pointer: coarse)").matches || navigator.maxTouchPoints > 1;
-    setNativeShareAvailable(Boolean(isTouchDevice && navigator.share));
+    let canShareFiles = typeof navigator.canShare !== "function";
+
+    if (typeof navigator.canShare === "function" && typeof File !== "undefined") {
+      const testFile = new File([new Blob(["test"], { type: "image/png" })], "selecao.png", { type: "image/png" });
+      canShareFiles = navigator.canShare({ files: [testFile] });
+    }
+
+    setNativeShareAvailable(Boolean(isTouchDevice && navigator.share && canShareFiles));
   }, []);
 
   const absoluteUrl = (src) => {
@@ -275,6 +285,36 @@ export default function WhatsAppButton({ onSearch }) {
     });
   };
 
+  createOrderImageRef.current = createOrderImage;
+  const cartSignature = cart.map((item) => `${item.id}:${item.code}:${item.image_url || ""}`).join("|");
+  const preparedImageBlob = preparedOrderImage?.signature === cartSignature ? preparedOrderImage.blob : null;
+
+  useEffect(() => {
+    if (!cartSignature) {
+      setPreparedOrderImage(null);
+      setPreparingOrderImage(false);
+      return undefined;
+    }
+
+    let active = true;
+    setPreparingOrderImage(true);
+
+    createOrderImageRef.current()
+      .then((blob) => {
+        if (active) setPreparedOrderImage({ signature: cartSignature, blob });
+      })
+      .catch(() => {
+        if (active) setPreparedOrderImage(null);
+      })
+      .finally(() => {
+        if (active) setPreparingOrderImage(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [cartSignature]);
+
   const fallbackCopy = (message) => {
     const textarea = document.createElement("textarea");
     textarea.value = message;
@@ -305,9 +345,7 @@ export default function WhatsAppButton({ onSearch }) {
 
     if (typeof navigator.canShare === "function" && !navigator.canShare(shareData)) {
       if (!navigator.canShare(fileOnlyShareData)) {
-        await navigator.share({ title: "Imagem Fit Quadros", text: message });
-        setCopied("sharedText");
-        return true;
+        return false;
       }
 
       await navigator.clipboard?.writeText?.(message).catch(() => {});
@@ -326,7 +364,7 @@ export default function WhatsAppButton({ onSearch }) {
     if (!message) return;
 
     try {
-      const orderImageBlob = await createOrderImage();
+      const orderImageBlob = preparedImageBlob || (await createOrderImage());
       const shared = await tryNativeShare(message, orderImageBlob);
       if (shared) {
         window.setTimeout(() => setCopied(""), 2500);
@@ -357,8 +395,6 @@ export default function WhatsAppButton({ onSearch }) {
 
     window.setTimeout(() => setCopied(""), 2500);
   };
-
-  const whatsappUrl = cart.length ? `https://wa.me/5547999273809?text=${encodeURIComponent(buildMessage())}` : "https://wa.me/5547999273809";
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:left-auto sm:right-6">
@@ -404,25 +440,20 @@ export default function WhatsAppButton({ onSearch }) {
 
             {cart.length > 0 && (
               <div className="p-4 border-t border-white/10 space-y-2">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex w-full items-center justify-center gap-2 bg-[#1e8f55] py-3 text-xs font-semibold uppercase tracking-widest text-white transition-colors hover:bg-[#25a965]"
-                >
-                  <MessageCircle size={14} /> Enviar pelo WhatsApp
-                </a>
                 <button
                   onClick={handleCopy}
-                  className="flex w-full items-center justify-center gap-2 border border-gold py-3 text-xs font-semibold uppercase tracking-widest text-gold transition-colors hover:bg-gold hover:text-black"
+                  disabled={nativeShareAvailable && preparingOrderImage}
+                  className="flex w-full items-center justify-center gap-2 bg-gold py-3 text-xs font-semibold uppercase tracking-widest text-black transition-colors hover:bg-gold/90 disabled:cursor-wait disabled:opacity-55"
                 >
-                  {copied ? (
+                  {nativeShareAvailable && preparingOrderImage ? (
+                    <>Preparando imagem...</>
+                  ) : copied ? (
                     <>
                       <Check size={13} />{" "}
                       {copied === "order"
-                        ? "Seleção completa copiada"
+                        ? "Imagem e códigos copiados"
                         : copied === "shared"
-                          ? "Seleção compartilhada"
+                          ? "Imagem e códigos enviados"
                           : copied === "sharedImage"
                             ? "Imagem compartilhada e texto copiado"
                             : copied === "sharedText"
@@ -431,14 +462,17 @@ export default function WhatsAppButton({ onSearch }) {
                     </>
                   ) : nativeShareAvailable ? (
                     <>
-                    <Share2 size={13} /> Compartilhar seleção
+                    <Share2 size={13} /> Finalizar e compartilhar
                     </>
                   ) : (
                     <>
-                    <ClipboardCopy size={13} /> Copiar seleção
+                    <ClipboardCopy size={13} /> Copiar imagem e códigos
                     </>
                   )}
                 </button>
+                <p className="px-2 text-center text-[9px] leading-relaxed text-white/35">
+                  {nativeShareAvailable ? "Escolha o WhatsApp e depois o contato que deve receber a seleção." : "Depois de copiar, abra a conversa desejada e cole a seleção completa."}
+                </p>
                 <button onClick={clearCart} className="w-full text-white/30 hover:text-white/60 text-xs py-1 transition-colors">
                   Limpar seleção
                 </button>
@@ -462,20 +496,16 @@ export default function WhatsAppButton({ onSearch }) {
         ) : null}
       </motion.button>
 
-      <div className="grid h-16 w-full grid-cols-3 border-t border-white/10 bg-[#111]/98 shadow-2xl backdrop-blur-md sm:hidden">
+      <div className="grid h-16 w-full grid-cols-2 border-t border-white/10 bg-[#111]/98 shadow-2xl backdrop-blur-md sm:hidden">
         <button type="button" onClick={onSearch} className="flex flex-col items-center justify-center gap-1 text-white/60 transition-colors hover:text-gold">
           <Search size={18} />
           <span className="text-[8px] font-semibold uppercase tracking-[0.16em]">Buscar</span>
         </button>
-        <button type="button" onClick={() => setOpen(!open)} className={`relative flex flex-col items-center justify-center gap-1 border-x border-white/10 transition-colors ${open ? "bg-gold text-black" : "text-white/60 hover:text-gold"}`}>
+        <button type="button" onClick={() => setOpen(!open)} className={`relative flex flex-col items-center justify-center gap-1 border-l border-white/10 transition-colors ${open ? "bg-gold text-black" : "text-white/60 hover:text-gold"}`}>
           {open ? <X size={18} /> : <ListChecks size={18} />}
           <span className="text-[8px] font-semibold uppercase tracking-[0.16em]">Seleção comercial</span>
           {!open && cart.length > 0 ? <span className="absolute right-[28%] top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[8px] font-bold text-black">{cart.length}</span> : null}
         </button>
-        <a href="https://wa.me/5547999273809" target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center gap-1 bg-[#1e6d44] text-white">
-          <MessageCircle size={18} />
-          <span className="text-[8px] font-semibold uppercase tracking-[0.16em]">WhatsApp</span>
-        </a>
       </div>
     </div>
   );

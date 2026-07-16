@@ -29,11 +29,11 @@ export default function NewArrivalsCarousel({ images }) {
   if (!images.length) return null;
 
   return (
-    <section className="mb-8 py-12">
+    <section className="mb-10 py-6">
       <div className="mb-6 flex items-end justify-between">
         <div>
-          <span className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.4em] text-gold">Recém adicionados</span>
-          <h3 className="font-heading text-2xl font-semibold text-white md:text-3xl">Lançamentos para sua loja</h3>
+          <span className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.4em] text-gold">Adicionados nos últimos 7 dias</span>
+          <h3 className="font-heading text-2xl font-semibold text-white md:text-3xl">Lançamentos da semana</h3>
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={() => scroll("left")} aria-label="Ver novidades anteriores" className="flex h-9 w-9 items-center justify-center border border-white/20 text-white/60 transition-colors hover:border-gold hover:text-gold">
@@ -51,8 +51,8 @@ export default function NewArrivalsCarousel({ images }) {
           return (
             <motion.article key={image.id} whileHover={{ y: -5 }} className="group w-56 flex-shrink-0 sm:w-60">
               <div className="relative overflow-hidden border border-white/10 bg-card transition-colors group-hover:border-gold/40">
-                <button type="button" onClick={() => setSelectedImage(image)} className="block w-full" aria-label={`Ver detalhes do quadro ${image.code}`}>
-                  <img src={image.image_url} alt={image.title || image.code} loading="lazy" decoding="async" draggable={false} onContextMenu={(event) => event.preventDefault()} className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.035]" />
+                <button type="button" onClick={() => setSelectedImage(image)} className="block aspect-[4/3] w-full overflow-hidden bg-[#0c0c0c]" aria-label={`Ver detalhes do quadro ${image.code}`}>
+                  <img src={image.image_url} alt={image.title || image.code} loading="lazy" decoding="async" draggable={false} onContextMenu={(event) => event.preventDefault()} className="h-full w-full object-contain p-1 transition-transform duration-700 group-hover:scale-[1.035]" />
                 </button>
               </div>
               <div className="mt-3 space-y-2">

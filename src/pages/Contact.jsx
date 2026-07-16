@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, Loader2, Instagram } from "lucide-react";
+import { Mail, MapPin, Send, Loader2, Instagram } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -31,7 +31,6 @@ export default function Contact() {
   };
 
   const info = [
-    { icon: Phone, label: "WhatsApp", value: "(47) 99927-3809", href: "https://wa.me/5547999273809" },
     { icon: Instagram, label: "Instagram", value: "@imagemfit.quadros", href: "https://instagram.com/imagemfit.quadros" },
     { icon: Mail, label: "E-mail", value: "atendimento.imagemfit@gmail.com", href: "mailto:atendimento.imagemfit@gmail.com" },
     { icon: MapPin, label: "Endereço", value: "Rua São Paulo, 649 - Timbó, SC - CEP 89095-220", href: null }
@@ -41,14 +40,10 @@ export default function Contact() {
     {
       name: "Almir",
       region: "Santa Catarina e Rio Grande do Sul",
-      phoneLabel: "+55 47 9936-7928",
-      phoneHref: "https://wa.me/554799367928"
     },
     {
       name: "Jonas",
       region: "Paraná (região de Curitiba)",
-      phoneLabel: "+55 41 9234-9935",
-      phoneHref: "https://wa.me/554192349935"
     }
   ];
 
@@ -60,7 +55,7 @@ export default function Contact() {
           <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Atendimento comercial</h1>
           <div className="gold-line w-20 mb-6" />
           <p className="text-white/60 max-w-xl text-sm leading-relaxed">
-            Monte uma seleção no catálogo e envie pelo WhatsApp. Para conhecer opções comerciais, tirar dúvidas ou conversar sobre pedidos específicos, fale com nossa equipe.
+            Monte uma seleção no catálogo e compartilhe com o contato desejado. Para dúvidas comerciais ou pedidos específicos, utilize o formulário ou o e-mail.
           </p>
         </motion.div>
 
@@ -137,9 +132,7 @@ export default function Contact() {
                   <div key={rep.name} className="border border-border/80 p-4">
                     <p className="text-white text-sm font-semibold">{rep.name}</p>
                     <p className="text-white/55 text-xs mt-1">{rep.region}</p>
-                    <a href={rep.phoneHref} target="_blank" rel="noreferrer" className="inline-block mt-2 text-gold text-sm hover:text-gold/80 transition-colors">
-                      {rep.phoneLabel}
-                    </a>
+                    <p className="mt-2 text-xs text-gold/75">Atendimento comercial por região</p>
                   </div>
                 ))}
               </div>

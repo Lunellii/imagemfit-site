@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, ChevronDown, MessageCircle } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Store } from "lucide-react";
 
 const heroBase = `${import.meta.env.BASE_URL}hero/`;
 const HERO_VERSION = "20260414b";
-const WHATSAPP_URL = `https://wa.me/5547999273809?text=${encodeURIComponent("Olá! Sou lojista e gostaria de conhecer o catálogo e as condições comerciais da Imagem Fit Quadros.")}`;
 
 const SLIDES = [
   {
@@ -111,14 +110,12 @@ export default function HeroSlideshow() {
             >
               Explorar o catálogo <ArrowUpRight size={15} />
             </Link>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/parceiros"
               className="inline-flex items-center justify-center gap-3 border border-white/30 bg-black/25 px-7 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm transition-colors hover:border-gold hover:text-gold"
             >
-              <MessageCircle size={15} /> Atendimento comercial
-            </a>
+              <Store size={15} /> Para lojistas
+            </Link>
           </motion.div>
         </div>
       </div>

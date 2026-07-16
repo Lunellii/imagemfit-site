@@ -1,15 +1,12 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, Frame, Layers3, ListChecks, MapPin, MessageCircle, Store } from "lucide-react";
+import { ArrowRight, CheckCircle2, Frame, Layers3, ListChecks, MapPin, Store } from "lucide-react";
 
 const GALLERY_IMAGE = `${import.meta.env.BASE_URL}company/imagem-fit-galeria.jpeg`;
 const FACADE_IMAGE = `${import.meta.env.BASE_URL}company/imagem-fit-fachada.jpg`;
 const ARTIST_IMAGE = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png`;
 const PERSONALIZED_IMAGE = `${import.meta.env.BASE_URL}special/familia-arte-abstrata.jpg`;
 const CATALOG_IMAGE = `${import.meta.env.BASE_URL}catalog/abstrato-pintura-e-aquarela/ABS_00001.jpg`;
-const PARTNER_WHATSAPP_URL = `https://wa.me/5547999273809?text=${encodeURIComponent(
-  "Olá! Sou lojista e gostaria de conhecer o catálogo e as condições comerciais da Imagem Fit Quadros."
-)}`;
 
 const benefits = [
   { icon: Layers3, title: "Portfólio diversificado", text: "Categorias decorativas, obras autorais, espelhos e produtos personalizados em um só catálogo." },
@@ -21,7 +18,7 @@ const benefits = [
 const steps = [
   ["01", "Explore o catálogo", "Navegue pelas categorias e abra os produtos que combinam com o mix da sua loja."],
   ["02", "Monte sua seleção", "Adicione os códigos de interesse à seleção comercial enquanto compara os modelos."],
-  ["03", "Envie pelo WhatsApp", "Compartilhe a seleção com imagens, códigos e categorias diretamente com nossa equipe."],
+  ["03", "Compartilhe a seleção", "Escolha o aplicativo e o contato que deve receber as imagens, códigos e categorias."],
   ["04", "Confirme o pedido", "Receba as informações comerciais, opções disponíveis e prazos referentes à sua seleção."]
 ];
 
@@ -54,9 +51,9 @@ export default function Parceiros() {
               <Link to="/portfolio" className="inline-flex items-center justify-center gap-3 bg-gold px-7 py-4 text-[10px] font-bold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#c9a85d]">
                 Explorar catálogo <ArrowRight size={14} />
               </Link>
-              <a href={PARTNER_WHATSAPP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-3 border border-white/30 bg-black/30 px-7 py-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-white backdrop-blur-sm transition-colors hover:border-gold hover:text-gold">
-                <MessageCircle size={15} /> Falar com o comercial
-              </a>
+              <Link to="/contato" className="inline-flex items-center justify-center gap-3 border border-white/30 bg-black/30 px-7 py-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-white backdrop-blur-sm transition-colors hover:border-gold hover:text-gold">
+                Contato comercial <ArrowRight size={14} />
+              </Link>
             </div>
           </div>
         </motion.div>
@@ -142,9 +139,9 @@ export default function Parceiros() {
             </div>
             <h2 className="mt-5 font-heading text-4xl font-semibold leading-tight text-white sm:text-5xl">Uma empresa real, presente no atendimento da sua loja.</h2>
             <p className="mt-6 text-sm leading-relaxed text-white/58">A Imagem Fit reúne catálogo, espaço físico e atendimento comercial para ajudar lojistas a escolher referências e consultar as opções disponíveis para cada pedido.</p>
-            <a href={PARTNER_WHATSAPP_URL} target="_blank" rel="noreferrer" className="mt-8 inline-flex items-center gap-3 bg-gold px-7 py-4 text-[10px] font-bold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#c9a85d]">
-              Solicitar atendimento comercial <MessageCircle size={15} />
-            </a>
+            <Link to="/portfolio" className="mt-8 inline-flex items-center gap-3 bg-gold px-7 py-4 text-[10px] font-bold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#c9a85d]">
+              Montar uma seleção <ArrowRight size={15} />
+            </Link>
           </div>
         </div>
       </section>

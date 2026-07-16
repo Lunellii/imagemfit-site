@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { ArrowRight, Brush, Eye, Frame, Image as ImageIcon, Sparkles, Star } from "lucide-react";
 
 const ORIGINAL_IMAGE = `${import.meta.env.BASE_URL}special/familia-foto-original.jpeg`;
 const ARTWORK_IMAGE = `${import.meta.env.BASE_URL}special/familia-arte-abstrata.jpg`;
-const WHATSAPP_URL =
-  "https://wa.me/5547999273809?text=Ol%C3%A1%21%20Sou%20lojista%20e%20gostaria%20de%20conhecer%20as%20condi%C3%A7%C3%B5es%20comerciais%20para%20oferecer%20os%20quadros%20abstratos%20personalizados%20de%20fam%C3%ADlia%20aos%20meus%20clientes.";
 
 const details = [
   { icon: ImageIcon, label: "Produto sob encomenda, sem necessidade de estoque" },
@@ -165,14 +164,12 @@ export default function PersonalizedFamilyArt() {
           </ul>
 
           <div className="border border-gold/25 bg-gold/[0.04] p-4 sm:p-5">
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/parceiros"
               className="flex w-full items-center justify-center gap-3 border border-gold bg-gold px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black transition-colors duration-300 hover:bg-transparent hover:text-gold sm:text-xs"
             >
-              Quero oferecer na minha loja <ArrowRight size={15} />
-            </a>
+              Conhecer como funciona <ArrowRight size={15} />
+            </Link>
             <p className="mt-3 text-center text-[10px] leading-relaxed text-white/42">Fale com nossa equipe para conhecer condições comerciais, prazos e materiais disponíveis para parceiros.</p>
           </div>
 

@@ -6,9 +6,9 @@ import { useToast } from "@/components/ui/use-toast";
 const DEFAULT_FORM = {
   paused: false,
   headline: "Portfólio em atualização",
-  message: "Estamos atualizando algumas categorias do portfólio. Volte em instantes ou fale conosco pelo WhatsApp.",
-  cta_label: "Falar no WhatsApp",
-  cta_url: "https://wa.me/5547999273809"
+  message: "Estamos atualizando algumas categorias do portfólio. Volte em instantes ou entre em contato por e-mail.",
+  cta_label: "Enviar e-mail",
+  cta_url: "mailto:atendimento.imagemfit@gmail.com"
 };
 
 const normalizeForm = (value = {}) => ({

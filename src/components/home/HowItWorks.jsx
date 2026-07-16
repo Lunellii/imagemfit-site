@@ -19,7 +19,7 @@ const steps = [
     icon: MessageCircle,
     number: "03",
     title: "Fale com o comercial",
-    desc: "Envie a seleção pelo WhatsApp e consulte tamanhos, materiais, molduras e prazos."
+    desc: "Compartilhe a seleção e escolha o aplicativo e o contato que deve receber os códigos."
   }
 ];
 
