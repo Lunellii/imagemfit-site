@@ -4,21 +4,24 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight, ChevronDown, Store } from "lucide-react";
 
 const heroBase = `${import.meta.env.BASE_URL}hero/`;
-const HERO_VERSION = "20260414b";
+const HERO_VERSION = "20260716-mobile-hq";
 
 const SLIDES = [
   {
     url: `${heroBase}gallery-home-1.jpg?v=${HERO_VERSION}`,
+    mobileUrl: `${heroBase}gallery-home-1-mobile.jpg?v=${HERO_VERSION}`,
     label: "Galeria contemporânea",
     caption: "Composições que mudam a leitura do ambiente"
   },
   {
     url: `${heroBase}gallery-home-2.jpg?v=${HERO_VERSION}`,
+    mobileUrl: `${heroBase}gallery-home-2-mobile.jpg?v=${HERO_VERSION}`,
     label: "Curadoria por estilo",
     caption: "Escolhas pensadas para cada espaço"
   },
   {
     url: `${heroBase}gallery-home-3.jpg?v=${HERO_VERSION}`,
+    mobileUrl: `${heroBase}gallery-home-3-mobile.jpg?v=${HERO_VERSION}`,
     label: "Arte com presença",
     caption: "Quadros, espelhos e peças autorais"
   }
@@ -33,10 +36,12 @@ export default function HeroSlideshow() {
   }, []);
 
   useEffect(() => {
+    const useMobileImages = window.matchMedia("(max-width: 1023px)").matches;
+
     SLIDES.forEach((slide) => {
       const image = new Image();
       image.decoding = "async";
-      image.src = slide.url;
+      image.src = useMobileImages ? slide.mobileUrl : slide.url;
     });
   }, []);
 
@@ -52,13 +57,16 @@ export default function HeroSlideshow() {
             transition={{ duration: 1, ease: "easeInOut" }}
             className="absolute inset-0"
           >
-            <img
-              src={SLIDES[current].url}
-              alt={SLIDES[current].label}
-              loading={current === 0 ? "eager" : "lazy"}
-              decoding="async"
-              className="h-full w-full object-cover"
-            />
+            <picture className="block h-full w-full">
+              <source media="(max-width: 1023px)" srcSet={SLIDES[current].mobileUrl} />
+              <img
+                src={SLIDES[current].url}
+                alt={SLIDES[current].label}
+                loading={current === 0 ? "eager" : "lazy"}
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            </picture>
           </motion.div>
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/15 to-black/70 lg:bg-gradient-to-r lg:from-[#090909] lg:via-black/25 lg:to-black/10" />
