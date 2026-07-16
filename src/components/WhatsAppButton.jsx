@@ -8,7 +8,10 @@ const REQUEST_TEXT = "Gostaria de consultar valores, tamanhos, opções de moldu
 const CATEGORY_BY_PREFIX = {
   AFM: "Abstrato Fluido e Mármore",
   ANI: "Animais",
-  APA: "Abstrato Pintura e Aquarela",
+  AEP: "Abstrato Estilo Pintura",
+  APA: "Abstrato Estilo Pintura",
+  E3D: "Estilo 3D",
+  ABR: "Estilo 3D",
   FOL: "Flores e Folhas",
   MAR: "Mar e Praia",
   NAT: "Natureza",

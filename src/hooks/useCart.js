@@ -2,9 +2,38 @@ import { useCallback, useEffect, useState } from "react";
 
 const CART_KEY = "ifq_cart";
 
+const migrateCartText = (value) =>
+  String(value || "")
+    .replace(/^APA_/i, "AEP_")
+    .replace(/^ABR_/i, "E3D_");
+
+const migrateCartItem = (item) => {
+  const imageUrl = String(item?.image_url || "")
+    .replace("/APA_", "/AEP_")
+    .replace("/ABR_", "/E3D_");
+  const category = String(item?.category || item?.category_name || "")
+    .replace(/^Abstrato Pintura e Aquarela$/i, "Abstrato Estilo Pintura")
+    .replace(/^Abstrato Relevo$/i, "Estilo 3D");
+
+  return {
+    ...item,
+    code: migrateCartText(item?.code),
+    title: migrateCartText(item?.title),
+    image_url: imageUrl,
+    ...(item?.category ? { category } : {}),
+    ...(item?.category_name ? { category_name: category } : {})
+  };
+};
+
 const getCart = () => {
   try {
-    return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    const stored = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    if (!Array.isArray(stored)) return [];
+    const migrated = stored.map(migrateCartItem);
+    if (JSON.stringify(migrated) !== JSON.stringify(stored)) {
+      localStorage.setItem(CART_KEY, JSON.stringify(migrated));
+    }
+    return migrated;
   } catch (_err) {
     return [];
   }

@@ -89,7 +89,10 @@ $categoryMap = @{
   "abstrato fluido e marmore" = "Abstrato Fluido e Marmore"
   "abstrato geometrico" = "Abstrato Geometrico"
   "abstrato minimalista" = "Abstrato Minimalista"
-  "abstrato pintura e aquarela" = "Abstrato Pintura e Aquarela"
+  "abstrato pintura e aquarela" = "Abstrato Estilo Pintura"
+  "abstrato estilo pintura" = "Abstrato Estilo Pintura"
+  "abstrato relevo" = "Estilo 3D"
+  "estilo 3d" = "Estilo 3D"
   "animais" = "Animais"
   "arvores" = "Arvores"
   "espelhos" = "Espelhos"
@@ -105,6 +108,11 @@ $categoryMap = @{
   "urbano" = "Urbano"
   "vida" = "Vida"
   "diversos" = "Diversos"
+}
+
+$codePrefixByCategory = @{
+  "Abstrato Estilo Pintura" = "AEP"
+  "Estilo 3D" = "E3D"
 }
 
 $repoRoot = (Resolve-Path ".").Path
@@ -141,6 +149,10 @@ foreach ($folder in $folders) {
   foreach ($file in $files) {
     $code = [IO.Path]::GetFileNameWithoutExtension($file.Name).Trim().ToUpperInvariant()
     if ([string]::IsNullOrWhiteSpace($code)) { continue }
+
+    if ($codePrefixByCategory.ContainsKey($categoryName) -and $code -match "_(\d+)$") {
+      $code = "$($codePrefixByCategory[$categoryName])_$($Matches[1])"
+    }
 
     $destName = "$code.jpg"
     $destFile = Join-Path $targetDir $destName

@@ -61,13 +61,14 @@ const REQUIRED_CATEGORIES = [
   { name: "Abstrato Fluido e Mármore", description: "Arte abstrata com movimento fluido e estética de mármore." },
   { name: "Abstrato Geométrico", description: "Formas geométricas e equilíbrio visual para ambientes modernos." },
   { name: "Abstrato Minimalista", description: "Peças com estética limpa, elegante e minimalista." },
-  { name: "Abstrato Pintura e Aquarela", description: "Abstratos com pinceladas expressivas e leveza de aquarela." },
+  { name: "Abstrato Estilo Pintura", description: "Abstratos com estética de pintura, pinceladas expressivas e acabamento artístico." },
   { name: "Animais", description: "Temas de fauna para dar personalidade e vida à decoração." },
   { name: "Árvores", description: "Obras com árvores e elementos naturais para ambientes acolhedores." },
   { name: "Cozinha", description: "Quadros pensados para cozinhas e espaços gourmet." },
   { name: "Diversos", description: "Seleção variada de estilos e temas para todos os gostos." },
   { name: "Espelhos", description: "Peças com espelhos para ampliar e valorizar o ambiente." },
   { name: "Espiritualidade", description: "Temas de fé, energia e espiritualidade para ambientes de paz." },
+  { name: "Estilo 3D", description: "Obras com relevo, textura e profundidade para criar um efeito tridimensional na decoração." },
   { name: "Flores e Folhas", description: "Composições botânicas com delicadeza e frescor natural." },
   { name: "Frases", description: "Quadros com frases inspiradoras e mensagens decorativas." },
   { name: "Infantil", description: "Arte lúdica e delicada para quartos e espaços infantis." },
@@ -84,6 +85,9 @@ const CATEGORY_DESCRIPTION_ALIASES = {
   "abstrato fluido e marmora": "abstrato fluido e marmore",
   "abstrato gometrico": "abstrato geometrico",
   "abstrato arquitotonico": "abstrato arquitetonico",
+  "abstrato pintura e aquarela": "abstrato estilo pintura",
+  "abstrato relevo": "estilo 3d",
+  relevo: "estilo 3d",
   ponte: "pontes",
   pontes: "pontes",
   "pintura manual": "pinturas manuais",
@@ -315,6 +319,103 @@ const uploadPathFromUrl = (imageUrl) => {
   return safeResolve(uploadsDir, value.replace(/^\/uploads/, ""));
 };
 
+const CATALOG_TAXONOMY_MIGRATIONS = [
+  {
+    categoryName: "Abstrato Estilo Pintura",
+    legacyPrefixes: ["APA", "ABS"],
+    nextPrefix: "AEP",
+    legacyFolder: "catalog/abstrato-pintura-e-aquarela/",
+    nextFolder: "catalog/abstrato-estilo-pintura/"
+  },
+  {
+    categoryName: "Estilo 3D",
+    legacyPrefixes: ["ABR"],
+    nextPrefix: "E3D",
+    legacyFolder: "catalog/abstrato-relevo/",
+    nextFolder: "catalog/estilo-3d/"
+  }
+];
+
+const replaceLeadingCodePrefix = (value, legacyPrefixes, nextPrefix) => {
+  const current = String(value || "");
+  const upper = current.toUpperCase();
+  const legacy = legacyPrefixes.find((prefix) => upper.startsWith(`${prefix}_`));
+  return legacy ? `${nextPrefix}${current.slice(legacy.length)}` : current;
+};
+
+const migrateImageUrl = (imageUrl, migration) => {
+  const current = String(imageUrl || "");
+  const movedFolder = current.replace(migration.legacyFolder, migration.nextFolder);
+  const slashIndex = movedFolder.lastIndexOf("/");
+  if (slashIndex < 0) {
+    return replaceLeadingCodePrefix(movedFolder, migration.legacyPrefixes, migration.nextPrefix);
+  }
+  const folder = movedFolder.slice(0, slashIndex + 1);
+  const filename = movedFolder.slice(slashIndex + 1);
+  return `${folder}${replaceLeadingCodePrefix(filename, migration.legacyPrefixes, migration.nextPrefix)}`;
+};
+
+const moveUploadedAssetIfNeeded = async (currentUrl, nextUrl) => {
+  if (currentUrl === nextUrl || !String(currentUrl || "").startsWith("/uploads/")) return nextUrl;
+
+  const source = uploadPathFromUrl(currentUrl);
+  const target = uploadPathFromUrl(nextUrl);
+  if (!source || !target) return currentUrl;
+  if (await pathExists(target)) return nextUrl;
+  if (!(await pathExists(source))) return currentUrl;
+
+  await fs.mkdir(path.dirname(target), { recursive: true });
+  await fs.rename(source, target);
+  return nextUrl;
+};
+
+const migrateCatalogTaxonomy = async () => {
+  const categoryIdByName = new Map(db.categories.map((category) => [normalizeCategoryName(category.name), category.id]));
+  const operations = [];
+
+  for (const migration of CATALOG_TAXONOMY_MIGRATIONS) {
+    const categoryId = categoryIdByName.get(normalizeCategoryName(migration.categoryName));
+    if (!categoryId) continue;
+
+    for (const image of db.images) {
+      if (image.category_id !== categoryId) continue;
+      const code = replaceLeadingCodePrefix(image.code, migration.legacyPrefixes, migration.nextPrefix);
+      const title = replaceLeadingCodePrefix(image.title, migration.legacyPrefixes, migration.nextPrefix);
+      const imageUrl = migrateImageUrl(image.image_url, migration);
+      if (code === image.code && title === image.title && imageUrl === image.image_url) continue;
+      operations.push({ image, migration, code, title, imageUrl });
+    }
+  }
+
+  const operationIds = new Set(operations.map((operation) => operation.image.id));
+  const untouchedCodes = new Set(
+    db.images.filter((image) => !operationIds.has(image.id)).map((image) => normalizeCode(image.code)).filter(Boolean)
+  );
+  const nextCodes = new Set();
+  for (const operation of operations) {
+    const normalizedCode = normalizeCode(operation.code);
+    if (untouchedCodes.has(normalizedCode) || nextCodes.has(normalizedCode)) {
+      throw new Error(`CATALOG_TAXONOMY_CODE_COLLISION:${normalizedCode}`);
+    }
+    nextCodes.add(normalizedCode);
+  }
+
+  let renamedUploads = 0;
+  for (const operation of operations) {
+    const effectiveImageUrl = await moveUploadedAssetIfNeeded(operation.image.image_url, operation.imageUrl);
+    if (effectiveImageUrl !== operation.image.image_url) renamedUploads += 1;
+    Object.assign(operation.image, {
+      code: operation.code,
+      title: operation.title,
+      image_url: effectiveImageUrl
+    });
+  }
+
+  if (operations.length) {
+    console.log(`[app-server] catalog taxonomy migrated: images=${operations.length} uploads=${renamedUploads}`);
+  }
+};
+
 const isUploadStillReferenced = (imageUrl) => {
   const value = String(imageUrl || "").trim();
   if (!value) return false;
@@ -386,6 +487,7 @@ const bootstrap = async () => {
       const currentDescription = String(raw?.description || "").trim();
       const resolvedDescription = resolveCategoryDescription(canonicalName);
       const shouldUseResolvedDescription =
+        canonicalName !== rawName ||
         !currentDescription ||
         hasBrokenEncoding(currentDescription) ||
         normalizeCategoryName(currentDescription) === normalizeCategoryName(resolvedDescription);
@@ -417,6 +519,8 @@ const bootstrap = async () => {
       .sort((a, b) => Number(a.order) - Number(b.order))
       .map((category, index) => ({ ...category, order: index }));
   }
+
+  await migrateCatalogTaxonomy();
 
   if (!db.images.length) {
     const seedCatalog = await readJson(seedCatalogFile, { images: [] });
@@ -654,7 +758,7 @@ const server = http.createServer(async (req, res) => {
       const folderPath = path.resolve(uploadsDir, folder);
       await fs.mkdir(folderPath, { recursive: true });
       const base = path
-        .basename(String(body.file_name || "arquivo"))
+        .basename(String(requestedCode || body.file_name || "arquivo"))
         .replace(/\.[^/.]+$/, "")
         .replace(/[^a-zA-Z0-9_-]+/g, "-")
         .replace(/^-+|-+$/g, "")

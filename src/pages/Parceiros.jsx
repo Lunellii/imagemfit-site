@@ -6,7 +6,7 @@ const GALLERY_IMAGE = `${import.meta.env.BASE_URL}company/imagem-fit-galeria.jpe
 const FACADE_IMAGE = `${import.meta.env.BASE_URL}company/imagem-fit-fachada.jpg`;
 const ARTIST_IMAGE = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png`;
 const PERSONALIZED_IMAGE = `${import.meta.env.BASE_URL}special/familia-arte-abstrata.jpg`;
-const CATALOG_IMAGE = `${import.meta.env.BASE_URL}catalog/abstrato-pintura-e-aquarela/ABS_00001.jpg`;
+const CATALOG_IMAGE = `${import.meta.env.BASE_URL}catalog/abstrato-estilo-pintura/AEP_00001.jpg`;
 
 const benefits = [
   { icon: Layers3, title: "Portfólio diversificado", text: "Categorias decorativas, obras autorais, espelhos e produtos personalizados em um só catálogo." },

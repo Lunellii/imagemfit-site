@@ -135,40 +135,40 @@
                        "image":  "catalog/abstrato-minimalista/ABS_00095.jpg"
                    },
                    {
-                       "code":  "ABS_00001",
-                       "title":  "ABS_00001",
-                       "category":  "Abstrato Pintura e Aquarela",
-                       "image":  "catalog/abstrato-pintura-e-aquarela/ABS_00001.jpg"
+                       "code":  "AEP_00001",
+                       "title":  "AEP_00001",
+                       "category":  "Abstrato Estilo Pintura",
+                       "image":  "catalog/abstrato-estilo-pintura/AEP_00001.jpg"
                    },
                    {
-                       "code":  "ABS_00002",
-                       "title":  "ABS_00002",
-                       "category":  "Abstrato Pintura e Aquarela",
-                       "image":  "catalog/abstrato-pintura-e-aquarela/ABS_00002.jpg"
+                       "code":  "AEP_00002",
+                       "title":  "AEP_00002",
+                       "category":  "Abstrato Estilo Pintura",
+                       "image":  "catalog/abstrato-estilo-pintura/AEP_00002.jpg"
                    },
                    {
-                       "code":  "ABS_00008",
-                       "title":  "ABS_00008",
-                       "category":  "Abstrato Pintura e Aquarela",
-                       "image":  "catalog/abstrato-pintura-e-aquarela/ABS_00008.jpg"
+                       "code":  "AEP_00008",
+                       "title":  "AEP_00008",
+                       "category":  "Abstrato Estilo Pintura",
+                       "image":  "catalog/abstrato-estilo-pintura/AEP_00008.jpg"
                    },
                    {
-                       "code":  "ABS_00009",
-                       "title":  "ABS_00009",
-                       "category":  "Abstrato Pintura e Aquarela",
-                       "image":  "catalog/abstrato-pintura-e-aquarela/ABS_00009.jpg"
+                       "code":  "AEP_00009",
+                       "title":  "AEP_00009",
+                       "category":  "Abstrato Estilo Pintura",
+                       "image":  "catalog/abstrato-estilo-pintura/AEP_00009.jpg"
                    },
                    {
-                       "code":  "ABS_00011",
-                       "title":  "ABS_00011",
-                       "category":  "Abstrato Pintura e Aquarela",
-                       "image":  "catalog/abstrato-pintura-e-aquarela/ABS_00011.jpg"
+                       "code":  "AEP_00011",
+                       "title":  "AEP_00011",
+                       "category":  "Abstrato Estilo Pintura",
+                       "image":  "catalog/abstrato-estilo-pintura/AEP_00011.jpg"
                    },
                    {
-                       "code":  "ABS_00012",
-                       "title":  "ABS_00012",
-                       "category":  "Abstrato Pintura e Aquarela",
-                       "image":  "catalog/abstrato-pintura-e-aquarela/ABS_00012.jpg"
+                       "code":  "AEP_00012",
+                       "title":  "AEP_00012",
+                       "category":  "Abstrato Estilo Pintura",
+                       "image":  "catalog/abstrato-estilo-pintura/AEP_00012.jpg"
                    },
                    {
                        "code":  "ANI_00001",

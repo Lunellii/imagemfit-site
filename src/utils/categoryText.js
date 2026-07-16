@@ -16,8 +16,8 @@
     description: "Pe\u00e7as com est\u00e9tica limpa, elegante e minimalista."
   },
   {
-    name: "Abstrato Pintura e Aquarela",
-    description: "Abstratos com pinceladas expressivas e leveza de aquarela."
+    name: "Abstrato Estilo Pintura",
+    description: "Abstratos com estética de pintura, pinceladas expressivas e acabamento artístico."
   },
   {
     name: "Animais",
@@ -42,6 +42,10 @@
   {
     name: "Espiritualidade",
     description: "Temas de f\u00e9, energia e espiritualidade para ambientes de paz."
+  },
+  {
+    name: "Estilo 3D",
+    description: "Obras com relevo, textura e profundidade para criar um efeito tridimensional na decoração."
   },
   {
     name: "Flores e Folhas",
@@ -102,6 +106,9 @@ const CATEGORY_NAME_ALIASES = {
   "abstrato arquitetonico": "abstrato arquitetonico",
   "abstrato fluido e marmore": "abstrato fluido e marmore",
   "abstrato geometrico": "abstrato geometrico",
+  "abstrato pintura e aquarela": "abstrato estilo pintura",
+  "abstrato relevo": "estilo 3d",
+  relevo: "estilo 3d",
   ponte: "pontes",
   tridmensional: "tridimensional",
   "pintura manual": "pinturas manuais"

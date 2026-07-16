@@ -21,8 +21,7 @@ const PREFIX_ALIASES_BY_CATEGORY = {
   "ABSTRATO FLUIDO E MARMORE": ["AFM", "FLU", "ABS"],
   "ABSTRATO GEOMETRICO": ["AGT", "AGE", "GEO", "ABS"],
   "ABSTRATO MINIMALISTA": ["AMN", "AMI", "MIN", "ABS"],
-  "ABSTRATO PINTURA E AQUARELA": ["APA", "AQU", "ABS"],
-  "ABSTRATO RELEVO": ["ABR", "REL", "ABS"],
+  "ABSTRATO ESTILO PINTURA": ["AEP", "APA"],
   ANIMAIS: ["ANI"],
   ARVORES: ["ARV"],
   COZINHA: ["COZ"],
@@ -30,6 +29,7 @@ const PREFIX_ALIASES_BY_CATEGORY = {
   "DIVERSOS.": ["DIV"],
   ESPIRITUALIDADE: ["ESD", "ESPIR", "ESPI", "ESPU"],
   ESPELHOS: ["ESP"],
+  "ESTILO 3D": ["E3D", "ABR"],
   "FLORES E FOLHAS": ["FLO", "FOL"],
   FRASES: ["FRA"],
   INFANTIL: ["INF"],
@@ -44,6 +44,18 @@ const PREFIX_ALIASES_BY_CATEGORY = {
   URBANO: ["URB"],
   VIDA: ["VID"]
 };
+
+function canonicalizeCodeForCategory(code, category) {
+  const normalizedCategory = normalizeText(category?.name);
+  const current = String(code || "").trim().toUpperCase();
+  if (normalizedCategory === "ABSTRATO ESTILO PINTURA") {
+    return current.replace(/^(APA|ABS)_/, "AEP_");
+  }
+  if (normalizedCategory === "ESTILO 3D") {
+    return current.replace(/^ABR_/, "E3D_");
+  }
+  return current;
+}
 
 const CONNECTOR_WORDS = new Set(["E", "DE", "DA", "DO", "DAS", "DOS"]);
 
@@ -101,8 +113,7 @@ function extractFilenamePrefix(filename) {
   const code = extractCode(filename);
   const normalized = normalizeText(code);
   const token = normalized.split(/[^A-Z0-9]+/)[0] || normalized;
-  const letters = (token.match(/^[A-Z]+/) || [""])[0];
-  return letters;
+  return (token.match(/^[A-Z][A-Z0-9]*/) || [""])[0];
 }
 
 function resolveCategoryByFileName(filename, prefixIndex, fallbackCategoryId) {
@@ -184,11 +195,11 @@ export default function ImageUploader({ categories, onUploaded }) {
       const resolved = resolveCategoryByFileName(file.name, prefixIndex, categoryId);
       return {
         file,
-        code: extractCode(file.name),
+        code: canonicalizeCodeForCategory(extractCode(file.name), categoryById[resolved.category_id]),
         ...resolved
       };
     });
-  }, [assignMode, files, prefixIndex, categoryId]);
+  }, [assignMode, files, prefixIndex, categoryId, categoryById]);
 
   const addFiles = (incoming) => {
     const incomingFiles = Array.from(incoming || []).filter(isImageFile);
@@ -246,7 +257,7 @@ export default function ImageUploader({ categories, onUploaded }) {
       assignMode === "manual"
         ? files.map((file) => ({
             file,
-            code: extractCode(file.name),
+            code: canonicalizeCodeForCategory(extractCode(file.name), categoryById[categoryId]),
             category_id: categoryId,
             prefix: ""
           }))
@@ -421,7 +432,7 @@ export default function ImageUploader({ categories, onUploaded }) {
       <div className="border border-border p-3 text-xs text-white/65 space-y-1">
         <p className="uppercase tracking-widest text-white/45">Siglas ativas para envio pelo nome</p>
         <p>
-          ABR=Abstrato Relevo, AFM=Abstrato Fluido e Mármore, AGT=Abstrato Geométrico, AMN=Abstrato Minimalista, ANI=Animais, APA=Abstrato Pintura e Aquarela,
+          AEP=Abstrato Estilo Pintura, AFM=Abstrato Fluido e Mármore, AGT=Abstrato Geométrico, AMN=Abstrato Minimalista, ANI=Animais, E3D=Estilo 3D,
           ARQ=Abstrato Arquitetônico, ARV=Árvores, COZ=Cozinha, DIV=Diversos, ESD=Espiritualidade, ESP=Espelhos, FLO=Flores e Folhas, FRA=Frases,
           INF=Infantil, MAR=Mar e Praia, NAT=Natureza, QD=Pinturas Manuais, PON=Pontes, SAL=Sala de Jogos, TRID=Tridimensionais, URB=Urbano, VID=Vida.
         </p>
