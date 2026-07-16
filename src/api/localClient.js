@@ -11,6 +11,14 @@ const CATALOG_SEED_MIGRATION_KEY = "ifq_catalog_seed_migrated_v1";
 const CATEGORY_MIGRATION_KEY = "ifq_categories_migrated_v5";
 const IMAGE_ASSET_MIGRATION_KEY = "ifq_image_assets_migrated_v1";
 const ADMIN_SESSION_KEY = "ifq_admin_session";
+const SITE_STATE_KEY = "ifq_site_state";
+const DEFAULT_SITE_STATE = {
+  paused: false,
+  headline: "Portfólio em atualização",
+  message: "Estamos atualizando algumas categorias do portfólio. Volte em instantes ou fale conosco pelo WhatsApp.",
+  cta_label: "Falar no WhatsApp",
+  cta_url: "https://wa.me/5547999273809"
+};
 
 const ADMIN_SESSION_TTL_MS = 1000 * 60 * 60 * 6;
 const ADMIN_EMAIL = String(import.meta.env.VITE_ADMIN_EMAIL || "")
@@ -977,6 +985,16 @@ const PortfolioImageEntity = {
 };
 
 const browserLocalClient = {
+  siteState: {
+    async get() {
+      return { ...DEFAULT_SITE_STATE, ...readJson(SITE_STATE_KEY, {}) };
+    },
+    async update(payload) {
+      const nextState = { ...DEFAULT_SITE_STATE, ...readJson(SITE_STATE_KEY, {}), ...payload };
+      writeJson(SITE_STATE_KEY, nextState);
+      return nextState;
+    }
+  },
   entities: {
     Category: CategoryEntity,
     PortfolioImage: PortfolioImageEntity
