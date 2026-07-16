@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { localClient } from "@/api/localClient";
 import { motion } from "framer-motion";
-import { Loader2, ShoppingCart, Check, ArrowRight } from "lucide-react";
+import { Loader2, ListPlus, Check, ArrowRight } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
@@ -58,7 +58,7 @@ export default function Artista() {
         setCoversByCategory(onlyArtistCovers);
         setImages(mergedImages);
         setNewImages(newestImages.filter((image) => artistCategoryIds.includes(image.category_id)));
-      } catch (_error) {
+      } catch {
         toast({
           variant: "destructive",
           title: "Falha ao carregar as obras autorais",
@@ -75,11 +75,11 @@ export default function Artista() {
   const addToCart = (img, e) => {
     e?.stopPropagation();
     if (isInCart(img.id)) {
-      toast({ title: `#${img.code} já está no carrinho` });
+      toast({ title: `#${img.code} já está na sua seleção` });
       return;
     }
     addItem({ id: img.id, code: img.code, title: img.title, image_url: img.image_url });
-    toast({ title: `#${img.code} adicionado ao carrinho!` });
+    toast({ title: `#${img.code} adicionado à sua seleção!` });
   };
 
   return (
@@ -105,13 +105,13 @@ export default function Artista() {
               <div className="gold-line w-16 mb-7" />
               <div className="space-y-4 text-white/60 text-sm sm:text-[15px] leading-relaxed">
                 <p>
-                  Esta página reúne as pinturas manuais e composições tridimensionais de Almir Gonçalves, pensadas para quem busca peças com assinatura autoral.
+                  Esta linha reúne pinturas manuais e composições tridimensionais de Almir Gonçalves para lojistas que buscam produtos com assinatura autoral.
                 </p>
                 <p>
-                  São obras com textura, cor e presença visual, indicadas para projetos que pedem mais exclusividade e destaque no ambiente.
+                  São obras com textura, cor e presença visual, pensadas para agregar exclusividade e diferenciação ao mix da sua loja.
                 </p>
                 <p>
-                  Você pode adicionar os códigos ao carrinho e solicitar orçamento da mesma forma que no restante do portfólio.
+                  Adicione os códigos à seleção comercial e consulte com nossa equipe as opções disponíveis para cada peça.
                 </p>
               </div>
               <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-6 border-t border-gold/20 pt-6 sm:pt-8">
@@ -195,11 +195,11 @@ export default function Artista() {
                     >
                       {isInCart(img.id) ? (
                         <>
-                          <Check size={11} /> No carrinho
+                          <Check size={11} /> Na seleção comercial
                         </>
                       ) : (
                         <>
-                          <ShoppingCart size={11} /> Adicionar
+                          <ListPlus size={11} /> Adicionar
                         </>
                       )}
                     </button>

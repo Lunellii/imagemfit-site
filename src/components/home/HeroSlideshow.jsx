@@ -1,23 +1,27 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown, MessageCircle } from "lucide-react";
 
 const heroBase = `${import.meta.env.BASE_URL}hero/`;
 const HERO_VERSION = "20260414b";
+const WHATSAPP_URL = `https://wa.me/5547999273809?text=${encodeURIComponent("Olá! Sou lojista e gostaria de conhecer o catálogo e as condições comerciais da Imagem Fit Quadros.")}`;
 
 const SLIDES = [
   {
     url: `${heroBase}gallery-home-1.jpg?v=${HERO_VERSION}`,
-    label: "Galeria Contemporânea"
+    label: "Galeria contemporânea",
+    caption: "Composições que mudam a leitura do ambiente"
   },
   {
     url: `${heroBase}gallery-home-2.jpg?v=${HERO_VERSION}`,
-    label: "Curadoria Exclusiva"
+    label: "Curadoria por estilo",
+    caption: "Escolhas pensadas para cada espaço"
   },
   {
     url: `${heroBase}gallery-home-3.jpg?v=${HERO_VERSION}`,
-    label: "Arte em Destaque"
+    label: "Arte com presença",
+    caption: "Quadros, espelhos e peças autorais"
   }
 ];
 
@@ -25,87 +29,149 @@ export default function HeroSlideshow() {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setCurrent((c) => (c + 1) % SLIDES.length), 5000);
-    return () => clearInterval(t);
+    const timer = window.setInterval(() => setCurrent((value) => (value + 1) % SLIDES.length), 6500);
+    return () => window.clearInterval(timer);
   }, []);
 
   useEffect(() => {
     SLIDES.forEach((slide) => {
-      const img = new Image();
-      img.decoding = "async";
-      img.src = slide.url;
+      const image = new Image();
+      image.decoding = "async";
+      image.src = slide.url;
     });
   }, []);
 
   return (
-    <section className="relative h-screen min-h-[600px] overflow-hidden">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={current}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.9, ease: "easeInOut" }}
-          className="absolute inset-0"
-        >
-          <img
-            src={SLIDES[current].url}
-            alt={SLIDES[current].label}
-            loading={current === 0 ? "eager" : "lazy"}
-            fetchPriority={current === 0 ? "high" : "auto"}
-            decoding={current === 0 ? "sync" : "async"}
-            className="w-full h-full object-cover [image-rendering:auto]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/45 to-black/78" />
-        </motion.div>
-      </AnimatePresence>
-
-      <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-        <motion.span key={`label-${current}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-gold text-xs tracking-[0.5em] uppercase font-medium mb-4 block">
-          {SLIDES[current].label}
-        </motion.span>
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.9 }}
-          className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4"
-        >
-          Quadros que
-          <br />
-          <span className="text-gold italic">transformam</span> seu ambiente
-        </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }} className="text-white/70 text-sm md:text-base mb-3 font-light">
-          Escolha pelo código e peça pelo WhatsApp
-        </motion.p>
-        <motion.div className="gold-line w-24 mx-auto mb-8" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.5 }} />
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
-          <Link to="/portfolio" className="inline-flex items-center gap-2 bg-gold text-black px-8 py-4 text-xs tracking-[0.3em] uppercase font-semibold hover:bg-gold/90 transition-colors">
-            Ver Portfólio <ChevronRight size={14} />
-          </Link>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1, duration: 0.6 }}
-          className="mt-10 md:mt-12 z-10 flex flex-col items-center pointer-events-none"
-        >
-          <span className="text-[10px] md:text-xs tracking-[0.35em] uppercase text-white/65">Role para ver mais</span>
+    <section className="relative min-h-[720px] overflow-hidden bg-[#090909] pt-20 lg:h-[96vh]">
+      <div className="absolute inset-y-0 right-0 w-full lg:w-[62%]">
+        <AnimatePresence mode="wait">
           <motion.div
-            animate={{ y: [0, 6, 0], opacity: [0.55, 1, 0.55] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-            className="mt-1 text-gold"
+            key={current}
+            initial={{ opacity: 0, scale: 1.025 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            className="absolute inset-0"
           >
-            <ChevronDown size={16} />
+            <img
+              src={SLIDES[current].url}
+              alt={SLIDES[current].label}
+              loading={current === 0 ? "eager" : "lazy"}
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
           </motion.div>
-        </motion.div>
+        </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/15 to-black/70 lg:bg-gradient-to-r lg:from-[#090909] lg:via-black/25 lg:to-black/10" />
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {SLIDES.map((_, i) => (
-          <button key={i} onClick={() => setCurrent(i)} className={`transition-all duration-300 h-0.5 ${i === current ? "w-8 bg-gold" : "w-3 bg-white/30"}`} />
-        ))}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-[#090909] lg:hidden" />
+
+      <div className="relative z-10 mx-auto flex min-h-[640px] max-w-7xl items-center px-6 pb-28 pt-10 lg:h-[calc(96vh-5rem)] lg:min-h-[640px] lg:pb-24">
+        <div className="max-w-3xl lg:w-[58%]">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            className="mb-7 flex items-center gap-4"
+          >
+            <span className="h-px w-12 bg-gold" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.42em] text-gold sm:text-xs">
+              Catálogo exclusivo para lojistas
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.8 }}
+            className="max-w-2xl font-heading text-[3.35rem] font-medium leading-[0.94] text-white sm:text-7xl lg:text-[5.75rem]"
+          >
+            Um portfólio feito <span className="block italic text-gold">para o seu negócio.</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.7 }}
+            className="mt-7 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base"
+          >
+            Quadros decorativos, espelhos, obras autorais e produtos personalizados para ampliar o mix da sua loja. Escolha por código, monte sua seleção e fale com nosso atendimento comercial.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.38, duration: 0.7 }}
+            className="mt-9 flex flex-col gap-3 sm:flex-row"
+          >
+            <Link
+              to="/portfolio"
+              className="inline-flex items-center justify-center gap-3 bg-gold px-7 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-black transition-colors hover:bg-[#c9a85d]"
+            >
+              Explorar o catálogo <ArrowUpRight size={15} />
+            </Link>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-3 border border-white/30 bg-black/25 px-7 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm transition-colors hover:border-gold hover:text-gold"
+            >
+              <MessageCircle size={15} /> Atendimento comercial
+            </a>
+          </motion.div>
+        </div>
       </div>
+
+      <div className="absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-black/65 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-stretch px-6">
+          <div className="hidden flex-1 grid-cols-3 divide-x divide-white/10 lg:grid">
+            {[
+              ["01", "Explore por categoria"],
+              ["02", "Monte a seleção da loja"],
+              ["03", "Solicite condições comerciais"]
+            ].map(([number, text]) => (
+              <div key={number} className="flex items-center gap-4 py-5 pl-6 pr-6 first:pl-0">
+                <span className="font-heading text-2xl italic text-gold">{number}</span>
+                <span className="text-[10px] uppercase leading-relaxed tracking-[0.18em] text-white/55">{text}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="ml-auto flex items-center gap-3 py-4 lg:border-l lg:border-white/10 lg:pl-8">
+            <div className="mr-2 text-right">
+              <AnimatePresence mode="wait">
+                <motion.p key={current} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-[10px] uppercase tracking-[0.2em] text-white/65">
+                  {SLIDES[current].caption}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+            {SLIDES.map((slide, index) => (
+              <button
+                key={slide.label}
+                type="button"
+                onClick={() => setCurrent(index)}
+                aria-label={`Mostrar imagem ${index + 1}: ${slide.label}`}
+                aria-pressed={index === current}
+                className={`h-10 w-10 border text-xs font-semibold transition-colors ${
+                  index === current ? "border-gold bg-gold text-black" : "border-white/20 text-white/50 hover:border-white/50 hover:text-white"
+                }`}
+              >
+                {String(index + 1).padStart(2, "0")}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <motion.div
+        animate={{ y: [0, 6, 0] }}
+        transition={{ duration: 1.7, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-24 left-6 z-20 hidden items-center gap-2 text-white/40 lg:flex"
+      >
+        <ChevronDown size={15} className="text-gold" />
+        <span className="text-[9px] uppercase tracking-[0.28em]">Descubra</span>
+      </motion.div>
     </section>
   );
 }

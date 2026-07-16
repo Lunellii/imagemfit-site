@@ -102,6 +102,7 @@ export default function Layout() {
   const navLinks = [
     { to: "/", label: "Início" },
     { to: "/portfolio", label: "Portfólio" },
+    { to: "/parceiros", label: "Para lojistas" },
     { to: "/artista", label: "Artista" },
     { to: "/contato", label: "Contato" }
   ];
@@ -123,7 +124,7 @@ export default function Layout() {
             <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-10 w-auto object-contain" />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
             {navLinks.map((l) => (
               <Link
                 key={l.to}
@@ -202,7 +203,7 @@ export default function Layout() {
         </AnimatePresence>
       </header>
 
-      <main>
+      <main className="pb-16 sm:pb-0">
         {holdWhileLoading ? (
           <div className="min-h-screen flex items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-gold" />
@@ -228,7 +229,7 @@ export default function Layout() {
         )}
       </main>
 
-      {!showPausedView && <WhatsAppButton />}
+      {!showPausedView && <WhatsAppButton onSearch={() => setSearchOpen(true)} />}
 
       {!showPausedView && <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />}
 
@@ -238,7 +239,7 @@ export default function Layout() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
               <div className="md:col-span-1">
                 <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-14 w-auto object-contain mb-4" />
-                <p className="text-white/50 text-xs leading-relaxed">Portfólio de quadros por código para escolher, salvar e solicitar orçamento.</p>
+                <p className="text-white/50 text-xs leading-relaxed">Catálogo comercial de quadros, espelhos e obras autorais para lojistas.</p>
               </div>
 
               <div>

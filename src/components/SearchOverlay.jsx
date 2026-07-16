@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Loader2, Search, ShoppingCart, X } from "lucide-react";
+import { Check, ListPlus, Loader2, Search, X } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 
@@ -136,7 +136,7 @@ export default function SearchOverlay({ open, onClose }) {
 
   const addToCart = (image) => {
     if (isInCart(image.id)) {
-      toast({ title: `#${image.code} já está no carrinho` });
+      toast({ title: `#${image.code} já está na sua seleção` });
       return;
     }
 
@@ -147,7 +147,7 @@ export default function SearchOverlay({ open, onClose }) {
       image_url: image.image_url,
       category: getCategoryName(image)
     });
-    toast({ title: `✓ #${image.code} adicionado!` });
+    toast({ title: `#${image.code} adicionado à sua seleção` });
   };
 
   return (
@@ -162,8 +162,8 @@ export default function SearchOverlay({ open, onClose }) {
           <div className="mx-auto flex h-full max-w-5xl flex-col">
             <div className="flex items-center justify-between gap-4 border-b border-gold/20 pb-4">
               <div>
-                <span className="text-gold text-[11px] tracking-[0.32em] uppercase">Buscar</span>
-                <h2 className="font-heading text-2xl text-white mt-1">Buscar no portfólio</h2>
+                <span className="text-gold text-[11px] tracking-[0.32em] uppercase">Busca comercial</span>
+                <h2 className="font-heading text-2xl text-white mt-1">Buscar no catálogo</h2>
               </div>
               <button
                 type="button"
@@ -233,11 +233,11 @@ export default function SearchOverlay({ open, onClose }) {
                           >
                             {inCart ? (
                               <>
-                                <Check size={12} /> No carrinho
+                                <Check size={12} /> Na seleção comercial
                               </>
                             ) : (
                               <>
-                                <ShoppingCart size={12} /> Adicionar
+                                <ListPlus size={12} /> Adicionar
                               </>
                             )}
                           </button>

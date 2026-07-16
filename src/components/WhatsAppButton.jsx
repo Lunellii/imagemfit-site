@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ClipboardCopy, Share2, ShoppingCart, X, Trash2 } from "lucide-react";
+import { Check, ClipboardCopy, ListChecks, MessageCircle, Search, Share2, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
-const REQUEST_TEXT = "Pode me enviar os valores, tamanhos, opções de moldura e materiais disponíveis para esta seleção?";
+const REQUEST_TEXT = "Gostaria de consultar valores, tamanhos, opções de moldura, materiais disponíveis e prazo para esta seleção comercial.";
 const CATEGORY_BY_PREFIX = {
   AFM: "Abstrato Fluido e Mármore",
   ANI: "Animais",
@@ -30,7 +30,7 @@ const getItemCategory = (item) => {
   return CATEGORY_BY_PREFIX[getCodePrefix(item?.code)] || "";
 };
 
-export default function WhatsAppButton() {
+export default function WhatsAppButton({ onSearch }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState("");
   const [nativeShareAvailable, setNativeShareAvailable] = useState(false);
@@ -44,7 +44,7 @@ export default function WhatsAppButton() {
   const absoluteUrl = (src) => {
     try {
       return src ? new URL(src, window.location.origin).href : "";
-    } catch (_error) {
+    } catch {
       return src || "";
     }
   };
@@ -60,7 +60,7 @@ export default function WhatsAppButton() {
       })
       .join("\n");
 
-    return `Olá, tudo bem? Separei estes quadros no portfólio da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}`;
+    return `Olá, tudo bem? Sou lojista e separei estes produtos no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}`;
   };
 
   const loadImage = (src) =>
@@ -76,7 +76,7 @@ export default function WhatsAppButton() {
         if (new URL(url).origin !== window.location.origin) {
           image.crossOrigin = "anonymous";
         }
-      } catch (_error) {
+      } catch {
         // Keep loading even if URL parsing fails.
       }
       image.onload = () => resolve(image);
@@ -358,20 +358,22 @@ export default function WhatsAppButton() {
     window.setTimeout(() => setCopied(""), 2500);
   };
 
+  const whatsappUrl = cart.length ? `https://wa.me/5547999273809?text=${encodeURIComponent(buildMessage())}` : "https://wa.me/5547999273809";
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:left-auto sm:right-6">
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="bg-[#1c1c1c] border border-gold/30 w-80 shadow-2xl overflow-hidden"
+            className="mx-4 w-[calc(100vw-2rem)] overflow-hidden border border-gold/30 bg-[#1c1c1c] shadow-2xl sm:mx-0 sm:w-80"
           >
             <div className="bg-gold px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShoppingCart size={16} className="text-black" />
-                <span className="text-black font-semibold text-sm">Carrinho ({cart.length})</span>
+                <ListChecks size={16} className="text-black" />
+                <span className="text-black font-semibold text-sm">Seleção comercial ({cart.length})</span>
               </div>
               <button onClick={() => setOpen(false)} className="text-black/60 hover:text-black">
                 <X size={16} />
@@ -380,7 +382,7 @@ export default function WhatsAppButton() {
 
             <div className="max-h-72 overflow-y-auto">
               {cart.length === 0 ? (
-                <p className="text-white/40 text-xs text-center py-8">Nenhum quadro no carrinho.</p>
+                <p className="px-6 py-8 text-center text-xs leading-relaxed text-white/40">Sua seleção ainda está vazia. Adicione produtos do catálogo para consultar com nossa equipe.</p>
               ) : (
                 <ul className="divide-y divide-white/5">
                   {cart.map((item) => (
@@ -402,17 +404,25 @@ export default function WhatsAppButton() {
 
             {cart.length > 0 && (
               <div className="p-4 border-t border-white/10 space-y-2">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-full items-center justify-center gap-2 bg-[#1e8f55] py-3 text-xs font-semibold uppercase tracking-widest text-white transition-colors hover:bg-[#25a965]"
+                >
+                  <MessageCircle size={14} /> Enviar pelo WhatsApp
+                </a>
                 <button
                   onClick={handleCopy}
-                  className="w-full bg-gold text-black py-3 text-xs font-semibold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gold/90 transition-colors"
+                  className="flex w-full items-center justify-center gap-2 border border-gold py-3 text-xs font-semibold uppercase tracking-widest text-gold transition-colors hover:bg-gold hover:text-black"
                 >
                   {copied ? (
                     <>
                       <Check size={13} />{" "}
                       {copied === "order"
-                        ? "Pedido completo copiado"
+                        ? "Seleção completa copiada"
                         : copied === "shared"
-                          ? "Pedido compartilhado"
+                          ? "Seleção compartilhada"
                           : copied === "sharedImage"
                             ? "Imagem compartilhada e texto copiado"
                             : copied === "sharedText"
@@ -421,16 +431,16 @@ export default function WhatsAppButton() {
                     </>
                   ) : nativeShareAvailable ? (
                     <>
-                      <Share2 size={13} /> Compartilhar pedido
+                    <Share2 size={13} /> Compartilhar seleção
                     </>
                   ) : (
                     <>
-                      <ClipboardCopy size={13} /> Copiar pedido completo
+                    <ClipboardCopy size={13} /> Copiar seleção
                     </>
                   )}
                 </button>
                 <button onClick={clearCart} className="w-full text-white/30 hover:text-white/60 text-xs py-1 transition-colors">
-                  Limpar carrinho
+                  Limpar seleção
                 </button>
               </div>
             )}
@@ -439,18 +449,34 @@ export default function WhatsAppButton() {
       </AnimatePresence>
 
       <motion.button
+        type="button"
         onClick={() => setOpen(!open)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="relative w-14 h-14 bg-gold flex items-center justify-center shadow-lg hover:bg-gold/90 transition-colors"
+        aria-label={open ? "Fechar seleção comercial" : "Abrir seleção comercial"}
+        className="relative hidden h-14 w-14 items-center justify-center bg-gold shadow-lg transition-colors hover:bg-gold/90 sm:flex"
       >
-        {open ? <X size={22} className="text-black" /> : <ShoppingCart size={22} className="text-black" />}
-        {!open && cart.length > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#25D366] text-white text-[10px] font-bold flex items-center justify-center rounded-full">
-            {cart.length}
-          </span>
-        )}
+        {open ? <X size={22} className="text-black" /> : <ListChecks size={22} className="text-black" />}
+        {!open && cart.length > 0 ? (
+          <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#25D366] text-[10px] font-bold text-white">{cart.length}</span>
+        ) : null}
       </motion.button>
+
+      <div className="grid h-16 w-full grid-cols-3 border-t border-white/10 bg-[#111]/98 shadow-2xl backdrop-blur-md sm:hidden">
+        <button type="button" onClick={onSearch} className="flex flex-col items-center justify-center gap-1 text-white/60 transition-colors hover:text-gold">
+          <Search size={18} />
+          <span className="text-[8px] font-semibold uppercase tracking-[0.16em]">Buscar</span>
+        </button>
+        <button type="button" onClick={() => setOpen(!open)} className={`relative flex flex-col items-center justify-center gap-1 border-x border-white/10 transition-colors ${open ? "bg-gold text-black" : "text-white/60 hover:text-gold"}`}>
+          {open ? <X size={18} /> : <ListChecks size={18} />}
+          <span className="text-[8px] font-semibold uppercase tracking-[0.16em]">Seleção comercial</span>
+          {!open && cart.length > 0 ? <span className="absolute right-[28%] top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[8px] font-bold text-black">{cart.length}</span> : null}
+        </button>
+        <a href="https://wa.me/5547999273809" target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center gap-1 bg-[#1e6d44] text-white">
+          <MessageCircle size={18} />
+          <span className="text-[8px] font-semibold uppercase tracking-[0.16em]">WhatsApp</span>
+        </a>
+      </div>
     </div>
   );
 }

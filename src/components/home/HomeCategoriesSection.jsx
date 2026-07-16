@@ -20,7 +20,7 @@ export default function HomeCategoriesSection() {
   useEffect(() => {
     const load = async () => {
       try {
-        const cats = await localClient.entities.Category.list("order", 8);
+        const cats = await localClient.entities.Category.list("order", 6);
         const sorted = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
         const grouped = await localClient.entities.PortfolioImage.groupedByCategory(
           "-created_date",
@@ -30,7 +30,7 @@ export default function HomeCategoriesSection() {
 
         setCategories(sorted);
         setImagesByCategory(grouped);
-      } catch (_error) {
+      } catch {
         setCategories([]);
         setImagesByCategory({});
       }
@@ -42,37 +42,47 @@ export default function HomeCategoriesSection() {
   if (!categories.length) return null;
 
   return (
-    <section className="py-20 px-6">
-      <div className="max-w-7xl mx-auto">
+    <section className="bg-[#111] px-6 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl">
         <motion.div
-          className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4"
+          className="mb-12 flex flex-col justify-between gap-5 border-b border-white/10 pb-8 md:flex-row md:items-end"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
           <div>
-            <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-3">Escolha por estilo</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-white">Categorias do portfólio</h2>
-            <div className="gold-line w-16 mt-4" />
+            <span className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.4em] text-gold">Categorias para lojistas</span>
+            <h2 className="max-w-2xl font-heading text-4xl font-semibold leading-tight text-white md:text-5xl">
+              Encontre novas opções para o <span className="italic text-gold">mix da sua loja.</span>
+            </h2>
           </div>
-          <Link to="/portfolio" className="inline-flex items-center gap-2 text-gold text-xs tracking-widest uppercase hover:gap-3 transition-all">
-            Ver portfólio <ArrowRight size={13} />
+          <Link to="/portfolio" className="inline-flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-gold transition-all hover:gap-4">
+            Ver catálogo completo <ArrowRight size={13} />
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {categories.map((cat, i) => {
-            const isArtista = ARTISTA_CATEGORY_KEYS.has(normalizeCategoryKey(cat?.name));
-            const linkTo = isArtista ? "/artista" : `/portfolio/categoria/${cat.id}`;
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-12">
+          {categories.map((category, index) => {
+            const isArtista = ARTISTA_CATEGORY_KEYS.has(normalizeCategoryKey(category?.name));
+            const linkTo = isArtista ? "/artista" : `/portfolio/categoria/${category.id}`;
+            const isFeatured = index < 2;
+
             return (
               <motion.div
-                key={cat.id}
-                initial={{ opacity: 0, y: 12 }}
+                key={category.id}
+                initial={{ opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
+                transition={{ delay: index * 0.06 }}
+                className={isFeatured ? "col-span-2 lg:col-span-6" : "col-span-1 lg:col-span-3"}
               >
-                <RotatingCategoryCard category={cat} linkTo={linkTo} coverImages={imagesByCategory[cat.id] || []} />
+                <RotatingCategoryCard
+                  category={category}
+                  linkTo={linkTo}
+                  coverImages={imagesByCategory[category.id] || []}
+                  imageHeight={isFeatured ? "h-56 sm:h-72 lg:h-80" : "h-40 sm:h-52 lg:h-56"}
+                  className={isFeatured ? "bg-[#181818]" : "bg-[#151515]"}
+                />
               </motion.div>
             );
           })}

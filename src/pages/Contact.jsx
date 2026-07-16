@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Contact() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [form, setForm] = useState({ name: "", company: "", email: "", phone: "", message: "" });
   const [sending, setSending] = useState(false);
   const { toast } = useToast();
 
@@ -17,13 +17,13 @@ export default function Contact() {
 
     try {
       setSending(true);
-      const subject = `Contato de ${form.name} - Imagem Fit`;
-      const body = `Nome: ${form.name}\nE-mail: ${form.email}\nTelefone: ${form.phone}\n\nMensagem:\n${form.message}`;
+      const subject = `Contato comercial de ${form.company || form.name} - Imagem Fit`;
+      const body = `Responsável: ${form.name}\nLoja / empresa: ${form.company}\nE-mail: ${form.email}\nTelefone: ${form.phone}\n\nMensagem:\n${form.message}`;
       const mailto = `mailto:atendimento.imagemfit@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.open(mailto, "_self");
       toast({ title: "Mensagem preparada no seu e-mail.", description: "Finalize o envio no aplicativo de e-mail." });
-      setForm({ name: "", email: "", phone: "", message: "" });
-    } catch (_err) {
+      setForm({ name: "", company: "", email: "", phone: "", message: "" });
+    } catch {
       toast({ title: "Erro ao abrir o e-mail.", variant: "destructive" });
     } finally {
       setSending(false);
@@ -56,18 +56,19 @@ export default function Contact() {
     <div className="pt-28 pb-16 min-h-screen">
       <div className="max-w-6xl mx-auto px-6">
         <motion.div className="mb-14" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
-          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Atendimento</span>
-          <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Contato</h1>
+          <span className="text-gold text-xs tracking-[0.4em] uppercase font-medium block mb-4">Para lojistas</span>
+          <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Atendimento comercial</h1>
           <div className="gold-line w-20 mb-6" />
           <p className="text-white/60 max-w-xl text-sm leading-relaxed">
-            Para orçamento, monte sua seleção no portfólio e envie pelo carrinho. Para dúvidas, atendimento comercial ou pedidos específicos, fale conosco por aqui.
+            Monte uma seleção no catálogo e envie pelo WhatsApp. Para conhecer opções comerciais, tirar dúvidas ou conversar sobre pedidos específicos, fale com nossa equipe.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           <motion.form onSubmit={handleSubmit} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-3 space-y-5">
             {[
-              { key: "name", label: "Nome *", placeholder: "Seu nome completo", type: "text" },
+              { key: "name", label: "Responsável *", placeholder: "Seu nome completo", type: "text" },
+              { key: "company", label: "Loja / empresa", placeholder: "Nome da sua loja ou empresa", type: "text" },
               { key: "email", label: "E-mail *", placeholder: "seu@email.com", type: "email" },
               { key: "phone", label: "Telefone / WhatsApp", placeholder: "(11) 99999-9999", type: "tel" }
             ].map((f) => (
@@ -87,7 +88,7 @@ export default function Contact() {
               <textarea
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
-                placeholder="Conte quais quadros, medidas ou informações você precisa..."
+                placeholder="Conte o que sua loja procura ou quais informações comerciais você precisa..."
                 rows={5}
                 className="w-full bg-card border border-border text-white placeholder-white/30 px-4 py-3.5 text-sm outline-none focus:border-gold transition-colors resize-none"
               />
@@ -98,7 +99,7 @@ export default function Contact() {
               className="w-full bg-gold text-black py-4 text-xs tracking-[0.3em] uppercase font-semibold hover:bg-gold/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send size={14} />}
-              {sending ? "Abrindo e-mail..." : "Preparar mensagem"}
+              {sending ? "Abrindo e-mail..." : "Preparar contato comercial"}
             </button>
           </motion.form>
 

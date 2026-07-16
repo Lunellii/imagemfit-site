@@ -11,6 +11,7 @@ import Portfolio from "@/pages/Portfolio";
 import CategoryDetail from "@/pages/CategoryDetail";
 import Artista from "@/pages/Artista";
 import Contact from "@/pages/Contact";
+import Parceiros from "@/pages/Parceiros";
 import Admin from "@/pages/Admin";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminRoute from "@/components/admin/AdminRoute";
@@ -82,6 +83,7 @@ export default function App() {
             <Route path="/portfolio/categoria/:id" element={<CategoryDetail />} />
             <Route path="/artista" element={<Artista />} />
             <Route path="/contato" element={<Contact />} />
+            <Route path="/parceiros" element={<Parceiros />} />
             <Route path="*" element={<PageNotFound />} />
           </Route>
           <Route path={`${ADMIN_BASE_PATH}/login`} element={<AdminLogin />} />

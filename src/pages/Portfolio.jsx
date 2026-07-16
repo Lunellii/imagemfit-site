@@ -1,10 +1,35 @@
 import { useState, useEffect } from "react";
 import { localClient } from "@/api/localClient";
 import { motion } from "framer-motion";
-import { Loader2, LayoutGrid } from "lucide-react";
+import { ArrowRight, Loader2, LayoutGrid, Store } from "lucide-react";
+import { Link } from "react-router-dom";
 import CategoryGrid from "@/components/portfolio/CategoryGrid";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import { toast } from "@/components/ui/use-toast";
+
+const loadAllNewImages = async () => {
+  const pageSize = 200;
+  const firstPage = await localClient.entities.PortfolioImage.filterPage(
+    { is_new: true },
+    "-created_date",
+    1,
+    pageSize
+  );
+  const images = [...firstPage.items];
+  const totalPages = Math.ceil(firstPage.total / pageSize);
+
+  for (let page = 2; page <= totalPages; page += 1) {
+    const result = await localClient.entities.PortfolioImage.filterPage(
+      { is_new: true },
+      "-created_date",
+      page,
+      pageSize
+    );
+    images.push(...result.items);
+  }
+
+  return images;
+};
 
 export default function Portfolio() {
   const [categories, setCategories] = useState([]);
@@ -19,7 +44,7 @@ export default function Portfolio() {
       try {
         const [cats, imgs] = await Promise.all([
           localClient.entities.Category.list("order", 100),
-          localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 20)
+          loadAllNewImages()
         ]);
 
         if (!mounted) return;
@@ -43,7 +68,7 @@ export default function Portfolio() {
             if (!mounted) return;
             setImagesByCategory({});
           });
-      } catch (_error) {
+      } catch {
         if (!mounted) return;
         setCategories([]);
         setNewImages([]);
@@ -75,8 +100,8 @@ export default function Portfolio() {
     <div className="min-h-screen">
       <div className="relative h-64 md:h-80 overflow-hidden">
         <img
-          src="https://picsum.photos/seed/ifq-portfolio-banner/1920/1080"
-          alt="Portfólio de quadros"
+          src={`${import.meta.env.BASE_URL}company/imagem-fit-galeria.jpeg`}
+          alt="Galeria da Imagem Fit Quadros"
           draggable={false}
           onContextMenu={(event) => event.preventDefault()}
           className="w-full h-full object-cover"
@@ -88,24 +113,28 @@ export default function Portfolio() {
           transition={{ duration: 0.7 }}
           className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
         >
-          <span className="text-gold text-xs tracking-[0.5em] uppercase font-medium block mb-3">Portfólio</span>
-          <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Quadros por categoria</h1>
+          <span className="text-gold text-xs tracking-[0.5em] uppercase font-medium block mb-3">Catálogo para lojistas</span>
+          <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Produtos para o seu mix</h1>
           <div className="gold-line w-20 mx-auto" />
         </motion.div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-white/60 max-w-2xl text-sm md:text-base leading-relaxed mb-14 border-l-2 border-gold pl-5">
-          Navegue pelas categorias, abra os modelos e adicione ao carrinho os códigos que deseja cotar. A seleção pode ser enviada pelo WhatsApp com as imagens,
-          categorias e mensagem de orçamento.
-        </motion.p>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mb-14 flex flex-col justify-between gap-6 border-l-2 border-gold pl-5 lg:flex-row lg:items-center">
+          <p className="max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
+            Navegue pelas categorias, abra os produtos e adicione à seleção os códigos de interesse da sua loja. Depois, envie tudo pelo WhatsApp para consultar as opções comerciais.
+          </p>
+          <Link to="/parceiros" className="inline-flex shrink-0 items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-gold transition-all hover:gap-4">
+            <Store size={14} /> Como comprar <ArrowRight size={13} />
+          </Link>
+        </motion.div>
 
         {newImages.length > 0 && <NewArrivalsCarousel images={newImages} />}
 
         <div className="mb-8 flex items-center gap-4">
           <LayoutGrid className="text-gold" size={20} />
           <div>
-            <h2 className="font-heading text-2xl font-bold text-white">Categorias do portfólio</h2>
+            <h2 className="font-heading text-2xl font-bold text-white">Categorias do catálogo</h2>
             <p className="text-white/40 text-xs mt-0.5">{categories.length} categoria(s) disponível(is)</p>
           </div>
         </div>
