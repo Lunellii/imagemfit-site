@@ -8,15 +8,13 @@ import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import { toast } from "@/components/ui/use-toast";
 
 const loadLatestNewImages = async () => {
-  const latestImages = await localClient.entities.PortfolioImage.list("-created_date", 50);
+  const latestImages = await localClient.entities.PortfolioImage.list("-created_date", 5000);
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
-  return latestImages
-    .filter((image) => {
-      const createdAt = Date.parse(image.created_date);
-      return Number.isFinite(createdAt) && createdAt >= sevenDaysAgo;
-    })
-    .slice(0, 5);
+  return latestImages.filter((image) => {
+    const createdAt = Date.parse(image.created_date);
+    return Number.isFinite(createdAt) && createdAt >= sevenDaysAgo;
+  });
 };
 
 export default function Portfolio() {
