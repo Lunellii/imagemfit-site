@@ -330,6 +330,18 @@ export default function WhatsAppButton({ onSearch }) {
     document.body.removeChild(textarea);
   };
 
+  const downloadOrderImage = (orderImageBlob) => {
+    const imageUrl = URL.createObjectURL(orderImageBlob);
+    const link = document.createElement("a");
+    link.href = imageUrl;
+    link.download = "imagem-fit-quadros.png";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1000);
+  };
+
   const tryNativeShare = async (message, orderImageBlob) => {
     if (!nativeShareAvailable || typeof navigator.share !== "function" || typeof File === "undefined") {
       return false;
@@ -365,9 +377,10 @@ export default function WhatsAppButton({ onSearch }) {
   const handleCopy = async () => {
     const message = buildMessage();
     if (!message) return;
+    let orderImageBlob = preparedImageBlob;
 
     try {
-      const orderImageBlob = preparedImageBlob || (await createOrderImage());
+      orderImageBlob = orderImageBlob || (await createOrderImage());
       const shared = await tryNativeShare(message, orderImageBlob);
       if (shared) {
         window.setTimeout(() => setCopied(""), 2500);
@@ -392,8 +405,12 @@ export default function WhatsAppButton({ onSearch }) {
         return;
       }
 
+      if (orderImageBlob) {
+        downloadOrderImage(orderImageBlob);
+        setCopied("downloaded");
+      }
       fallbackCopy(message);
-      setCopied("text");
+      if (!orderImageBlob) setCopied("text");
     }
 
     window.setTimeout(() => setCopied(""), 2500);
@@ -455,13 +472,15 @@ export default function WhatsAppButton({ onSearch }) {
                       <Check size={13} />{" "}
                       {copied === "order"
                         ? "Imagem e códigos copiados"
-                        : copied === "shared"
-                          ? "Imagem e códigos enviados"
-                          : copied === "sharedImage"
-                            ? "Imagem compartilhada e texto copiado"
-                            : copied === "sharedText"
-                              ? "Mensagem compartilhada"
-                              : "Mensagem copiada"}
+                        : copied === "downloaded"
+                          ? "Imagem baixada e mensagem copiada"
+                          : copied === "shared"
+                            ? "Imagem e códigos enviados"
+                            : copied === "sharedImage"
+                              ? "Imagem compartilhada e texto copiado"
+                              : copied === "sharedText"
+                                ? "Mensagem compartilhada"
+                                : "Mensagem copiada"}
                     </>
                   ) : nativeShareAvailable ? (
                     <>
