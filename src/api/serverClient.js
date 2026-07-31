@@ -320,7 +320,7 @@ export function buildServerClient({ fallbackClient }) {
       },
       redirectToLogin() {
         if (typeof window !== "undefined") {
-          window.location.assign(`/#${ADMIN_BASE_PATH}/login`);
+          window.location.assign(`${ADMIN_BASE_PATH}/login`);
         }
       }
     }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { commercialClient } from "@/api/commercialClient";
 
 const CART_KEY = "ifq_cart";
 
@@ -59,10 +60,39 @@ export function useCart() {
     const next = [...current, item];
     saveCart(next);
     setCart(next);
+    commercialClient.analytics.track("add_to_selection", {
+      product_code: item.code,
+      category: item.category || item.category_name || ""
+    });
   }, []);
 
   const removeItem = useCallback((id) => {
     const next = getCart().filter((i) => i.id !== id);
+    saveCart(next);
+    setCart(next);
+  }, []);
+
+  const updateItem = useCallback((id, updates) => {
+    const next = getCart().map((item) => (item.id === id ? { ...item, ...updates } : item));
+    saveCart(next);
+    setCart(next);
+  }, []);
+
+  const syncItems = useCallback((items) => {
+    const detailsById = new Map((items || []).filter((item) => item?.id).map((item) => [item.id, item]));
+    const current = getCart();
+    let changed = false;
+    const next = current.map((item) => {
+      const details = detailsById.get(item.id);
+      if (!details) return item;
+      const updates = {};
+      if (!item.category && details.category) updates.category = details.category;
+      if ((!item.title || item.title === item.code) && details.title) updates.title = details.title;
+      if (!Object.keys(updates).length) return item;
+      changed = true;
+      return { ...item, ...updates };
+    });
+    if (!changed) return;
     saveCart(next);
     setCart(next);
   }, []);
@@ -76,5 +106,5 @@ export function useCart() {
     return getCart().some((i) => i.id === id);
   }, []);
 
-  return { cart, addItem, removeItem, clearCart, isInCart };
+  return { cart, addItem, updateItem, syncItems, removeItem, clearCart, isInCart };
 }

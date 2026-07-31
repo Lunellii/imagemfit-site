@@ -233,7 +233,7 @@ export default function SearchOverlay({ open, onClose }) {
                           >
                             {inCart ? (
                               <>
-                                <Check size={12} /> Na seleção comercial
+                                <Check size={12} /> Na minha seleção
                               </>
                             ) : (
                               <>

@@ -77,7 +77,7 @@ function ArtworkCard({ image, categoryName, masonry, onOpen }) {
           }`}
         >
           {selected ? <Check size={13} /> : <ListPlus size={13} />}
-          {selected ? "Na seleção comercial" : "Adicionar à seleção"}
+          {selected ? "Na minha seleção" : "Adicionar à seleção"}
         </button>
       </div>
     </motion.article>
@@ -154,7 +154,7 @@ export default function CategoryDetail() {
           <h1 className="font-heading text-4xl font-semibold text-white md:text-5xl">{category?.name || "Categoria"}</h1>
           {category?.description ? <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55">{category.description}</p> : null}
           <p className="mt-3 text-xs text-white/30">{totalImages} quadro(s){totalPages > 1 ? ` · página ${currentPage} de ${totalPages}` : ""}</p>
-          <p className="mt-4 max-w-xl text-xs leading-relaxed text-white/42">Abra um produto para ver os detalhes e adicione os códigos de interesse à seleção comercial da sua loja.</p>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/55">Abra um produto, escolha uma medida se desejar e adicione o quadro à sua seleção.</p>
         </motion.header>
 
         {images.length ? (

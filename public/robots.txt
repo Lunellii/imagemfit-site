@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admingustavoif/
+
+Sitemap: https://imagemfitquadros.com.br/sitemap.xml

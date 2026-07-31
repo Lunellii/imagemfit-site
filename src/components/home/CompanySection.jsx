@@ -15,30 +15,30 @@ export default function CompanySection() {
         >
           <div className="mb-5 flex items-center gap-3 text-gold">
             <MapPin size={14} />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.35em]">Rua São Paulo, 649 · Timbó</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.24em]">Rua São Paulo, 649 · Timbó</span>
           </div>
           <h2 className="font-heading text-4xl font-semibold leading-[1.08] text-white sm:text-5xl">
             Atendimento humano para entender a <span className="italic text-gold">sua loja.</span>
           </h2>
-          <p className="mt-7 text-sm leading-relaxed text-white/62 sm:text-base">
+          <p className="mt-7 text-base leading-relaxed text-white/70">
             Aqui, cada atendimento é próximo, personalizado e feito por pessoas. Nossa equipe entende o seu espaço, o perfil dos seus clientes e ajuda a encontrar os quadros certos para o seu mix.
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-white/45">
+          <p className="mt-4 text-base leading-relaxed text-white/58">
             Fazemos a simulação do quadro diretamente na parede do cliente, facilitando a escolha de tamanho, composição e acabamento antes do pedido.
           </p>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <div className="border border-white/10 bg-white/[0.025] p-4">
               <HeartHandshake size={20} className="text-gold" />
-              <span className="mt-3 block text-[9px] font-semibold uppercase tracking-[0.18em] text-white/65">Atendimento humanizado</span>
+              <span className="mt-3 block text-xs font-semibold leading-relaxed text-white/75">Atendimento humanizado</span>
             </div>
             <div className="border border-white/10 bg-white/[0.025] p-4">
               <Images size={20} className="text-gold" />
-              <span className="mt-3 block text-[9px] font-semibold uppercase tracking-[0.18em] text-white/65">Simulação na parede</span>
+              <span className="mt-3 block text-xs font-semibold leading-relaxed text-white/75">Simulação na parede</span>
             </div>
             <div className="border border-white/10 bg-white/[0.025] p-4">
               <Truck size={20} className="text-gold" />
-              <span className="mt-3 block text-[9px] font-semibold uppercase tracking-[0.18em] text-white/65">Atendimento presencial</span>
+              <span className="mt-3 block text-xs font-semibold leading-relaxed text-white/75">Atendimento presencial</span>
             </div>
           </div>
 

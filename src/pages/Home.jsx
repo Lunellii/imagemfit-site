@@ -10,10 +10,10 @@ export default function Home() {
     <div>
       <HeroSlideshow />
       <HomeCategoriesSection />
-      <PersonalizedFamilyArt />
       <HowItWorks />
-      <AlmirTeaser />
       <CompanySection />
+      <PersonalizedFamilyArt />
+      <AlmirTeaser />
     </div>
   );
 }

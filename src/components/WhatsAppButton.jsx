@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ClipboardCopy, ListChecks, Search, Share2, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { commercialClient } from "@/api/commercialClient";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
-const REQUEST_TEXT = "Gostaria de consultar valores, tamanhos, opções de moldura, materiais disponíveis e prazo para esta seleção comercial.";
+const REQUEST_TEXT = "Gostaria de consultar valores, opções de moldura, materiais disponíveis e prazo para esta seleção.";
 const CATEGORY_BY_PREFIX = {
   AFM: "Abstrato Fluido e Mármore",
   ANI: "Animais",
@@ -69,11 +70,12 @@ export default function WhatsAppButton({ onSearch }) {
         const title = item.title && item.title !== item.code ? ` - ${item.title}` : "";
         const categoryName = getItemCategory(item);
         const category = categoryName ? ` (${categoryName})` : "";
-        return `- #${item.code}${title}${category}`;
+        const size = item.size ? ` · Tamanho: ${item.size}` : "";
+        return `- #${item.code}${title}${category}${size}`;
       })
       .join("\n");
 
-    return `Olá, tudo bem? Sou lojista e separei estes produtos no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}`;
+    return `Olá, tudo bem? Separei estes produtos no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}`;
   };
 
   const loadImage = (src) =>
@@ -193,7 +195,7 @@ export default function WhatsAppButton({ onSearch }) {
     const gap = 22;
     const headerHeight = 122;
     const cardPadding = 12;
-    const captionHeight = 88;
+    const captionHeight = 104;
     const cardWidth = Math.floor((width - padding * 2 - gap * (columns - 1)) / columns);
     const imageHeight = columns === 1 ? 440 : columns === 2 ? 280 : 205;
     const cardHeight = imageHeight + captionHeight + cardPadding * 2;
@@ -259,13 +261,19 @@ export default function WhatsAppButton({ onSearch }) {
       context.fillStyle = "#111111";
       context.font = columns === 1 ? "700 32px Arial" : columns === 2 ? "700 27px Arial" : "700 22px Arial";
       const codeText = truncateText(context, `#${item.code}`, cardWidth - 28);
-      context.fillText(codeText, x + 14, captionY + 36);
+      context.fillText(codeText, x + 14, captionY + 32);
 
       const label = getItemCategory(item) || (item.title && item.title !== item.code ? item.title : "");
       context.fillStyle = "#5f5f5f";
       context.font = columns === 1 ? "20px Arial" : columns === 2 ? "17px Arial" : "14px Arial";
       const labelText = truncateText(context, label, cardWidth - 28);
-      if (labelText) context.fillText(labelText, x + 14, captionY + 62);
+      if (labelText) context.fillText(labelText, x + 14, captionY + 55);
+      if (item.size) {
+        context.fillStyle = "#9b742b";
+        context.font = columns === 1 ? "700 18px Arial" : columns === 2 ? "700 15px Arial" : "700 13px Arial";
+        const sizeText = truncateText(context, `Tamanho: ${item.size}`, cardWidth - 28);
+        context.fillText(sizeText, x + 14, captionY + 79);
+      }
     });
 
     const footerY = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap;
@@ -289,7 +297,7 @@ export default function WhatsAppButton({ onSearch }) {
   };
 
   createOrderImageRef.current = createOrderImage;
-  const cartSignature = cart.map((item) => `${item.id}:${item.code}:${item.image_url || ""}`).join("|");
+  const cartSignature = cart.map((item) => `${item.id}:${item.code}:${item.image_url || ""}:${item.size || ""}`).join("|");
   const preparedImageBlob = preparedOrderImage?.signature === cartSignature ? preparedOrderImage.blob : null;
 
   useEffect(() => {
@@ -377,6 +385,7 @@ export default function WhatsAppButton({ onSearch }) {
   const handleCopy = async () => {
     const message = buildMessage();
     if (!message) return;
+    commercialClient.analytics.track("share_selection");
     let orderImageBlob = preparedImageBlob;
 
     try {
@@ -429,7 +438,7 @@ export default function WhatsAppButton({ onSearch }) {
             <div className="bg-gold px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ListChecks size={16} className="text-black" />
-                <span className="text-black font-semibold text-sm">Seleção comercial ({cart.length})</span>
+                <span className="text-black font-semibold text-sm">Minha seleção ({cart.length})</span>
               </div>
               <button onClick={() => setOpen(false)} className="text-black/60 hover:text-black">
                 <X size={16} />
@@ -438,7 +447,7 @@ export default function WhatsAppButton({ onSearch }) {
 
             <div className="max-h-72 overflow-y-auto">
               {cart.length === 0 ? (
-                <p className="px-6 py-8 text-center text-xs leading-relaxed text-white/40">Sua seleção ainda está vazia. Adicione produtos do catálogo para consultar com nossa equipe.</p>
+                <p className="px-6 py-8 text-center text-sm leading-relaxed text-white/55">Sua seleção ainda está vazia. Adicione os quadros que deseja compartilhar.</p>
               ) : (
                 <ul className="divide-y divide-white/5">
                   {cart.map((item) => (
@@ -448,6 +457,7 @@ export default function WhatsAppButton({ onSearch }) {
                         <p className="text-gold font-mono text-xs font-semibold">#{item.code}</p>
                         {item.title && item.title !== item.code && <p className="text-white/50 text-xs truncate">{item.title}</p>}
                         {item.category && <p className="text-white/30 text-xs">{item.category}</p>}
+                        {item.size && <p className="mt-1 text-xs font-semibold text-gold/80">Tamanho: {item.size}</p>}
                       </div>
                       <button onClick={() => removeItem(item.id)} className="text-white/30 hover:text-red-400 transition-colors flex-shrink-0">
                         <Trash2 size={14} />
@@ -509,7 +519,7 @@ export default function WhatsAppButton({ onSearch }) {
         onClick={() => setOpen(!open)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        aria-label={open ? "Fechar seleção comercial" : "Abrir seleção comercial"}
+        aria-label={open ? "Fechar minha seleção" : "Abrir minha seleção"}
         className="relative hidden h-14 w-14 items-center justify-center bg-gold shadow-lg transition-colors hover:bg-gold/90 sm:flex"
       >
         {open ? <X size={22} className="text-black" /> : <ListChecks size={22} className="text-black" />}
@@ -525,7 +535,7 @@ export default function WhatsAppButton({ onSearch }) {
         </button>
         <button type="button" onClick={() => setOpen(!open)} className={`relative flex flex-col items-center justify-center gap-1 border-l border-white/10 transition-colors ${open ? "bg-gold text-black" : "text-white/60 hover:text-gold"}`}>
           {open ? <X size={18} /> : <ListChecks size={18} />}
-          <span className="text-[8px] font-semibold uppercase tracking-[0.16em]">Seleção comercial</span>
+          <span className="text-[9px] font-semibold uppercase tracking-[0.14em]">Minha seleção</span>
           {!open && cart.length > 0 ? <span className="absolute right-[28%] top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[8px] font-bold text-black">{cart.length}</span> : null}
         </button>
       </div>

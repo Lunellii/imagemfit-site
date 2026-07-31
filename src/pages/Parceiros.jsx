@@ -16,7 +16,7 @@ const benefits = [
 
 const steps = [
   ["01", "Explore o catálogo", "Navegue pelas categorias e abra os produtos que combinam com o mix da sua loja."],
-  ["02", "Monte sua seleção", "Adicione os códigos de interesse à seleção comercial enquanto compara os modelos."],
+  ["02", "Monte sua seleção", "Adicione os códigos de interesse enquanto compara os modelos."],
   ["03", "Compartilhe a seleção", "Escolha o aplicativo e o contato que deve receber as imagens, códigos e categorias."],
   ["04", "Confirme o pedido", "Receba as informações comerciais, opções disponíveis e prazos referentes à sua seleção."]
 ];
@@ -128,9 +128,13 @@ export default function Parceiros() {
 
       <section className="border-y border-white/10 bg-black px-6 py-20 md:py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div className="grid grid-cols-2 gap-4">
-            <img src={FACADE_IMAGE} alt="Fachada da Imagem Fit Quadros em Timbó" loading="lazy" className="mt-12 aspect-[4/5] w-full object-cover" />
-            <img src={GALLERY_IMAGE} alt="Espaço da Imagem Fit Quadros" loading="lazy" className="aspect-[4/5] w-full object-cover" />
+          <div className="relative aspect-[5/4] overflow-hidden border border-white/10">
+            <img src={FACADE_IMAGE} alt="Caminhão da Imagem Fit para atendimento presencial" loading="lazy" className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-6">
+              <span className="text-sm font-semibold text-gold">Atendimento presencial</span>
+              <p className="mt-1 text-base leading-relaxed text-white">Nosso catálogo vai até a sua loja com muitas opções de quadros.</p>
+            </div>
           </div>
           <div>
             <div className="flex items-center gap-3 text-gold">
@@ -138,7 +142,7 @@ export default function Parceiros() {
               <span className="text-[10px] font-semibold uppercase tracking-[0.34em]">Timbó, Santa Catarina</span>
             </div>
             <h2 className="mt-5 font-heading text-4xl font-semibold leading-tight text-white sm:text-5xl">Uma empresa real, presente no atendimento da sua loja.</h2>
-            <p className="mt-6 text-sm leading-relaxed text-white/58">A Imagem Fit reúne catálogo, espaço físico e atendimento comercial para ajudar lojistas a escolher referências e consultar as opções disponíveis para cada pedido.</p>
+            <p className="mt-6 text-base leading-relaxed text-white/65">A Imagem Fit reúne catálogo, espaço físico e atendimento comercial para ajudar lojistas a escolher referências e consultar as opções disponíveis para cada pedido.</p>
             <Link to="/portfolio" className="mt-8 inline-flex items-center gap-3 bg-gold px-7 py-4 text-[10px] font-bold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#c9a85d]">
               Montar uma seleção <ArrowRight size={15} />
             </Link>

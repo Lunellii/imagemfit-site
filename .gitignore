@@ -12,6 +12,7 @@ dist-ssr
 storage/uploads
 storage/data
 !storage/data/.gitkeep
+.preview-storage/
 
 logs
 *.log

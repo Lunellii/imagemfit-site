@@ -384,6 +384,10 @@ export default function ImageUploader({ categories, onUploaded }) {
     <div className="border border-border p-8 space-y-6 max-w-2xl">
       <h3 className="font-heading text-xl font-semibold text-white">Adicionar imagens em massa</h3>
 
+      <div className="border border-gold/35 bg-gold/[0.06] p-4 text-sm leading-relaxed text-white/70">
+        <strong className="text-gold">Pode enviar em PNG.</strong> O sistema reduz imagens muito grandes e gera automaticamente uma versão WebP quando ela fica mais leve, preservando a qualidade visual do catálogo.
+      </div>
+
       <div className="grid grid-cols-2 border border-border bg-card">
         <button
           type="button"
@@ -464,7 +468,7 @@ export default function ImageUploader({ categories, onUploaded }) {
           <label htmlFor="img-upload" className="cursor-pointer flex flex-col items-center gap-3">
             <Upload className="w-8 h-8 text-gold/50" />
             <span className="text-white/50 text-sm">{files.length ? `${files.length} arquivo(s) selecionado(s)` : "Clique ou arraste imagens aqui"}</span>
-            <span className="text-white/30 text-xs">JPG, PNG, WEBP - múltiplos arquivos suportados</span>
+            <span className="text-white/45 text-xs">JPG, PNG ou WEBP · PNG é otimizado automaticamente para o site</span>
           </label>
         </div>
       </div>

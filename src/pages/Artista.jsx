@@ -111,7 +111,7 @@ export default function Artista() {
                   São obras com textura, cor e presença visual, pensadas para agregar exclusividade e diferenciação ao mix da sua loja.
                 </p>
                 <p>
-                  Adicione os códigos à seleção comercial e consulte com nossa equipe as opções disponíveis para cada peça.
+                  Adicione os códigos à sua seleção e compartilhe com a loja ou o contato que preferir.
                 </p>
               </div>
               <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-6 border-t border-gold/20 pt-6 sm:pt-8">
@@ -195,7 +195,7 @@ export default function Artista() {
                     >
                       {isInCart(img.id) ? (
                         <>
-                          <Check size={11} /> Na seleção comercial
+                          <Check size={11} /> Na minha seleção
                         </>
                       ) : (
                         <>

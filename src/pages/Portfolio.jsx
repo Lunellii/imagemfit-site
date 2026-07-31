@@ -56,8 +56,14 @@ export default function Portfolio() {
         if (!mounted) return;
 
         const sortedCategories = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+        const categoryNameById = Object.fromEntries(sortedCategories.map((category) => [category.id, category.name]));
+        const arrivalsWithCategory = arrivals.images.map((image) => ({
+          ...image,
+          category_name: image.category_name || image.category || categoryNameById[image.category_id] || ""
+        }));
+
         setCategories(sortedCategories);
-        setNewImages(arrivals.images);
+        setNewImages(arrivalsWithCategory);
         setNewImagesAreFallback(arrivals.isFallback);
         setLoading(false);
 
@@ -125,7 +131,7 @@ export default function Portfolio() {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mb-14 flex flex-col justify-between gap-6 border-l-2 border-gold pl-5 lg:flex-row lg:items-center">
           <p className="max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
-            Navegue pelas categorias, abra os produtos e adicione à seleção os códigos de interesse. Depois, compartilhe as imagens e os códigos com o contato que desejar.
+            Abra os produtos, escolha uma medida se desejar e monte sua seleção. Depois, compartilhe as imagens e os códigos com a loja ou o contato que preferir.
           </p>
           <Link to="/parceiros" className="inline-flex shrink-0 items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-gold transition-all hover:gap-4">
             <Store size={14} /> Como comprar <ArrowRight size={13} />

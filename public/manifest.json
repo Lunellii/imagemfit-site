@@ -1,0 +1,16 @@
+{
+  "name": "Imagem Fit Quadros",
+  "short_name": "Imagem Fit",
+  "description": "Catálogo de quadros para lojistas e seus clientes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0d0d0d",
+  "icons": [
+    {
+      "src": "/logo-if-branca.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

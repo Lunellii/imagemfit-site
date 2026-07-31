@@ -24,6 +24,8 @@ const uploadsDir = path.resolve(storageRoot, "uploads");
 const dataDir = path.resolve(storageRoot, "data");
 const categoriesFile = path.resolve(dataDir, "categories.json");
 const imagesFile = path.resolve(dataDir, "images.json");
+const leadsFile = path.resolve(dataDir, "leads.json");
+const analyticsFile = path.resolve(dataDir, "analytics.json");
 const seedCatalogFile = path.resolve(rootDir, "src", "data", "seedCatalog.json");
 
 const HOST = process.env.HOST || "0.0.0.0";
@@ -43,12 +45,19 @@ const ADMIN_SESSION_TTL_MS = Number(process.env.ADMIN_SESSION_TTL_MS || 1000 * 6
 const ADMIN_COOKIE_NAME = "ifq_admin_token";
 
 let writeQueue = Promise.resolve();
-let db = { categories: [], images: [] };
+let db = { categories: [], images: [], leads: [], analytics: { days: {} } };
 let dbReady = false;
 
 const nowIso = () => new Date().toISOString();
 const uid = () => crypto.randomUUID();
+const compactText = (value, max = 160) => String(value || "").trim().slice(0, max);
+const ANALYTICS_EVENTS = new Set(["page_view", "product_view", "category_view", "search", "add_to_selection", "share_selection", "contact_whatsapp"]);
 const normalizeCode = (value) => String(value || "").trim().replace(/^#+/, "").toUpperCase();
+const normalizePublicImageUrl = (value) => {
+  const url = String(value || "").trim();
+  if (!url || url.startsWith("/") || /^[a-z][a-z0-9+.-]*:/i.test(url)) return url;
+  return `/${url.replace(/^\/+/, "")}`;
+};
 const normalizeCategoryName = (value) =>
   String(value || "")
     .normalize("NFD")
@@ -121,6 +130,7 @@ const MIME = {
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
+  ".xml": "application/xml; charset=utf-8",
   ".webp": "image/webp",
   ".woff": "font/woff",
   ".woff2": "font/woff2"
@@ -128,7 +138,8 @@ const MIME = {
 
 const readJson = async (filePath, fallback) => {
   try {
-    return JSON.parse(await fs.readFile(filePath, "utf8"));
+    const contents = await fs.readFile(filePath, "utf8");
+    return JSON.parse(contents.replace(/^\uFEFF/, ""));
   } catch (_err) {
     return fallback;
   }
@@ -164,10 +175,17 @@ const writeJsonAtomic = async (filePath, value) => {
 };
 
 const queueWrite = () => {
-  const snapshot = { categories: db.categories, images: db.images };
+  const snapshot = {
+    categories: db.categories,
+    images: db.images,
+    leads: db.leads,
+    analytics: db.analytics
+  };
   writeQueue = writeQueue.then(async () => {
     await writeJsonAtomic(categoriesFile, snapshot.categories);
     await writeJsonAtomic(imagesFile, snapshot.images);
+    await writeJsonAtomic(leadsFile, snapshot.leads);
+    await writeJsonAtomic(analyticsFile, snapshot.analytics);
   });
   return writeQueue;
 };
@@ -445,8 +463,12 @@ const bootstrap = async () => {
 
   const categories = await readJson(categoriesFile, []);
   const images = await readJson(imagesFile, []);
+  const leads = await readJson(leadsFile, []);
+  const analytics = await readJson(analyticsFile, { days: {} });
   db.categories = Array.isArray(categories) ? categories : [];
-  db.images = Array.isArray(images) ? images : [];
+  db.images = Array.isArray(images) ? images.map((image) => ({ ...image, image_url: normalizePublicImageUrl(image?.image_url) })) : [];
+  db.leads = Array.isArray(leads) ? leads : [];
+  db.analytics = analytics && typeof analytics === "object" && analytics.days && typeof analytics.days === "object" ? analytics : { days: {} };
 
   if (!db.categories.length) {
     const seedCatalog = await readJson(seedCatalogFile, { images: [] });
@@ -534,7 +556,7 @@ const bootstrap = async () => {
           id: uid(),
           title: String(entry.title || code),
           code,
-          image_url: String(entry.image),
+          image_url: normalizePublicImageUrl(entry.image),
           category_id: categoryId,
           is_new: index < 20,
           created_date: new Date(Date.now() - index * 60000).toISOString()
@@ -581,9 +603,60 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { success: true });
     }
 
+    if (req.method === "POST" && pathname === "/api/leads") {
+      const body = await readBody(req).catch((err) => ({ __error: err.message }));
+      if (body.__error) return sendJson(res, body.__error === "PAYLOAD_TOO_LARGE" ? 413 : 400, { error: body.__error });
+      if (body.website) return sendJson(res, 201, { success: true });
+
+      const lead = {
+        id: uid(),
+        name: compactText(body.name, 100),
+        company: compactText(body.company, 120),
+        city: compactText(body.city, 100),
+        state: compactText(body.state, 2).toUpperCase(),
+        email: compactText(body.email, 160),
+        phone: compactText(body.phone, 40),
+        message: compactText(body.message, 1200),
+        status: "new",
+        created_date: nowIso()
+      };
+
+      if (!lead.name || !lead.company || !lead.city || !/^[A-Z]{2}$/.test(lead.state) || !lead.message) {
+        return sendJson(res, 400, { error: "LEAD_REQUIRED_FIELDS" });
+      }
+
+      db.leads.unshift(lead);
+      db.leads = db.leads.slice(0, 2000);
+      await queueWrite();
+      return sendJson(res, 201, { success: true, id: lead.id });
+    }
+
+    if (req.method === "POST" && pathname === "/api/analytics/events") {
+      const body = await readBody(req).catch((err) => ({ __error: err.message }));
+      if (body.__error) return sendJson(res, body.__error === "PAYLOAD_TOO_LARGE" ? 413 : 400, { error: body.__error });
+      const event = compactText(body.event, 40);
+      if (!ANALYTICS_EVENTS.has(event)) return sendJson(res, 400, { error: "INVALID_ANALYTICS_EVENT" });
+
+      const dayKey = nowIso().slice(0, 10);
+      const day = db.analytics.days[dayKey] || { events: {}, products: {}, categories: {}, pages: {} };
+      day.events[event] = Number(day.events[event] || 0) + 1;
+      const productCode = compactText(body.product_code, 80);
+      const categoryName = compactText(body.category, 120);
+      const pagePath = compactText(body.path, 180);
+      if (productCode) day.products[productCode] = Number(day.products[productCode] || 0) + 1;
+      if (categoryName) day.categories[categoryName] = Number(day.categories[categoryName] || 0) + 1;
+      if (pagePath && event === "page_view") day.pages[pagePath] = Number(day.pages[pagePath] || 0) + 1;
+      db.analytics.days[dayKey] = day;
+
+      const retainedKeys = Object.keys(db.analytics.days).sort().slice(-180);
+      db.analytics.days = Object.fromEntries(retainedKeys.map((key) => [key, db.analytics.days[key]]));
+      await queueWrite();
+      return sendJson(res, 202, { success: true });
+    }
+
     if (
       pathname.startsWith("/api/") &&
-      !["/api/categories", "/api/images", "/api/images/grouped", "/api/uploads/base64", "/api/classify-category"].some((prefix) =>
+      !["/api/categories", "/api/images", "/api/images/grouped", "/api/uploads/base64", "/api/classify-category", "/api/leads", "/api/analytics"].some((prefix) =>
         pathname.startsWith(prefix)
       )
     ) {
@@ -595,11 +668,63 @@ const server = http.createServer(async (req, res) => {
     const adminRequired =
       (pathname.startsWith("/api/categories") && req.method !== "GET") ||
       (pathname.startsWith("/api/images") && req.method !== "GET" && !isGroupedImagesRead) ||
+      pathname.startsWith("/api/leads") ||
+      pathname.startsWith("/api/analytics") ||
       pathname === "/api/uploads/base64" ||
       pathname === "/api/classify-category";
     if (adminRequired) {
       if (!ENABLE_ADMIN) return sendJson(res, 403, { error: "ADMIN_DISABLED_PUBLIC" });
       if (!session) return sendJson(res, 401, { error: "UNAUTHORIZED" });
+    }
+
+    if (req.method === "GET" && pathname === "/api/leads") {
+      return sendJson(res, 200, sortBy(db.leads, "-created_date").slice(0, 500));
+    }
+
+    if (req.method === "PATCH" && pathname.startsWith("/api/leads/")) {
+      const leadId = pathname.replace("/api/leads/", "");
+      const lead = db.leads.find((item) => item.id === leadId);
+      if (!lead) return sendJson(res, 404, { error: "LEAD_NOT_FOUND" });
+      const body = await readBody(req).catch((err) => ({ __error: err.message }));
+      if (body.__error) return sendJson(res, body.__error === "PAYLOAD_TOO_LARGE" ? 413 : 400, { error: body.__error });
+      if (["new", "contacted", "archived"].includes(body.status)) lead.status = body.status;
+      await queueWrite();
+      return sendJson(res, 200, lead);
+    }
+
+    if (req.method === "DELETE" && pathname.startsWith("/api/leads/")) {
+      const leadId = pathname.replace("/api/leads/", "");
+      const before = db.leads.length;
+      db.leads = db.leads.filter((item) => item.id !== leadId);
+      if (db.leads.length === before) return sendJson(res, 404, { error: "LEAD_NOT_FOUND" });
+      await queueWrite();
+      return sendJson(res, 200, { success: true });
+    }
+
+    if (req.method === "GET" && pathname === "/api/analytics/summary") {
+      const requestedDays = Math.min(180, Math.max(1, Number(url.searchParams.get("days") || 30)));
+      const dayKeys = Object.keys(db.analytics.days).sort().slice(-requestedDays);
+      const totals = {};
+      const products = {};
+      const categories = {};
+      const pages = {};
+      const timeline = dayKeys.map((date) => {
+        const day = db.analytics.days[date] || {};
+        for (const [key, value] of Object.entries(day.events || {})) totals[key] = Number(totals[key] || 0) + Number(value || 0);
+        for (const [key, value] of Object.entries(day.products || {})) products[key] = Number(products[key] || 0) + Number(value || 0);
+        for (const [key, value] of Object.entries(day.categories || {})) categories[key] = Number(categories[key] || 0) + Number(value || 0);
+        for (const [key, value] of Object.entries(day.pages || {})) pages[key] = Number(pages[key] || 0) + Number(value || 0);
+        return { date, page_views: Number(day.events?.page_view || 0), shares: Number(day.events?.share_selection || 0) };
+      });
+      const topEntries = (value) => Object.entries(value).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([label, count]) => ({ label, count }));
+      return sendJson(res, 200, {
+        days: requestedDays,
+        totals,
+        timeline,
+        top_products: topEntries(products),
+        top_categories: topEntries(categories),
+        top_pages: topEntries(pages)
+      });
     }
 
     if (req.method === "GET" && pathname === "/api/categories") {

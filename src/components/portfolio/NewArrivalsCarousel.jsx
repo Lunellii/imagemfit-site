@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, ListPlus, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
@@ -9,7 +9,17 @@ export default function NewArrivalsCarousel({ images, isFallback = false }) {
   const scrollRef = useRef(null);
   const dragRef = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
   const [selectedImage, setSelectedImage] = useState(null);
-  const { addItem, isInCart } = useCart();
+  const { addItem, isInCart, syncItems } = useCart();
+
+  useEffect(() => {
+    syncItems(
+      images.map((image) => ({
+        id: image.id,
+        title: image.title,
+        category: image.category_name || image.category || ""
+      }))
+    );
+  }, [images, syncItems]);
 
   const scroll = (direction) => {
     if (!scrollRef.current) return;
@@ -25,20 +35,24 @@ export default function NewArrivalsCarousel({ images, isFallback = false }) {
       startX: event.clientX,
       scrollLeft: scrollRef.current.scrollLeft
     };
-    scrollRef.current.setPointerCapture?.(event.pointerId);
   };
 
   const moveMouseDrag = (event) => {
     if (!dragRef.current.active || !scrollRef.current) return;
     const distance = event.clientX - dragRef.current.startX;
-    if (Math.abs(distance) > 4) dragRef.current.moved = true;
+    if (Math.abs(distance) > 4 && !dragRef.current.moved) {
+      dragRef.current.moved = true;
+      scrollRef.current.setPointerCapture?.(event.pointerId);
+    }
     scrollRef.current.scrollLeft = dragRef.current.scrollLeft - distance;
   };
 
   const endMouseDrag = (event) => {
     if (!dragRef.current.active) return;
     dragRef.current.active = false;
-    scrollRef.current?.releasePointerCapture?.(event.pointerId);
+    if (scrollRef.current?.hasPointerCapture?.(event.pointerId)) {
+      scrollRef.current.releasePointerCapture(event.pointerId);
+    }
     window.setTimeout(() => {
       dragRef.current.moved = false;
     }, 0);
@@ -50,7 +64,13 @@ export default function NewArrivalsCarousel({ images, isFallback = false }) {
       toast({ title: `#${image.code} já está na sua seleção` });
       return;
     }
-    addItem({ id: image.id, code: image.code, title: image.title, image_url: image.image_url });
+    addItem({
+      id: image.id,
+      code: image.code,
+      title: image.title,
+      image_url: image.image_url,
+      category: image.category_name || image.category || ""
+    });
     toast({ title: `#${image.code} adicionado à sua seleção` });
   };
 
@@ -99,8 +119,11 @@ export default function NewArrivalsCarousel({ images, isFallback = false }) {
                 </button>
               </div>
               <div className="mt-3 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="truncate text-sm font-medium text-foreground">{image.title || image.code}</p>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-foreground">{image.title || image.code}</p>
+                    {(image.category_name || image.category) ? <p className="mt-0.5 truncate text-xs text-white/45">{image.category_name || image.category}</p> : null}
+                  </div>
                   <p className="font-mono text-xs tracking-wider text-gold">#{image.code}</p>
                 </div>
                 <button type="button" data-no-drag="true" onClick={(event) => addToSelection(image, event)} className={`flex w-full items-center justify-center gap-2 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${selected ? "border border-gold/50 bg-gold/10 text-gold" : "bg-gold text-black hover:bg-[#c9a85d]"}`}>
@@ -113,7 +136,7 @@ export default function NewArrivalsCarousel({ images, isFallback = false }) {
         })}
       </div>
 
-      <ProductQuickView image={selectedImage} onClose={() => setSelectedImage(null)} />
+      <ProductQuickView image={selectedImage} categoryName={selectedImage?.category_name || selectedImage?.category || ""} onClose={() => setSelectedImage(null)} />
     </section>
   );
 }

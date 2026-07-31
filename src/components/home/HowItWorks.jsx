@@ -13,7 +13,7 @@ const steps = [
     icon: ShoppingBag,
     number: "02",
     title: "Monte sua seleção",
-    desc: "Adicione os códigos de interesse para montar uma seleção comercial organizada."
+    desc: "Adicione os códigos de interesse para montar sua seleção de forma simples."
   },
   {
     icon: MessageCircle,

@@ -6,6 +6,7 @@ import ImageUploader from "@/components/admin/ImageUploader";
 import ImageManager from "@/components/admin/ImageManager";
 import CategoryManager from "@/components/admin/CategoryManager";
 import SiteModeManager from "@/components/admin/SiteModeManager";
+import CommercialDashboard from "@/components/admin/CommercialDashboard";
 
 async function loadAllPortfolioImages() {
   const pageSize = 200;
@@ -103,6 +104,7 @@ export default function Admin() {
               { value: "upload", label: "Adicionar imagens" },
               { value: "manage", label: `Imagens (${images.length})` },
               { value: "categories", label: `Categorias (${categories.length})` },
+              { value: "commercial", label: "Comercial e métricas" },
               { value: "site", label: "Operação do site" }
             ].map((t) => (
               <TabsTrigger key={t.value} value={t.value} className="rounded-none text-xs tracking-widest uppercase px-5 py-3 data-[state=active]:bg-gold data-[state=active]:text-black">
@@ -118,6 +120,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="categories">
             <CategoryManager categories={categories} images={images} onChanged={() => loadData({ showSpinner: false })} />
+          </TabsContent>
+          <TabsContent value="commercial">
+            <CommercialDashboard />
           </TabsContent>
           <TabsContent value="site">
             <SiteModeManager initialState={siteState} onChanged={() => loadData({ showSpinner: false })} />

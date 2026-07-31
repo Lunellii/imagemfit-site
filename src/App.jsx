@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter as Router, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { queryClientInstance } from "@/lib/query-client";
 import PageNotFound from "@/lib/PageNotFound";
 import Layout from "@/components/Layout";
 import ScrollToTop from "@/components/ScrollToTop";
+import CommercialAnalytics from "@/components/CommercialAnalytics";
 import Home from "@/pages/Home";
 import Portfolio from "@/pages/Portfolio";
 import CategoryDetail from "@/pages/CategoryDetail";
@@ -19,6 +20,17 @@ import AdminLayout from "@/components/admin/AdminLayout";
 
 const PROTECTED_MEDIA_SELECTOR = "img,[data-protected-image='true']";
 const ADMIN_BASE_PATH = "/admingustavoif";
+
+function LegacyHashRedirect() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const legacyPath = String(window.location.hash || "").replace(/^#/, "");
+    if (legacyPath.startsWith("/")) navigate(legacyPath, { replace: true });
+  }, [navigate]);
+
+  return null;
+}
 
 function MediaProtection() {
   const location = useLocation();
@@ -74,8 +86,10 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClientInstance}>
       <Router>
+        <LegacyHashRedirect />
         <MediaProtection />
         <ScrollToTop />
+        <CommercialAnalytics />
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />

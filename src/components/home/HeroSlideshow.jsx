@@ -83,7 +83,7 @@ export default function HeroSlideshow() {
             className="mb-7 flex items-center gap-4"
           >
             <span className="h-px w-12 bg-gold" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.42em] text-gold sm:text-xs">
+            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-gold sm:text-sm">
               Catálogo exclusivo para lojistas
             </span>
           </motion.div>
@@ -101,7 +101,7 @@ export default function HeroSlideshow() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.7 }}
-            className="mt-7 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base"
+            className="mt-7 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg"
           >
             Quadros decorativos, espelhos, obras autorais e produtos personalizados para ampliar o mix da sua loja. Escolha por código, monte sua seleção e fale com nosso atendimento comercial.
           </motion.p>
@@ -114,13 +114,13 @@ export default function HeroSlideshow() {
           >
             <Link
               to="/portfolio"
-              className="inline-flex items-center justify-center gap-3 bg-gold px-7 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-black transition-colors hover:bg-[#c9a85d]"
+              className="inline-flex items-center justify-center gap-3 bg-gold px-7 py-4 text-xs font-bold uppercase tracking-[0.18em] text-black transition-colors hover:bg-[#c9a85d]"
             >
               Explorar o catálogo <ArrowUpRight size={15} />
             </Link>
             <Link
               to="/parceiros"
-              className="inline-flex items-center justify-center gap-3 border border-white/30 bg-black/25 px-7 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm transition-colors hover:border-gold hover:text-gold"
+              className="inline-flex items-center justify-center gap-3 border border-white/30 bg-black/25 px-7 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-sm transition-colors hover:border-gold hover:text-gold"
             >
               <Store size={15} /> Para lojistas
             </Link>

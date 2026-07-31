@@ -1166,7 +1166,7 @@ const browserLocalClient = {
     },
     redirectToLogin() {
       if (typeof window !== "undefined") {
-        window.location.assign("/#/admingustavoif/login");
+        window.location.assign("/admingustavoif/login");
       }
     }
   }
