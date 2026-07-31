@@ -106,15 +106,10 @@ export default function Portfolio() {
 
   return (
     <div className="min-h-screen">
-      <div className="relative h-64 md:h-80 overflow-hidden">
-        <img
-          src={`${import.meta.env.BASE_URL}company/imagem-fit-galeria.jpeg`}
-          alt="Galeria da Imagem Fit Quadros"
-          draggable={false}
-          onContextMenu={(event) => event.preventDefault()}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black" />
+      <div className="relative h-64 overflow-hidden bg-[#0b0b0b] md:h-80">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(184,142,53,0.18),transparent_52%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black to-transparent" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

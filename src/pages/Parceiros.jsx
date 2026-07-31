@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, Frame, Layers3, ListChecks, MapPin, Store } from "lucide-react";
 
-const GALLERY_IMAGE = `${import.meta.env.BASE_URL}company/imagem-fit-galeria.jpeg`;
 const FACADE_IMAGE = `${import.meta.env.BASE_URL}company/imagem-fit-fachada.jpg`;
 const ARTIST_IMAGE = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png`;
 const PERSONALIZED_IMAGE = `${import.meta.env.BASE_URL}special/familia-arte-abstrata.jpg`;
@@ -31,10 +30,11 @@ const productLines = [
 export default function Parceiros() {
   return (
     <div className="min-h-screen bg-[#0d0d0d]">
-      <section className="relative flex min-h-[670px] items-end overflow-hidden px-6 pb-20 pt-32 md:pb-24">
-        <img src={GALLERY_IMAGE} alt="Galeria da Imagem Fit Quadros" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent to-black/40" />
+      <section className="relative flex min-h-[670px] items-end overflow-hidden bg-[#090909] px-6 pb-20 pt-32 md:pb-24">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_30%,rgba(184,142,53,0.16),transparent_30%),radial-gradient(circle_at_20%_80%,rgba(184,142,53,0.08),transparent_38%)]" />
+        <div className="absolute inset-y-0 right-[18%] w-px bg-gradient-to-b from-transparent via-gold/25 to-transparent" />
+        <div className="absolute right-[10%] top-[18%] h-52 w-52 rotate-45 border border-gold/10 sm:h-72 sm:w-72" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent to-black/50" />
 
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="relative mx-auto w-full max-w-7xl">
           <div className="max-w-3xl">
