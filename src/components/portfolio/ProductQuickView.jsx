@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ListPlus, Maximize2, X } from "lucide-react";
+import { Check, ListPlus, Maximize2, Ruler, X } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
+
+const FRAME_SIZES = ["40x60", "65x65", "65x100", "90x90", "80x120", "90x144"];
 
 export default function ProductQuickView({ image, categoryName = "", onClose }) {
   const { addItem, isInCart } = useCart();
@@ -85,7 +87,24 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
                   Adicione este código à seleção da sua loja para consultar valores, tamanhos, materiais e opções de moldura disponíveis.
                 </p>
 
-                <div className="pt-8">
+                <div className="mt-8 border-y border-white/10 py-6">
+                  <div className="mb-4 flex items-center gap-2 text-gold">
+                    <Ruler size={16} />
+                    <h3 className="text-[10px] font-semibold uppercase tracking-[0.28em]">Tamanhos disponíveis</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {FRAME_SIZES.map((size) => (
+                      <span key={size} className="border border-gold/25 bg-gold/5 px-3 py-2.5 text-center font-mono text-xs tracking-wide text-white/80">
+                        {size} cm
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-4 border-l-2 border-gold pl-3 text-xs leading-relaxed text-white/55">
+                    Precisa de outra medida? Também fazemos <strong className="font-semibold text-gold">tamanhos personalizados</strong>. Consulte nossa equipe.
+                  </p>
+                </div>
+
+                <div className="pt-7">
                   <button
                     type="button"
                     onClick={addToSelection}

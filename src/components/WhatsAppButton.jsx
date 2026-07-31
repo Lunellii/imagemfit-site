@@ -495,8 +495,8 @@ export default function WhatsAppButton({ onSearch }) {
                 <p className="px-2 text-center text-[9px] leading-relaxed text-white/35">
                   {nativeShareAvailable ? "Escolha o WhatsApp e depois o contato que deve receber a seleção." : "Depois de copiar, abra a conversa desejada e cole a seleção completa."}
                 </p>
-                <button onClick={clearCart} className="w-full text-white/30 hover:text-white/60 text-xs py-1 transition-colors">
-                  Limpar seleção
+                <button onClick={clearCart} className="flex w-full items-center justify-center gap-2 bg-gold py-2.5 text-xs font-semibold uppercase tracking-widest text-black transition-colors hover:bg-[#c9a85d]">
+                  <Trash2 size={13} /> Limpar seleção
                 </button>
               </div>
             )}
