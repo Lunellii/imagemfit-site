@@ -90,7 +90,7 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
                 <div className="mt-8 border-y border-white/10 py-6">
                   <div className="mb-4 flex items-center gap-2 text-gold">
                     <Ruler size={16} />
-                    <h3 className="text-[10px] font-semibold uppercase tracking-[0.28em]">Tamanhos disponíveis</h3>
+                    <h3 className="text-[10px] font-semibold uppercase tracking-[0.28em]">Tamanhos sugeridos e fazemos personalizados</h3>
                   </div>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {FRAME_SIZES.map((size) => (
@@ -99,9 +99,6 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
                       </span>
                     ))}
                   </div>
-                  <p className="mt-4 border-l-2 border-gold pl-3 text-xs leading-relaxed text-white/55">
-                    Precisa de outra medida? Também fazemos <strong className="font-semibold text-gold">tamanhos personalizados</strong>. Consulte nossa equipe.
-                  </p>
                 </div>
 
                 <div className="pt-7">
