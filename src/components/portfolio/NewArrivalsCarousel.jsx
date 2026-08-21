@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, ListPlus, Sparkles } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, ListPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
@@ -81,15 +81,7 @@ export default function NewArrivalsCarousel({ images, isFallback = false }) {
       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/10 blur-3xl" />
       <div className="relative mb-7 flex items-end justify-between gap-5">
         <div className="max-w-2xl">
-          <span className="mb-3 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.4em] text-gold">
-            <Sparkles size={14} /> {isFallback ? "Últimos lançamentos" : "Adicionados nos últimos 15 dias"}
-          </span>
           <h3 className="font-heading text-3xl font-semibold text-white md:text-4xl">Novidades no catálogo</h3>
-          <p className="mt-2 text-xs leading-relaxed text-white/45 sm:text-sm">
-            {isFallback
-              ? "Enquanto não há novos cadastros, mantemos em destaque o último lote de quadros adicionados ao catálogo."
-              : "Os quadros mais recentes ficam em destaque por 15 dias e são atualizados automaticamente."}
-          </p>
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={() => scroll("left")} aria-label="Ver novidades anteriores" className="flex h-9 w-9 items-center justify-center border border-white/20 text-white/60 transition-colors hover:border-gold hover:text-gold">
