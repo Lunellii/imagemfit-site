@@ -1,0 +1,98 @@
+{
+  "images": [
+    {
+      "title": "AEP_0136",
+      "code": "AEP_0136",
+      "image_url": "/uploads/2026-08/AEP_0136-1787242849717-7dbb88fd.webp",
+      "image_hash": "6627d6fceb6f7a700dcda456e65c569c83f6d064d1cc861fd7a7bdcef00a2d93",
+      "category": "Abstrato Estilo Pintura",
+      "created_date": "2026-08-20T16:20:49.737Z"
+    },
+    {
+      "title": "ANI_0060",
+      "code": "ANI_0060",
+      "image_url": "/uploads/2026-08/ANI_0060-1787242848930-de50c8b0.webp",
+      "image_hash": "3c6ba61c04ebc7f36155fb8561f4857f61ae3f5b2f1d375dcadbb86c23aa1109",
+      "category": "Animais",
+      "created_date": "2026-08-20T16:20:48.980Z"
+    },
+    {
+      "title": "AMN_0034",
+      "code": "AMN_0034",
+      "image_url": "/uploads/2026-08/AMN_0034-1787242848237-61f00ffa.webp",
+      "image_hash": "21498687734ab6832672c79e9a32a079bb99c7af12b1e49b1d799aa4349b5fe1",
+      "category": "Abstrato Minimalista",
+      "created_date": "2026-08-20T16:20:48.266Z"
+    },
+    {
+      "title": "AMN_0033",
+      "code": "AMN_0033",
+      "image_url": "/uploads/2026-08/AMN_0033-1787242847615-a3c932b9.webp",
+      "image_hash": "608cb31a0336c6c1ae7bd49975be95018a8726517cc824325baca8963fe8024a",
+      "category": "Abstrato Minimalista",
+      "created_date": "2026-08-20T16:20:47.647Z"
+    },
+    {
+      "title": "VID_0079",
+      "code": "VID_0079",
+      "image_url": "/uploads/2026-08/VID_0079-1787242847252-3ece1726.webp",
+      "image_hash": "6813b2c73562aa18e3c31c22a9ee59de973892a6275596eba65043dae4617b4a",
+      "category": "Vida",
+      "created_date": "2026-08-20T16:20:47.314Z"
+    },
+    {
+      "title": "MAR_0278",
+      "code": "MAR_0278",
+      "image_url": "/uploads/2026-08/MAR_0278-1787242846779-45e044ce.webp",
+      "image_hash": "392402fbd98a0f4cd6bba8ae262995a7e20a9d95dc1ee675313f606504474a5f",
+      "category": "Mar e Praia",
+      "created_date": "2026-08-20T16:20:46.801Z"
+    },
+    {
+      "title": "SAL_0011",
+      "code": "SAL_0011",
+      "image_url": "/uploads/2026-08/SAL_0011-1787242846119-3768471a.webp",
+      "image_hash": "015f5dc7b195cc7f7a2607be939bdaa6299f4d6ce50bcca0e017ad0625f5add1",
+      "category": "Sala de Jogos",
+      "created_date": "2026-08-20T16:20:46.141Z"
+    },
+    {
+      "title": "ARQ_0035",
+      "code": "ARQ_0035",
+      "image_url": "/uploads/2026-08/ARQ_0035-1787242845456-4691c2db.webp",
+      "image_hash": "9bf7ddc7ec523eeb79e4ba1fe0b38bc71037a1eb7e49b988d03505568377aece",
+      "category": "Abstrato Arquitetônico",
+      "created_date": "2026-08-20T16:20:45.490Z"
+    },
+    {
+      "title": "ARQ_0034",
+      "code": "ARQ_0034",
+      "image_url": "/uploads/2026-08/ARQ_0034-1787242844832-d3ac60bf.webp",
+      "image_hash": "cf892dc633e6e420f15e6c8667551dbc8f26d11901c00a57e5b1a77fc9ee22d7",
+      "category": "Abstrato Arquitetônico",
+      "created_date": "2026-08-20T16:20:44.900Z"
+    },
+    {
+      "title": "AEP_0139",
+      "code": "AEP_0139",
+      "image_url": "/uploads/2026-08/AEP_0139-1787242844503-9814b06a.webp",
+      "image_hash": "07952034c26d5457c8adb8d83e1ebf1b6fbcb1988932e9f25f5ad1de7c5fc1eb",
+      "category": "Abstrato Estilo Pintura",
+      "created_date": "2026-08-20T16:20:44.529Z"
+    },
+    {
+      "title": "AEP_0138",
+      "code": "AEP_0138",
+      "image_url": "/uploads/2026-08/AEP_0138-1787242844081-3d11f032.webp",
+      "category": "Abstrato Estilo Pintura",
+      "created_date": "2026-08-20T16:20:44.081Z"
+    },
+    {
+      "title": "AEP_0137",
+      "code": "AEP_0137",
+      "image_url": "/uploads/2026-08/AEP_0137-1787242843751-fee4a838.webp",
+      "category": "Abstrato Estilo Pintura",
+      "created_date": "2026-08-20T16:20:43.751Z"
+    }
+  ]
+}

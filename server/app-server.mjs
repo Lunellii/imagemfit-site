@@ -27,6 +27,8 @@ const imagesFile = path.resolve(dataDir, "images.json");
 const leadsFile = path.resolve(dataDir, "leads.json");
 const analyticsFile = path.resolve(dataDir, "analytics.json");
 const seedCatalogFile = path.resolve(rootDir, "src", "data", "seedCatalog.json");
+const catalogRecoveryFile = path.resolve(rootDir, "src", "data", "catalogRecovery20260820.json");
+const catalogRecoveryMarkerFile = path.resolve(dataDir, ".catalog-recovery-20260820-v1");
 
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number(process.env.PORT || 3000);
@@ -85,6 +87,7 @@ const REQUIRED_CATEGORIES = [
   { name: "Natureza", description: "Paisagens e elementos naturais para ambientes leves." },
   { name: "Pinturas Manuais", description: "Obras autorais com toque artesanal e acabamento exclusivo." },
   { name: "Pontes", description: "Temática de pontes e arquitetura urbana em diferentes estilos." },
+  { name: "Sala de Jogos", description: "Quadros decorativos para deixar sua sala de jogos mais divertida, estilosa e personalizada, criando um ambiente descontraído e cheio de personalidade." },
   { name: "Tridimensional", description: "Peças com profundidade, relevo e textura para destaque visual." },
   { name: "Urbano", description: "Referências de cidade, arquitetura e estilo contemporâneo." },
   { name: "Vida", description: "Obras que celebram movimento, cotidiano e expressões da vida." }
@@ -565,7 +568,35 @@ const bootstrap = async () => {
       .filter(Boolean);
   }
 
+  let catalogRecoveryApplied = false;
+  if (!(await pathExists(catalogRecoveryMarkerFile))) {
+    const recoveryCatalog = await readJson(catalogRecoveryFile, { images: [] });
+    const categoryByName = new Map(db.categories.map((category) => [normalizeCategoryName(category.name), category.id]));
+    const existingCodes = new Set(db.images.map((image) => normalizeCode(image.code)));
+
+    for (const entry of recoveryCatalog.images || []) {
+      const code = normalizeCode(entry.code || entry.title);
+      const categoryId = categoryByName.get(normalizeCategoryName(entry.category));
+      if (!code || !categoryId || !entry.image_url || existingCodes.has(code)) continue;
+      existingCodes.add(code);
+      db.images.push({
+        id: uid(),
+        title: String(entry.title || code),
+        code,
+        image_url: normalizePublicImageUrl(entry.image_url),
+        image_hash: String(entry.image_hash || "").trim().toLowerCase() || undefined,
+        category_id: categoryId,
+        is_new: true,
+        created_date: String(entry.created_date || nowIso())
+      });
+    }
+    catalogRecoveryApplied = true;
+  }
+
   await queueWrite();
+  if (catalogRecoveryApplied) {
+    await fs.writeFile(catalogRecoveryMarkerFile, `${nowIso()}\n`, "utf8");
+  }
   dbReady = true;
 };
 
