@@ -46,7 +46,7 @@ export default function HeroSlideshow() {
   }, []);
 
   return (
-    <section className="relative min-h-[720px] overflow-hidden bg-[#090909] pt-20 lg:h-[96vh]">
+    <section className="hero-section relative min-h-[720px] overflow-hidden bg-[#090909] pt-20 lg:h-[100svh]">
       <div className="absolute inset-y-0 right-0 w-full lg:w-[62%]">
         <AnimatePresence mode="wait">
           <motion.div
@@ -74,13 +74,13 @@ export default function HeroSlideshow() {
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-[#090909] lg:hidden" />
 
-      <div className="relative z-10 mx-auto flex min-h-[640px] max-w-7xl items-center px-6 pb-28 pt-10 lg:h-[calc(96vh-5rem)] lg:min-h-[640px] lg:pb-24">
+      <div className="hero-content relative z-10 mx-auto flex min-h-[640px] max-w-7xl items-center px-6 pb-28 pt-10 lg:h-[calc(100svh-5rem)] lg:min-h-[640px] lg:pb-28">
         <div className="max-w-3xl lg:w-[58%]">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
-            className="mb-7 flex items-center gap-4"
+            className="hero-kicker mb-7 flex items-center gap-4"
           >
             <span className="h-px w-12 bg-gold" />
             <span className="text-xs font-semibold uppercase tracking-[0.3em] text-gold sm:text-sm">
@@ -92,7 +92,7 @@ export default function HeroSlideshow() {
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.8 }}
-            className="max-w-2xl font-heading text-[3.35rem] font-medium leading-[0.94] text-white sm:text-7xl lg:text-[5.75rem]"
+            className="hero-heading max-w-2xl font-heading text-[3.35rem] font-medium leading-[0.94] text-white sm:text-7xl lg:text-[5.25rem] xl:text-[5.5rem]"
           >
             Um portfólio feito <span className="block italic text-gold">para o seu negócio.</span>
           </motion.h1>
@@ -101,7 +101,7 @@ export default function HeroSlideshow() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.7 }}
-            className="mt-7 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg"
+            className="hero-copy mt-7 max-w-2xl text-base leading-relaxed text-white/75 sm:text-lg"
           >
             Quadros decorativos, espelhos, obras autorais e produtos personalizados para ampliar o mix da sua loja. Escolha por código, monte sua seleção e fale com nosso atendimento comercial.
           </motion.p>
@@ -110,7 +110,7 @@ export default function HeroSlideshow() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.38, duration: 0.7 }}
-            className="mt-9 flex flex-col gap-3 sm:flex-row"
+            className="hero-actions mt-9 flex flex-col gap-3 sm:flex-row"
           >
             <Link
               to="/portfolio"
