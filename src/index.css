@@ -21,16 +21,16 @@
   }
 
   .hero-kicker span:last-child {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   .hero-heading {
-    font-size: clamp(4.25rem, 10.2vh, 5.15rem) !important;
+    font-size: clamp(4.5rem, 11vh, 5.5rem) !important;
   }
 
   .hero-copy {
     margin-top: 1rem;
-    font-size: 1.15rem !important;
+    font-size: 1.2rem !important;
     line-height: 1.5;
   }
 
@@ -39,11 +39,15 @@
   }
 
   .hero-actions a {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
   .hero-discover {
     bottom: 8rem !important;
+  }
+
+  .hero-discover span {
+    font-size: 0.85rem;
   }
 }
 

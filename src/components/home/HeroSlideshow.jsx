@@ -175,7 +175,7 @@ export default function HeroSlideshow() {
           transition={{ duration: 1.7, repeat: Infinity, ease: "easeInOut" }}
           className="flex items-center gap-3 text-white/55"
         >
-          <ChevronDown size={20} className="text-gold" />
+          <ChevronDown size={22} className="text-gold" />
           <span className="text-xs font-semibold uppercase tracking-[0.28em]">Descubra</span>
         </motion.div>
       </div>
