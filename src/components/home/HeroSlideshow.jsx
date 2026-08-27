@@ -172,10 +172,10 @@ export default function HeroSlideshow() {
       <motion.div
         animate={{ y: [0, 6, 0] }}
         transition={{ duration: 1.7, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-24 left-6 z-20 hidden items-center gap-2 text-white/40 lg:flex"
+        className="hero-discover absolute bottom-24 left-6 z-20 hidden items-center gap-2 text-white/40 lg:flex"
       >
-        <ChevronDown size={15} className="text-gold" />
-        <span className="text-[9px] uppercase tracking-[0.28em]">Descubra</span>
+        <ChevronDown size={18} className="text-gold" />
+        <span className="text-[11px] font-medium uppercase tracking-[0.28em]">Descubra</span>
       </motion.div>
     </section>
   );
