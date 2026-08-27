@@ -21,16 +21,16 @@
   }
 
   .hero-kicker span:last-child {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .hero-heading {
-    font-size: clamp(4rem, 9.5vh, 5rem) !important;
+    font-size: clamp(4.25rem, 10.2vh, 5.15rem) !important;
   }
 
   .hero-copy {
     margin-top: 1rem;
-    font-size: 1.05rem !important;
+    font-size: 1.15rem !important;
     line-height: 1.5;
   }
 
@@ -38,11 +38,12 @@
     margin-top: 1.25rem;
   }
 
+  .hero-actions a {
+    font-size: 0.8rem;
+  }
+
   .hero-discover {
     bottom: 8rem !important;
-    left: max(1.5rem, calc((100vw - 80rem) / 2 + 1.5rem)) !important;
-    gap: 0.65rem;
-    color: rgb(255 255 255 / 0.58);
   }
 }
 
