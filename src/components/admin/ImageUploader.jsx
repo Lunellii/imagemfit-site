@@ -302,7 +302,8 @@ export default function ImageUploader({ categories, onUploaded }) {
           image_url: fileUrl,
           image_hash: imageHash,
           category_id: assignment.category_id,
-          is_new: true
+          is_new: true,
+          replace_new_arrivals: i === 0
         });
 
         completedAssignments.push({

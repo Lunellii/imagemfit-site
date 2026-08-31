@@ -5,7 +5,7 @@ import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import ProductQuickView from "@/components/portfolio/ProductQuickView";
 
-export default function NewArrivalsCarousel({ images, isFallback = false }) {
+export default function NewArrivalsCarousel({ images }) {
   const scrollRef = useRef(null);
   const dragRef = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
   const [selectedImage, setSelectedImage] = useState(null);

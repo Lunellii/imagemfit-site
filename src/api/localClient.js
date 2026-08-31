@@ -1024,6 +1024,11 @@ const PortfolioImageEntity = {
       created_date: nowIso()
     };
 
+    if (payload.replace_new_arrivals) {
+      images.forEach((image) => {
+        image.is_new = false;
+      });
+    }
     images.push(item);
     writeJson(IMAGE_KEY, images);
 

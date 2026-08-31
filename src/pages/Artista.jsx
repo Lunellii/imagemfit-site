@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
+import { selectLatestUploadBatch } from "@/utils/newArrivals";
 
 const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png?v=20260409`;
 const ARTIST_CATEGORY_KEYS = new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
@@ -57,7 +58,7 @@ export default function Artista() {
         );
         setCoversByCategory(onlyArtistCovers);
         setImages(mergedImages);
-        setNewImages(newestImages.filter((image) => artistCategoryIds.includes(image.category_id)));
+        setNewImages(selectLatestUploadBatch(newestImages).filter((image) => artistCategoryIds.includes(image.category_id)));
       } catch {
         toast({
           variant: "destructive",

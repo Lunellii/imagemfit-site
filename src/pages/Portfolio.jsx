@@ -6,40 +6,11 @@ import { Link } from "react-router-dom";
 import CategoryGrid from "@/components/portfolio/CategoryGrid";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import { toast } from "@/components/ui/use-toast";
-
-const NEW_ARRIVALS_WINDOW_DAYS = 15;
-
-const loadNewArrivals = async () => {
-  const latestImages = await localClient.entities.PortfolioImage.list("-created_date", 5000);
-  const cutoffDate = Date.now() - NEW_ARRIVALS_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-  const recentImages = latestImages.filter((image) => {
-    const createdAt = Date.parse(image.created_date);
-    return Number.isFinite(createdAt) && createdAt >= cutoffDate;
-  });
-
-  if (recentImages.length) {
-    return { images: recentImages, isFallback: false };
-  }
-
-  const validCreatedDates = latestImages
-    .map((image) => Date.parse(image.created_date))
-    .filter(Number.isFinite);
-  const lastUploadDate = validCreatedDates.length ? Math.max(...validCreatedDates) : null;
-  const lastUploadWindowStart = lastUploadDate === null ? null : lastUploadDate - NEW_ARRIVALS_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-  const fallbackImages = lastUploadWindowStart === null
-    ? latestImages.slice(0, 12)
-    : latestImages.filter((image) => {
-        const createdAt = Date.parse(image.created_date);
-        return Number.isFinite(createdAt) && createdAt >= lastUploadWindowStart;
-      });
-
-  return { images: fallbackImages, isFallback: true };
-};
+import { selectLatestUploadBatch } from "@/utils/newArrivals";
 
 export default function Portfolio() {
   const [categories, setCategories] = useState([]);
   const [newImages, setNewImages] = useState([]);
-  const [newImagesAreFallback, setNewImagesAreFallback] = useState(false);
   const [imagesByCategory, setImagesByCategory] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -50,21 +21,20 @@ export default function Portfolio() {
       try {
         const [cats, arrivals] = await Promise.all([
           localClient.entities.Category.list("order", 100),
-          loadNewArrivals()
+          localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 5000)
         ]);
 
         if (!mounted) return;
 
         const sortedCategories = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
         const categoryNameById = Object.fromEntries(sortedCategories.map((category) => [category.id, category.name]));
-        const arrivalsWithCategory = arrivals.images.map((image) => ({
+        const arrivalsWithCategory = selectLatestUploadBatch(arrivals).map((image) => ({
           ...image,
           category_name: image.category_name || image.category || categoryNameById[image.category_id] || ""
         }));
 
         setCategories(sortedCategories);
         setNewImages(arrivalsWithCategory);
-        setNewImagesAreFallback(arrivals.isFallback);
         setLoading(false);
 
         localClient.entities.PortfolioImage
@@ -85,7 +55,6 @@ export default function Portfolio() {
         if (!mounted) return;
         setCategories([]);
         setNewImages([]);
-        setNewImagesAreFallback(false);
         setImagesByCategory({});
         toast({
           variant: "destructive",
@@ -138,7 +107,7 @@ export default function Portfolio() {
           </Link>
         </motion.div>
 
-        {newImages.length > 0 && <NewArrivalsCarousel images={newImages} isFallback={newImagesAreFallback} />}
+        {newImages.length > 0 && <NewArrivalsCarousel images={newImages} />}
 
         <div className="mb-8 flex items-center gap-4">
           <LayoutGrid className="text-gold" size={20} />

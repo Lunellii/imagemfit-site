@@ -866,6 +866,11 @@ const server = http.createServer(async (req, res) => {
         is_new: body.is_new !== undefined ? Boolean(body.is_new) : true,
         created_date: nowIso()
       };
+      if (body.replace_new_arrivals) {
+        db.images.forEach((image) => {
+          image.is_new = false;
+        });
+      }
       db.images.push(item);
       await queueWrite();
       return sendJson(res, 201, item);
