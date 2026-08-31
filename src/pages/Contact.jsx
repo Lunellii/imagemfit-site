@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { commercialClient } from "@/api/commercialClient";
 
 const WHATSAPP_NUMBER = "5547999273809";
+const INSTAGRAM_URL = "https://instagram.com/imagemfit.quadros";
 
 const initialForm = {
   name: "",
@@ -138,13 +139,25 @@ export default function Contact() {
             {[
               { icon: MapPin, title: "Atendimento presencial", text: "Rua São Paulo, 649 · Timbó, SC · CEP 89095-220" },
               { icon: Mail, title: "E-mail", text: "atendimento.imagemfit@gmail.com" },
-              { icon: Instagram, title: "Instagram", text: "@imagemfit.quadros" }
+              { icon: Instagram, title: "Instagram", text: "@imagemfit.quadros", href: INSTAGRAM_URL }
             ].map((item) => (
               <div key={item.title} className="flex gap-4 border border-white/10 p-5">
                 <item.icon size={19} className="mt-0.5 shrink-0 text-gold" />
                 <div>
                   <h3 className="text-sm font-semibold text-white">{item.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-white/55">{item.text}</p>
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => commercialClient.analytics.track("contact_instagram", { path: "/contato" })}
+                      className="mt-1 block text-sm font-semibold leading-relaxed text-gold transition-colors hover:text-white"
+                    >
+                      {item.text}
+                    </a>
+                  ) : (
+                    <p className="mt-1 text-sm leading-relaxed text-white/55">{item.text}</p>
+                  )}
                 </div>
               </div>
             ))}
