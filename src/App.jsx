@@ -17,6 +17,7 @@ import Admin from "@/pages/Admin";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminRoute from "@/components/admin/AdminRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { internalNavigationPath } from "@/lib/internalNavigation";
 
 const PROTECTED_MEDIA_SELECTOR = "img,[data-protected-image='true']";
 const ADMIN_BASE_PATH = "/admingustavoif";
@@ -26,7 +27,8 @@ function LegacyHashRedirect() {
 
   useEffect(() => {
     const legacyPath = String(window.location.hash || "").replace(/^#/, "");
-    if (legacyPath.startsWith("/")) navigate(legacyPath, { replace: true });
+    const path = internalNavigationPath(legacyPath, window.location.origin);
+    if (path) navigate(path, { replace: true });
   }, [navigate]);
 
   return null;

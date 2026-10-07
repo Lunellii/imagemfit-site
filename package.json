@@ -27,7 +27,7 @@
     "lucide-react": "^0.475.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.26.0",
+    "react-router-dom": "^7.18.4",
     "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
@@ -47,5 +47,8 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.8.2",
     "vite": "^6.1.0"
+  },
+  "overrides": {
+    "postcss-selector-parser": "7.1.6"
   }
 }

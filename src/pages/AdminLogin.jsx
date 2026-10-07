@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Loader2, Lock, ShieldAlert } from "lucide-react";
 import { localClient } from "@/api/localClient";
+import { internalNavigationPath } from "@/lib/internalNavigation";
 
 const ADMIN_BASE_PATH = "/admingustavoif";
 
@@ -29,7 +30,10 @@ export default function AdminLogin() {
   const adminEnabled = localClient.auth.isAdminEnabled();
 
   const finishLogin = useCallback(() => {
-    const target = location.state?.from?.pathname || ADMIN_BASE_PATH;
+    const requested = internalNavigationPath(location.state?.from?.pathname, window.location.origin);
+    const target = requested === ADMIN_BASE_PATH || requested?.startsWith(`${ADMIN_BASE_PATH}/`)
+      ? requested
+      : ADMIN_BASE_PATH;
     navigate(target, { replace: true });
   }, [location.state, navigate]);
 
