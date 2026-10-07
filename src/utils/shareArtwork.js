@@ -7,7 +7,10 @@ const loadArtwork = (url) => new Promise((resolve, reject) => {
 });
 
 export async function createArtworkFile({ image_url: imageUrl, code }) {
-  const image = await loadArtwork(imageUrl);
+  const [image, logo] = await Promise.all([
+    loadArtwork(imageUrl),
+    loadArtwork(`${import.meta.env.BASE_URL}logo-imagem-fit-quadros-branca.png`)
+  ]);
   const width = Math.min(image.naturalWidth, 1600);
   const height = Math.round(image.naturalHeight * width / image.naturalWidth);
   const footerHeight = Math.max(96, Math.round(width * 0.09));
@@ -24,10 +27,18 @@ export async function createArtworkFile({ image_url: imageUrl, code }) {
   context.fillRect(0, height, width, footerHeight);
   context.fillStyle = "#c7a15a";
   context.fillRect(0, height, width, Math.max(3, Math.round(width * 0.004)));
+  // The supplied logo has transparent margins; draw only its visible artwork.
+  const logoSource = { x: 900, y: 977, width: 3145, height: 1089 };
+  const logoScale = Math.min((width * 0.43) / logoSource.width, (footerHeight * 0.72) / logoSource.height);
+  const logoWidth = logoSource.width * logoScale;
+  const logoHeight = logoSource.height * logoScale;
+  context.drawImage(
+    logo,
+    logoSource.x, logoSource.y, logoSource.width, logoSource.height,
+    Math.round(width * 0.04), height + (footerHeight - logoHeight) / 2,
+    logoWidth, logoHeight
+  );
   context.textBaseline = "middle";
-  context.fillStyle = "#ffffff";
-  context.font = `600 ${Math.max(18, Math.round(width * 0.024))}px Arial`;
-  context.fillText("IMAGEM FIT", Math.round(width * 0.04), height + footerHeight / 2);
   context.textAlign = "right";
   context.font = `700 ${Math.max(24, Math.round(width * 0.035))}px Arial`;
   context.fillText(`#${code}`, Math.round(width * 0.96), height + footerHeight / 2, width * 0.52);
