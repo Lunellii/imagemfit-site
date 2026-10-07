@@ -4,6 +4,7 @@ import { Check, ListPlus, Maximize2, Ruler, X } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import { commercialClient } from "@/api/commercialClient";
+import ShareArtworkButton from "@/components/portfolio/ShareArtworkButton";
 
 const FRAME_SIZES = ["40x60", "65x65", "65x100", "90x90", "80x120", "90x144"];
 
@@ -206,6 +207,7 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
                     {selected && !selectionChanged ? <Check size={15} /> : <ListPlus size={15} />}
                     {selected && !selectionChanged ? "Na minha seleção" : selected ? "Atualizar tamanho" : "Adicionar à seleção"}
                   </button>
+                  <ShareArtworkButton image={image} className="mt-3 flex w-full items-center justify-center gap-2 border border-gold/45 px-5 py-3.5 text-[10px] font-bold uppercase tracking-[0.2em] text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50" />
 
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import ProductQuickView from "@/components/portfolio/ProductQuickView";
+import ShareArtworkButton from "@/components/portfolio/ShareArtworkButton";
 
 export default function NewArrivalsCarousel({ images }) {
   const scrollRef = useRef(null);
@@ -122,6 +123,7 @@ export default function NewArrivalsCarousel({ images }) {
                   {selected ? <Check size={12} /> : <ListPlus size={12} />}
                   {selected ? "Na seleção" : "Adicionar à seleção"}
                 </button>
+                <ShareArtworkButton image={image} compact />
               </div>
             </motion.article>
           );
