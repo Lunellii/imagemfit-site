@@ -39,10 +39,12 @@ export default function ShareArtworkButton({ image, className = "", compact = fa
       onClick={handleShare}
       disabled={sharing}
       aria-label={`Compartilhar imagem do quadro ${image.code} com código`}
-      className={className || "flex w-full items-center justify-center gap-2 border border-gold/45 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50"}
+      className={className || (compact
+        ? "flex h-9 min-w-0 items-center justify-center gap-1 border border-gold/45 px-1 text-[9px] font-semibold uppercase tracking-[0.04em] text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50"
+        : "flex w-full items-center justify-center gap-2 border border-gold/45 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50")}
     >
       {sharing ? <Loader2 size={compact ? 12 : 15} className="animate-spin" /> : <Share2 size={compact ? 12 : 15} />}
-      {sharing ? "Preparando..." : "Compartilhar imagem"}
+      {compact ? (sharing ? "..." : "Enviar") : (sharing ? "Preparando..." : "Compartilhar")}
     </button>
   );
 }

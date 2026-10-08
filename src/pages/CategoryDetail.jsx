@@ -65,22 +65,25 @@ function ArtworkCard({ image, categoryName, masonry, onOpen }) {
         </span>
       </button>
 
-      <div className="space-y-3 p-3">
+      <div className="space-y-2 p-2.5 sm:p-3">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate font-mono text-xs font-semibold text-gold">#{image.code}</p>
           {image.title && image.title !== image.code ? <p className="truncate text-right text-[11px] text-white/35">{image.title}</p> : null}
         </div>
-        <button
-          type="button"
-          onClick={addToSelection}
-          className={`flex w-full items-center justify-center gap-2 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors ${
-            selected ? "border border-gold/50 bg-gold/10 text-gold" : "bg-gold text-black hover:bg-[#c9a85d]"
-          }`}
-        >
-          {selected ? <Check size={13} /> : <ListPlus size={13} />}
-          {selected ? "Na minha seleção" : "Adicionar à seleção"}
-        </button>
-        <ShareArtworkButton image={image} compact />
+        <div className="grid grid-cols-2 gap-1.5">
+          <button
+            type="button"
+            onClick={addToSelection}
+            aria-label={`${selected ? "Já está na seleção" : "Adicionar à seleção"}: quadro ${image.code}`}
+            className={`flex h-9 min-w-0 items-center justify-center gap-1 px-1 text-[9px] font-semibold uppercase tracking-[0.04em] transition-colors ${
+              selected ? "border border-gold/50 bg-gold/10 text-gold" : "bg-gold text-black hover:bg-[#c9a85d]"
+            }`}
+          >
+            {selected ? <Check size={12} /> : <ListPlus size={12} />}
+            {selected ? "Na seleção" : "Selecionar"}
+          </button>
+          <ShareArtworkButton image={image} compact />
+        </div>
       </div>
     </motion.article>
   );

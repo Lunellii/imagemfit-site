@@ -195,19 +195,19 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
                   ) : null}
                 </div>
 
-                <div className="pt-5">
+                <div className="grid grid-cols-2 gap-2 pt-5">
                   <button
                     type="button"
                     onClick={addToSelection}
                     disabled={selected && !selectionChanged}
-                    className={`flex w-full items-center justify-center gap-2 px-5 py-3.5 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors ${
+                    className={`flex min-h-10 min-w-0 items-center justify-center gap-1 px-2 py-2 text-[9px] font-bold uppercase tracking-[0.04em] transition-colors sm:gap-2 sm:text-[10px] sm:tracking-[0.1em] ${
                       selected && !selectionChanged ? "border border-gold/50 bg-gold/10 text-gold" : "bg-gold text-black hover:bg-[#c9a85d]"
                     }`}
                   >
                     {selected && !selectionChanged ? <Check size={15} /> : <ListPlus size={15} />}
-                    {selected && !selectionChanged ? "Na minha seleção" : selected ? "Atualizar tamanho" : "Adicionar à seleção"}
+                    {selected && !selectionChanged ? "Na seleção" : selected ? "Atualizar" : "Selecionar"}
                   </button>
-                  <ShareArtworkButton image={image} className="mt-3 flex w-full items-center justify-center gap-2 border border-gold/45 px-5 py-3.5 text-[10px] font-bold uppercase tracking-[0.2em] text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50" />
+                  <ShareArtworkButton image={image} className="flex min-h-10 min-w-0 items-center justify-center gap-1 border border-gold/45 px-2 py-2 text-[9px] font-bold uppercase tracking-[0.04em] text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50 sm:gap-2 sm:text-[10px] sm:tracking-[0.1em]" />
 
                 </div>
               </div>
