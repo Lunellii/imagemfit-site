@@ -6,7 +6,8 @@ import { Link } from "react-router-dom";
 import CategoryGrid from "@/components/portfolio/CategoryGrid";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import { toast } from "@/components/ui/use-toast";
-import { selectLatestUploadBatch } from "@/utils/newArrivals";
+
+const NEW_ARRIVALS_COUNT = 32;
 
 export default function Portfolio() {
   const [categories, setCategories] = useState([]);
@@ -21,14 +22,14 @@ export default function Portfolio() {
       try {
         const [cats, arrivals] = await Promise.all([
           localClient.entities.Category.list("order", 100),
-          localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 5000)
+          localClient.entities.PortfolioImage.list("-created_date", NEW_ARRIVALS_COUNT)
         ]);
 
         if (!mounted) return;
 
         const sortedCategories = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
         const categoryNameById = Object.fromEntries(sortedCategories.map((category) => [category.id, category.name]));
-        const arrivalsWithCategory = selectLatestUploadBatch(arrivals).map((image) => ({
+        const arrivalsWithCategory = arrivals.map((image) => ({
           ...image,
           category_name: image.category_name || image.category || categoryNameById[image.category_id] || ""
         }));
