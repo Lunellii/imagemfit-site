@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-const FACADE_IMAGE = `${import.meta.env.BASE_URL}company/imagem-fit-fachada.jpg`;
+const FACADE_IMAGE = `${import.meta.env.BASE_URL}company/imagem-fit-fachada.jpg?v=20261015`;
 
 const services = [
   { title: "Atendimento presencial", text: "Levamos o catálogo até a sua loja no nosso caminhão." },
