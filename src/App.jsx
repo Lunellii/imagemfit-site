@@ -8,6 +8,9 @@ import Layout from "@/components/Layout";
 import ScrollToTop from "@/components/ScrollToTop";
 import CommercialAnalytics from "@/components/CommercialAnalytics";
 import Home from "@/pages/Home";
+import HomeGaleria from "@/pages/opcoes/HomeGaleria";
+import HomeCatalogo from "@/pages/opcoes/HomeCatalogo";
+import HomeParede from "@/pages/opcoes/HomeParede";
 import Portfolio from "@/pages/Portfolio";
 import CategoryDetail from "@/pages/CategoryDetail";
 import Artista from "@/pages/Artista";
@@ -95,6 +98,9 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/opcao-a" element={<HomeGaleria />} />
+            <Route path="/opcao-b" element={<HomeCatalogo />} />
+            <Route path="/opcao-c" element={<HomeParede />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/portfolio/categoria/:id" element={<CategoryDetail />} />
             <Route path="/portfolio/:slug" element={<CategoryDetail />} />

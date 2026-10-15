@@ -17,6 +17,9 @@ const DEFAULT_SITE_STATE = {
   cta_url: "mailto:atendimento.imagemfit@gmail.com"
 };
 
+// Prévia das opções de design: cada endereço aplica o seu tema (ver src/index.css).
+const DESIGN_OPTION_THEMES = { "/opcao-a": "a", "/opcao-b": "b", "/opcao-c": "c" };
+
 const isWhatsAppUrl = (value) => /(?:wa\.me|whatsapp\.com)/i.test(String(value || ""));
 
 export default function Layout() {
@@ -38,6 +41,12 @@ export default function Layout() {
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const open = () => setSearchOpen(true);
+    window.addEventListener("ifq:open-search", open);
+    return () => window.removeEventListener("ifq:open-search", open);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -119,7 +128,7 @@ export default function Layout() {
   const pausedCtaLabel = pausedCtaUsesWhatsApp ? DEFAULT_SITE_STATE.cta_label : siteState.cta_label || DEFAULT_SITE_STATE.cta_label;
 
   return (
-    <div className="min-h-screen bg-paper font-sans text-ink">
+    <div className="min-h-screen bg-paper font-sans text-ink" data-theme={DESIGN_OPTION_THEMES[location.pathname]}>
       <header
         className={`fixed top-0 left-0 right-0 z-50 border-b font-sans text-ink transition-colors duration-300 ${
           scrolled || mobileOpen ? "border-line bg-paper/95 backdrop-blur-md" : "border-transparent bg-paper"

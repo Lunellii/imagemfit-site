@@ -13,11 +13,13 @@ const config = {
       },
       colors: {
         gold: "#b99049",
-        paper: "#f4f1eb",
-        ink: "#171614",
-        stone: "#6b655c",
-        line: "#ddd6ca",
-        brass: "#9a7535",
+        // Tokens do site público; cada opção de design redefine as variáveis em src/index.css.
+        paper: "rgb(var(--c-paper) / <alpha-value>)",
+        ink: "rgb(var(--c-ink) / <alpha-value>)",
+        stone: "rgb(var(--c-stone) / <alpha-value>)",
+        line: "rgb(var(--c-line) / <alpha-value>)",
+        brass: "rgb(var(--c-brass) / <alpha-value>)",
+        wall: "rgb(var(--c-wall) / <alpha-value>)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
