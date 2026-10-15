@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { localClient } from "@/api/localClient";
 import { ArrowRight } from "lucide-react";
-import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
 import { getCategoryPath } from "@/utils/categoryText";
 
 const HOME_CATEGORY_LIMIT = 6;
-const ARTISTA_CATEGORY_KEYS =new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
+const ARTISTA_CATEGORY_KEYS = new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
 const normalizeCategoryKey = (value) =>
   String(value || "")
     .normalize("NFD")
@@ -52,48 +50,44 @@ export default function HomeCategoriesSection() {
   if (!categories.length) return null;
 
   return (
-    <section className="bg-[#111] px-6 py-20 md:py-28">
+    <section className="bg-paper px-5 py-16 text-ink sm:px-8 md:py-24">
       <div className="mx-auto max-w-7xl">
-        <motion.div
-          className="mb-12 flex flex-col justify-between gap-5 border-b border-white/10 pb-8 md:flex-row md:items-end"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
+        <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <span className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.4em] text-gold">Categorias para lojistas</span>
-            <h2 className="max-w-2xl font-heading text-4xl font-semibold leading-tight text-white md:text-5xl">
-              Encontre novas opções para o <span className="italic text-gold">mix da sua loja.</span>
-            </h2>
+            <p className="text-sm text-stone">Atualizado a cada postagem</p>
+            <h2 className="font-display mt-2 text-4xl font-semibold leading-tight md:text-5xl">Peças novas no catálogo</h2>
           </div>
-          <Link to="/portfolio" className="inline-flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-gold transition-all hover:gap-4">
-            Ver catálogo completo <ArrowRight size={13} />
+          <Link to="/portfolio" className="inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-brass">
+            Todas as categorias <ArrowRight size={15} />
           </Link>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-12">
-          {categories.map((category, index) => {
+        <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6">
+          {categories.map((category) => {
             const isArtista = ARTISTA_CATEGORY_KEYS.has(normalizeCategoryKey(category?.name));
             const linkTo = isArtista ? "/artista" : getCategoryPath(category);
-            const isFeatured = index < 2;
+            const cover = (imagesByCategory[category.id] || []).find((image) => image?.image_url);
 
             return (
-              <motion.div
-                key={category.id}
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.06 }}
-                className={isFeatured ? "col-span-2 lg:col-span-6" : "col-span-1 lg:col-span-3"}
-              >
-                <RotatingCategoryCard
-                  category={category}
-                  linkTo={linkTo}
-                  coverImages={imagesByCategory[category.id] || []}
-                  imageHeight={isFeatured ? "h-56 sm:h-72 lg:h-80" : "h-40 sm:h-52 lg:h-56"}
-                  className={isFeatured ? "bg-[#181818]" : "bg-[#151515]"}
-                />
-              </motion.div>
+              <Link key={category.id} to={linkTo} className="group block">
+                <div className="aspect-[4/3] overflow-hidden bg-line">
+                  {cover ? (
+                    <img
+                      src={cover.image_url}
+                      alt={`${category.name}: ${cover.code || "peça do catálogo"}`}
+                      loading="lazy"
+                      decoding="async"
+                      draggable={false}
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                    />
+                  ) : null}
+                </div>
+                <div className="mt-3 flex items-baseline justify-between gap-3">
+                  <h3 className="font-display text-lg font-semibold sm:text-xl">{category.name}</h3>
+                  {cover?.code ? <span className="shrink-0 text-xs text-stone">{cover.code}</span> : null}
+                </div>
+                {category.description ? <p className="mt-1 hidden text-sm leading-relaxed text-stone sm:block">{category.description}</p> : null}
+              </Link>
             );
           })}
         </div>

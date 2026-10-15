@@ -6,7 +6,8 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import SearchOverlay from "@/components/SearchOverlay";
 import { localClient } from "@/api/localClient";
 
-const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
+const LOGO_URL = `${import.meta.env.BASE_URL}logo-imagem-fit-quadros-escura.png`;
+const FOOTER_LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
 const ADMIN_BASE_PATH = "/admingustavoif";
 const DEFAULT_SITE_STATE = {
   paused: false,
@@ -120,22 +121,23 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-background font-body">
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled ? "bg-[#111]/97 backdrop-blur-md border-b border-gold/20" : "bg-transparent"
+        className={`fixed top-0 left-0 right-0 z-50 border-b font-sans text-ink transition-colors duration-300 ${
+          scrolled || mobileOpen ? "border-line bg-paper/95 backdrop-blur-md" : "border-transparent bg-paper"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-18 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-10 w-auto object-contain" />
+        <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 sm:px-8">
+          <Link to="/" className="flex items-center" aria-label="Imagem Fit Quadros - início">
+            <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-9 w-auto object-contain sm:h-10" />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+          <nav className="hidden items-center gap-7 md:flex">
             {navLinks.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
-                className={`text-xs font-medium tracking-[0.25em] uppercase transition-colors duration-300 ${
-                  location.pathname === l.to ? "text-gold" : "text-white/70 hover:text-white"
+                aria-current={location.pathname === l.to ? "page" : undefined}
+                className={`text-[0.95rem] transition-colors ${
+                  location.pathname === l.to ? "font-semibold text-ink" : "text-stone hover:text-ink"
                 }`}
               >
                 {l.label}
@@ -144,28 +146,21 @@ export default function Layout() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className={`w-9 h-9 border transition-colors flex items-center justify-center ${
-                searchOpen ? "border-gold text-gold" : "border-white/25 text-white/60 hover:border-gold hover:text-gold"
-              }`}
+              className="flex h-10 w-10 items-center justify-center text-stone transition-colors hover:text-ink"
               aria-label="Pesquisar"
               title="Pesquisar"
             >
-              <Search size={15} />
+              <Search size={19} />
             </button>
             {isAdmin && (
-              <Link
-                to={ADMIN_BASE_PATH}
-                className={`text-xs font-medium tracking-[0.25em] uppercase px-4 py-1.5 border transition-colors ${
-                  location.pathname === ADMIN_BASE_PATH ? "border-gold text-gold" : "border-white/30 text-white/50 hover:border-gold hover:text-gold"
-                }`}
-              >
+              <Link to={ADMIN_BASE_PATH} className="border border-ink px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-ink hover:text-paper">
                 Admin
               </Link>
             )}
           </nav>
 
-          <button className="md:hidden text-white" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          <button className="md:hidden text-ink" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}>
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
@@ -175,30 +170,30 @@ export default function Layout() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-black/98 border-b border-gold/20"
+              className="overflow-hidden border-t border-line bg-paper md:hidden"
             >
-              <div className="px-6 py-6 flex flex-col gap-5">
+              <div className="flex flex-col px-5 py-3">
+                {navLinks.map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    className={`border-b border-line py-4 text-lg ${location.pathname === l.to ? "font-semibold text-ink" : "text-stone"}`}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
                 <button
                   type="button"
                   onClick={() => {
                     setMobileOpen(false);
                     setSearchOpen(true);
                   }}
-                  className="flex items-center gap-3 text-xs tracking-[0.25em] uppercase font-medium text-white/70"
+                  className="flex items-center gap-3 py-4 text-lg text-stone"
                 >
-                  <Search size={15} className="text-gold" /> Pesquisar
+                  <Search size={18} /> Pesquisar
                 </button>
-                {navLinks.map((l) => (
-                  <Link
-                    key={l.to}
-                    to={l.to}
-                    className={`text-xs tracking-[0.25em] uppercase font-medium ${location.pathname === l.to ? "text-gold" : "text-white/70"}`}
-                  >
-                    {l.label}
-                  </Link>
-                ))}
                 {isAdmin && (
-                  <Link to={ADMIN_BASE_PATH} className="text-xs tracking-[0.25em] uppercase text-gold/60">
+                  <Link to={ADMIN_BASE_PATH} className="py-3 text-sm font-semibold text-ink">
                     Admin
                   </Link>
                 )}
@@ -239,19 +234,19 @@ export default function Layout() {
       {!showPausedView && <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />}
 
       {!showPausedView && (
-        <footer className="bg-black border-t border-gold/20 pt-16 pb-8 mt-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-              <div className="md:col-span-1">
-                <img src={LOGO_URL} alt="Imagem Fit Quadros" className="h-14 w-auto object-contain mb-4" />
-                <p className="text-white/50 text-xs leading-relaxed">Catálogo comercial de quadros, espelhos e obras autorais para lojistas.</p>
+        <footer className="bg-ink pb-24 pt-16 font-sans text-paper sm:pb-10">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8">
+            <div className="grid grid-cols-2 gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+              <div className="col-span-2 md:col-span-1">
+                <img src={FOOTER_LOGO_URL} alt="Imagem Fit Quadros" className="mb-5 h-12 w-auto object-contain" />
+                <p className="max-w-xs text-sm leading-relaxed text-paper/60">Quadros, espelhos e obras autorais para lojistas. Humaniza, personaliza, decora.</p>
               </div>
 
               <div>
-                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Navegação</h4>
-                <div className="space-y-2">
+                <h4 className="mb-4 text-sm font-semibold">Site</h4>
+                <div className="space-y-2.5">
                   {navLinks.map((l) => (
-                    <Link key={l.to} to={l.to} className="block text-white/50 hover:text-gold text-xs tracking-wide transition-colors">
+                    <Link key={l.to} to={l.to} className="block text-sm text-paper/60 transition-colors hover:text-paper">
                       {l.label}
                     </Link>
                   ))}
@@ -259,41 +254,29 @@ export default function Layout() {
               </div>
 
               <div>
-                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Contato</h4>
-                <div className="space-y-3">
-                  <a
-                    href="https://instagram.com/imagemfit.quadros"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
-                  >
-                    <Instagram size={13} /> @imagemfit.quadros
+                <h4 className="mb-4 text-sm font-semibold">Contato</h4>
+                <div className="space-y-2.5 text-sm">
+                  <a href="https://instagram.com/imagemfit.quadros" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-paper/60 transition-colors hover:text-paper">
+                    <Instagram size={15} /> @imagemfit.quadros
                   </a>
-                  <a
-                    href="mailto:atendimento.imagemfit@gmail.com"
-                    className="flex items-center gap-2 text-white/50 hover:text-gold text-xs transition-colors"
-                  >
-                    <Mail size={13} /> atendimento.imagemfit@gmail.com
+                  <a href="mailto:atendimento.imagemfit@gmail.com" className="flex items-center gap-2 break-all text-paper/60 transition-colors hover:text-paper">
+                    <Mail size={15} className="shrink-0" /> atendimento.imagemfit@gmail.com
                   </a>
                 </div>
               </div>
 
-              <div>
-                <h4 className="text-gold text-xs tracking-[0.3em] uppercase font-semibold mb-5">Informações</h4>
-                <div className="space-y-2 text-white/50 text-xs">
-                  <p>CNPJ: 12.780.327/0001-02</p>
-                  <p className="leading-relaxed">
-                    Rua São Paulo, 649
-                    <br />
-                    Timbó - SC
-                    <br />
-                    CEP 89095-220
-                  </p>
-                </div>
+              <div className="col-span-2 md:col-span-1">
+                <h4 className="mb-4 text-sm font-semibold">Endereço</h4>
+                <p className="text-sm leading-relaxed text-paper/60">
+                  Rua São Paulo, 649
+                  <br />
+                  Timbó, SC · 89095-220
+                  <br />
+                  CNPJ 12.780.327/0001-02
+                </p>
               </div>
             </div>
-            <div className="gold-line mb-6" />
-            <p className="text-center text-white/30 text-xs tracking-widest">© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
+            <p className="mt-14 border-t border-paper/15 pt-6 text-xs text-paper/45">© {new Date().getFullYear()} Imagem Fit Quadros</p>
           </div>
         </footer>
       )}

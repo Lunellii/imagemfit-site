@@ -1,4 +1,4 @@
-import HeroSlideshow from "@/components/home/HeroSlideshow";
+import HomeHero from "@/components/home/HomeHero";
 import HowItWorks from "@/components/home/HowItWorks";
 import HomeCategoriesSection from "@/components/home/HomeCategoriesSection";
 import CompanySection from "@/components/home/CompanySection";
@@ -7,8 +7,8 @@ import PersonalizedFamilyArt from "@/components/home/PersonalizedFamilyArt";
 
 export default function Home() {
   return (
-    <div>
-      <HeroSlideshow />
+    <div className="bg-paper font-sans">
+      <HomeHero />
       <HomeCategoriesSection />
       <HowItWorks />
       <CompanySection />

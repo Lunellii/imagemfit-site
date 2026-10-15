@@ -8,10 +8,16 @@ const config = {
     extend: {
       fontFamily: {
         heading: ["var(--font-heading)"],
+        sans: ["Archivo", "system-ui", "sans-serif"],
         body: ["var(--font-body)"]
       },
       colors: {
         gold: "#b99049",
+        paper: "#f4f1eb",
+        ink: "#171614",
+        stone: "#6b655c",
+        line: "#ddd6ca",
+        brass: "#9a7535",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
