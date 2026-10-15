@@ -77,6 +77,7 @@ const REQUIRED_CATEGORIES = [
   { name: "Árvores", description: "Obras com árvores e elementos naturais para ambientes acolhedores." },
   { name: "Cozinha", description: "Quadros pensados para cozinhas e espaços gourmet." },
   { name: "Diversos", description: "Seleção variada de estilos e temas para todos os gostos." },
+  { name: "Esculturas", description: "Esculturas decorativas que trazem volume, presença e sofisticação aos ambientes." },
   { name: "Espelhos", description: "Peças com espelhos para ampliar e valorizar o ambiente." },
   { name: "Espiritualidade", description: "Temas de fé, energia e espiritualidade para ambientes de paz." },
   { name: "Estilo 3D", description: "Obras com relevo, textura e profundidade para criar um efeito tridimensional na decoração." },

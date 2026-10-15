@@ -8,7 +8,7 @@ const CATEGORY_KEY = "ifq_categories";
 const IMAGE_KEY = "ifq_images";
 const SEEDED_KEY = "ifq_seeded_v1";
 const CATALOG_SEED_MIGRATION_KEY = "ifq_catalog_seed_migrated_v1";
-const CATEGORY_MIGRATION_KEY = "ifq_categories_migrated_v6";
+const CATEGORY_MIGRATION_KEY = "ifq_categories_migrated_v7";
 const CATALOG_TAXONOMY_MIGRATION_KEY = "ifq_catalog_taxonomy_migrated_v1";
 const IMAGE_ASSET_MIGRATION_KEY = "ifq_image_assets_migrated_v1";
 const ADMIN_SESSION_KEY = "ifq_admin_session";
@@ -57,6 +57,7 @@ const REQUIRED_CATEGORIES = [
   { name: "\u00c1rvores", description: "Obras com \u00e1rvores e elementos naturais para ambientes acolhedores." },
   { name: "Cozinha", description: "Quadros pensados para cozinhas e espa\u00e7os gourmet." },
   { name: "Diversos", description: "Sele\u00e7\u00e3o variada de estilos e temas para todos os gostos." },
+  { name: "Esculturas", description: "Esculturas decorativas que trazem volume, presença e sofisticação aos ambientes." },
   { name: "Espelhos", description: "Pe\u00e7as com espelhos para ampliar e valorizar o ambiente." },
   { name: "Espiritualidade", description: "Temas de f\u00e9, energia e espiritualidade para ambientes de paz." },
   { name: "Estilo 3D", description: "Obras com relevo, textura e profundidade para criar um efeito tridimensional na decoração." },

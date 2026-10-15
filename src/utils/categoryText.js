@@ -36,6 +36,10 @@
     description: "Sele\u00e7\u00e3o variada de estilos e temas para todos os gostos."
   },
   {
+    name: "Esculturas",
+    description: "Esculturas decorativas que trazem volume, presença e sofisticação aos ambientes."
+  },
+  {
     name: "Espelhos",
     description: "Pe\u00e7as com espelhos para ampliar e valorizar o ambiente."
   },
@@ -110,6 +114,7 @@ const CATEGORY_NAME_ALIASES = {
   "abstrato relevo": "estilo 3d",
   relevo: "estilo 3d",
   ponte: "pontes",
+  escultura: "esculturas",
   tridmensional: "tridimensional",
   "pintura manual": "pinturas manuais"
 };
