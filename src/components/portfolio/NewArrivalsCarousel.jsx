@@ -9,6 +9,7 @@ import ShareArtworkButton from "@/components/portfolio/ShareArtworkButton";
 export default function NewArrivalsCarousel({ images }) {
   const scrollRef = useRef(null);
   const dragRef = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
+  const pausedRef = useRef(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const { addItem, isInCart, syncItems } = useCart();
 
@@ -21,6 +22,21 @@ export default function NewArrivalsCarousel({ images }) {
       }))
     );
   }, [images, syncItems]);
+
+  useEffect(() => {
+    if (images.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+
+    const timer = window.setInterval(() => {
+      const carousel = scrollRef.current;
+      if (!carousel || pausedRef.current || dragRef.current.active) return;
+      const card = carousel.querySelector("article");
+      const step = card ? card.getBoundingClientRect().width + 16 : carousel.clientWidth;
+      const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - step / 2;
+      carousel.scrollTo({ left: atEnd ? 0 : carousel.scrollLeft + step, behavior: "smooth" });
+    }, 4000);
+
+    return () => window.clearInterval(timer);
+  }, [images.length]);
 
   const scroll = (direction) => {
     if (!scrollRef.current) return;
@@ -96,6 +112,10 @@ export default function NewArrivalsCarousel({ images }) {
 
       <div
         ref={scrollRef}
+        onMouseEnter={() => { pausedRef.current = true; }}
+        onMouseLeave={() => { pausedRef.current = false; }}
+        onFocusCapture={() => { pausedRef.current = true; }}
+        onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) pausedRef.current = false; }}
         onPointerDown={startMouseDrag}
         onPointerMove={moveMouseDrag}
         onPointerUp={endMouseDrag}

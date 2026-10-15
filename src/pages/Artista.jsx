@@ -7,7 +7,6 @@ import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
-import { selectLatestUploadBatch } from "@/utils/newArrivals";
 
 const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png?v=20260409`;
 const ARTIST_CATEGORY_KEYS = new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
@@ -30,10 +29,9 @@ export default function Artista() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [categories, allImages, newestImages, groupedCovers] = await Promise.all([
+        const [categories, allImages, groupedCovers] = await Promise.all([
           localClient.entities.Category.list("order", 100),
           localClient.entities.PortfolioImage.list("-created_date", 5000),
-          localClient.entities.PortfolioImage.filter({ is_new: true }, "-created_date", 120),
           localClient.entities.PortfolioImage.groupedByCategory("-created_date", 10)
         ]);
 
@@ -41,6 +39,7 @@ export default function Artista() {
           .filter((category) => ARTIST_CATEGORY_KEYS.has(normalizeCategoryKey(category?.name)))
           .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
         const artistCategoryIds = selectedCategories.map((category) => category.id);
+        const paintingCategory = selectedCategories.find((category) => normalizeCategoryKey(category.name) === "pinturasmanuais");
 
         if (!artistCategoryIds.length) {
           setArtistCategories([]);
@@ -58,7 +57,10 @@ export default function Artista() {
         );
         setCoversByCategory(onlyArtistCovers);
         setImages(mergedImages);
-        setNewImages(selectLatestUploadBatch(newestImages).filter((image) => artistCategoryIds.includes(image.category_id)));
+        const paintings = paintingCategory
+          ? await localClient.entities.PortfolioImage.filter({ category_id: paintingCategory.id }, "-created_date", 25)
+          : [];
+        setNewImages(paintings.map((image) => ({ ...image, category_name: paintingCategory.name })));
       } catch {
         toast({
           variant: "destructive",
