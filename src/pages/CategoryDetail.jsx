@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight, ListPlus, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { localClient } from "@/api/localClient";
 import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
-import { withDisplayCategory } from "@/utils/categoryText";
+import {
+  getCategoryPageDescription,
+  getCategoryPageTitle,
+  getCategoryPath,
+  getCategorySlug,
+  withDisplayCategory
+} from "@/utils/categoryText";
 import ProductQuickView from "@/components/portfolio/ProductQuickView";
 import ShareArtworkButton from "@/components/portfolio/ShareArtworkButton";
 
@@ -89,8 +95,15 @@ function ArtworkCard({ image, categoryName, masonry, onOpen }) {
   );
 }
 
+const findCategory = (categories, id, slug) => {
+  if (id) return categories.find((item) => item.id === id) || null;
+  return categories.find((item) => getCategorySlug(item.name) === slug) || null;
+};
+
 export default function CategoryDetail() {
-  const { id } = useParams();
+  const { id: idParam, slug } = useParams();
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState(null);
   const [category, setCategory] = useState(null);
   const [images, setImages] = useState([]);
   const [totalImages, setTotalImages] = useState(0);
@@ -99,18 +112,46 @@ export default function CategoryDetail() {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
+    let mounted = true;
+    localClient.entities.Category.list("order", 500)
+      .then((items) => {
+        if (mounted) setCategories(items);
+      })
+      .catch(() => {
+        if (mounted) setCategories([]);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const resolvedCategory = categories ? findCategory(categories, idParam, slug) : null;
+  const id = resolvedCategory?.id || null;
+
+  useEffect(() => {
     setCurrentPage(1);
   }, [id]);
 
+  // Endereços antigos (/portfolio/categoria/<id>) passam a usar o nome da categoria.
   useEffect(() => {
+    if (!idParam || !resolvedCategory) return;
+    const path = getCategoryPath(resolvedCategory);
+    if (path !== `/portfolio/categoria/${idParam}`) navigate(path, { replace: true });
+  }, [idParam, resolvedCategory, navigate]);
+
+  useEffect(() => {
+    if (!categories) return undefined;
     let mounted = true;
     const load = async () => {
       setLoading(true);
       try {
-        const [categories, pageData] = await Promise.all([
-          localClient.entities.Category.list("order", 100),
-          localClient.entities.PortfolioImage.filterPage({ category_id: id }, "-created_date", currentPage, PAGE_SIZE)
-        ]);
+        if (!id) {
+          setCategory(null);
+          setImages([]);
+          setTotalImages(0);
+          return;
+        }
+        const pageData = await localClient.entities.PortfolioImage.filterPage({ category_id: id }, "-created_date", currentPage, PAGE_SIZE);
         if (!mounted) return;
         setCategory(withDisplayCategory(categories.find((item) => item.id === id) || null));
         setImages(pageData.items || []);
@@ -129,7 +170,13 @@ export default function CategoryDetail() {
     return () => {
       mounted = false;
     };
-  }, [id, currentPage]);
+  }, [categories, id, currentPage]);
+
+  useEffect(() => {
+    if (!category?.name) return;
+    document.title = getCategoryPageTitle(category.name);
+    document.querySelector('meta[name="description"]')?.setAttribute("content", getCategoryPageDescription(category.description));
+  }, [category?.name, category?.description]);
 
   const totalPages = Math.max(1, Math.ceil(totalImages / PAGE_SIZE));
   const isEspelhosPage = normalizeCategoryName(category?.name) === "espelhos";

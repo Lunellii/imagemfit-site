@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ImageIcon } from "lucide-react";
 import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
+import { getCategoryPath } from "@/utils/categoryText";
 
 const ARTISTA_CATEGORY_KEYS = new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
 const normalizeCategoryKey = (value) =>
@@ -13,7 +14,7 @@ const normalizeCategoryKey = (value) =>
 export default function CategoryGrid({ categories, imagesByCategory = {} }) {
   const getLink = (cat) => {
     if (ARTISTA_CATEGORY_KEYS.has(normalizeCategoryKey(cat?.name))) return "/artista";
-    return `/portfolio/categoria/${cat.id}`;
+    return getCategoryPath(cat);
   };
 
   if (!categories.length) {

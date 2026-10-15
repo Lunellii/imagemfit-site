@@ -142,6 +142,22 @@ export const getDisplayCategoryDescription = (name, description) => {
   return current;
 };
 
+export const getCategorySlug = (name) =>
+  normalize(getDisplayCategoryName(name))
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+export const getCategoryPath = (category) => {
+  const slug = getCategorySlug(category?.name);
+  return slug ? `/portfolio/${slug}` : `/portfolio/categoria/${category?.id}`;
+};
+
+// Mantenha estes textos iguais aos de server/app-server.mjs (títulos gerados no servidor).
+export const getCategoryPageTitle = (name) => `${getDisplayCategoryName(name)} | Quadros decorativos para lojistas | Imagem Fit`;
+
+export const getCategoryPageDescription = (description) =>
+  `${String(description || "").trim()} Catálogo para lojistas: escolha por código e solicite condições comerciais.`.trim();
+
 export const withDisplayCategory = (category) => {
   if (!category) return category;
   const name = getDisplayCategoryName(category.name);

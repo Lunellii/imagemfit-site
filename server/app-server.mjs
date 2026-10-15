@@ -457,6 +457,81 @@ const serveFile = async (res, filePath) => {
   }
 };
 
+const SITE_URL = "https://imagemfitquadros.com.br";
+const STATIC_PAGES = {
+  "/": { title: "Imagem Fit Quadros | Catálogo para lojistas", description: "Catálogo comercial de quadros, espelhos, obras autorais e produtos personalizados para lojistas." },
+  "/portfolio": { title: "Catálogo de quadros | Imagem Fit", description: "Explore quadros, espelhos e obras autorais, escolha tamanhos e monte sua seleção." },
+  "/parceiros": { title: "Para lojistas | Imagem Fit", description: "Conheça o catálogo e o atendimento comercial da Imagem Fit para lojistas e parceiros." },
+  "/artista": { title: "Almir Gonçalves | Imagem Fit", description: "Pinturas manuais e obras tridimensionais assinadas por Almir Gonçalves." },
+  "/contato": { title: "Atendimento comercial | Imagem Fit", description: "Atendimento exclusivo para lojistas e parceiros da Imagem Fit." }
+};
+
+const categorySlug = (name) => normalizeCategoryName(name).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const findCategoryBySlug = (slug) => db.categories.find((category) => categorySlug(category.name) === slug) || null;
+
+// Mantenha estes textos iguais aos de src/utils/categoryText.js.
+const categoryPageMeta = (category) => ({
+  title: `${category.name} | Quadros decorativos para lojistas | Imagem Fit`,
+  description: `${String(category.description || "").trim()} Catálogo para lojistas: escolha por código e solicite condições comerciais.`.trim()
+});
+
+const pageMetaForPath = (pathname) => {
+  if (STATIC_PAGES[pathname]) return STATIC_PAGES[pathname];
+  const match = pathname.match(/^\/portfolio\/([a-z0-9-]+)$/);
+  const category = match ? findCategoryBySlug(match[1]) : null;
+  return category ? categoryPageMeta(category) : null;
+};
+
+const escapeHtml = (value) =>
+  String(value || "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+
+// Grava título, descrição e endereço canônico no HTML, para o Google e as prévias de links lerem sem executar JavaScript.
+const renderIndexHtml = (html, pathname) => {
+  const meta = pageMetaForPath(pathname);
+  if (!meta) return html;
+  const title = escapeHtml(meta.title);
+  const description = escapeHtml(meta.description);
+  const url = escapeHtml(`${SITE_URL}${pathname === "/" ? "/" : pathname}`);
+  return html
+    .replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`)
+    .replace(/<meta name="description" content="[^"]*"\s*\/?>/, `<meta name="description" content="${description}" />`)
+    .replace(/<meta property="og:title" content="[^"]*"\s*\/?>/, `<meta property="og:title" content="${title}" />`)
+    .replace(/<meta property="og:description" content="[^"]*"\s*\/?>/, `<meta property="og:description" content="${description}" />`)
+    .replace(/<meta property="og:url" content="[^"]*"\s*\/?>/, `<meta property="og:url" content="${url}" />`)
+    .replace("</head>", `  <link rel="canonical" href="${url}" />\n  </head>`);
+};
+
+const serveIndexHtml = async (res, pathname) => {
+  try {
+    const html = await fs.readFile(path.resolve(distDir, "index.html"), "utf8");
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.end(renderIndexHtml(html, pathname));
+    return true;
+  } catch (_err) {
+    return false;
+  }
+};
+
+const renderSitemap = () => {
+  const latestByCategory = new Map();
+  for (const image of db.images) {
+    const current = latestByCategory.get(image.category_id);
+    if (!current || String(image.created_date || "") > current) latestByCategory.set(image.category_id, String(image.created_date || ""));
+  }
+  const entries = [
+    ...Object.keys(STATIC_PAGES).map((pagePath) => ({ loc: `${SITE_URL}${pagePath}` })),
+    ...db.categories
+      .filter((category) => latestByCategory.has(category.id) && categorySlug(category.name))
+      .map((category) => ({ loc: `${SITE_URL}/portfolio/${categorySlug(category.name)}`, lastmod: latestByCategory.get(category.id).slice(0, 10) }))
+  ];
+  const urls = entries
+    .map((entry) => `  <url><loc>${escapeHtml(entry.loc)}</loc>${entry.lastmod ? `<lastmod>${escapeHtml(entry.lastmod)}</lastmod>` : ""}</url>`)
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+};
+
 const bootstrap = async () => {
   if (dbReady) return;
   await fs.mkdir(storageRoot, { recursive: true });
@@ -948,11 +1023,29 @@ const server = http.createServer(async (req, res) => {
     if (pathname.startsWith("/api/")) return sendJson(res, 404, { error: "NOT_FOUND" });
     if (!["GET", "HEAD"].includes(req.method || "")) return sendJson(res, 405, { error: "METHOD_NOT_ALLOWED" });
 
-    const requested = pathname === "/" ? "/index.html" : pathname;
-    const distFile = safeResolve(distDir, requested);
-    if (distFile && (await serveFile(res, distFile))) return;
-    const fallback = path.resolve(distDir, "index.html");
-    if (await serveFile(res, fallback)) return;
+    if (pathname === "/sitemap.xml") {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/xml; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.end(renderSitemap());
+    }
+
+    const legacyCategoryMatch = pathname.match(/^\/portfolio\/categoria\/([^/]+)$/);
+    if (legacyCategoryMatch) {
+      const category = db.categories.find((item) => item.id === legacyCategoryMatch[1]);
+      const slug = category ? categorySlug(category.name) : "";
+      if (slug) {
+        res.statusCode = 301;
+        res.setHeader("Location", `/portfolio/${slug}${url.search}`);
+        return res.end();
+      }
+    }
+
+    if (pathname !== "/" && pathname !== "/index.html") {
+      const distFile = safeResolve(distDir, pathname);
+      if (distFile && (await serveFile(res, distFile))) return;
+    }
+    if (await serveIndexHtml(res, pathname === "/index.html" ? "/" : pathname)) return;
     return sendJson(res, 500, { error: "DIST_NOT_FOUND", detail: "Execute npm run build antes de iniciar." });
   } catch (error) {
     return sendJson(res, 500, { error: "SERVER_ERROR", detail: String(error?.message || error) });

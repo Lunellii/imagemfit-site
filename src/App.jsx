@@ -97,6 +97,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/portfolio/categoria/:id" element={<CategoryDetail />} />
+            <Route path="/portfolio/:slug" element={<CategoryDetail />} />
             <Route path="/artista" element={<Artista />} />
             <Route path="/contato" element={<Contact />} />
             <Route path="/parceiros" element={<Parceiros />} />

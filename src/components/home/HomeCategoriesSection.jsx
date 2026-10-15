@@ -4,8 +4,10 @@ import { Link } from "react-router-dom";
 import { localClient } from "@/api/localClient";
 import { ArrowRight } from "lucide-react";
 import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
+import { getCategoryPath } from "@/utils/categoryText";
 
-const ARTISTA_CATEGORY_KEYS = new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
+const HOME_CATEGORY_LIMIT = 6;
+const ARTISTA_CATEGORY_KEYS =new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
 const normalizeCategoryKey = (value) =>
   String(value || "")
     .normalize("NFD")
@@ -20,15 +22,23 @@ export default function HomeCategoriesSection() {
   useEffect(() => {
     const load = async () => {
       try {
-        const cats = await localClient.entities.Category.list("order", 6);
-        const sorted = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+        // Mostra as categorias que receberam imagens novas mais recentemente.
+        const cats = await localClient.entities.Category.list("order", 500);
         const grouped = await localClient.entities.PortfolioImage.groupedByCategory(
           "-created_date",
           8,
-          sorted.map((category) => category.id)
+          cats.map((category) => category.id)
         );
+        const latestUpload = (category) => {
+          const time = Date.parse(grouped[category.id]?.[0]?.created_date || "");
+          return Number.isFinite(time) ? time : 0;
+        };
+        const recent = cats
+          .filter((category) => grouped[category.id]?.length)
+          .sort((a, b) => latestUpload(b) - latestUpload(a))
+          .slice(0, HOME_CATEGORY_LIMIT);
 
-        setCategories(sorted);
+        setCategories(recent);
         setImagesByCategory(grouped);
       } catch {
         setCategories([]);
@@ -64,7 +74,7 @@ export default function HomeCategoriesSection() {
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-12">
           {categories.map((category, index) => {
             const isArtista = ARTISTA_CATEGORY_KEYS.has(normalizeCategoryKey(category?.name));
-            const linkTo = isArtista ? "/artista" : `/portfolio/categoria/${category.id}`;
+            const linkTo = isArtista ? "/artista" : getCategoryPath(category);
             const isFeatured = index < 2;
 
             return (

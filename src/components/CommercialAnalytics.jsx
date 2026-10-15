@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { commercialClient } from "@/api/commercialClient";
 
 const pageMeta = (pathname) => {
-  if (pathname.startsWith("/portfolio/categoria/")) return { title: "Categoria de quadros | Imagem Fit", description: "Escolha quadros por categoria, monte sua seleção e compartilhe com sua loja." };
+  if (pathname.startsWith("/portfolio/")) return { title: "Categoria de quadros | Imagem Fit", description: "Escolha quadros por categoria, monte sua seleção e compartilhe com sua loja." };
   if (pathname === "/portfolio") return { title: "Catálogo de quadros | Imagem Fit", description: "Explore quadros, espelhos e obras autorais, escolha tamanhos e monte sua seleção." };
   if (pathname === "/parceiros") return { title: "Para lojistas | Imagem Fit", description: "Conheça o catálogo e o atendimento comercial da Imagem Fit para lojistas e parceiros." };
   if (pathname === "/artista") return { title: "Almir Gonçalves | Imagem Fit", description: "Pinturas manuais e obras tridimensionais assinadas por Almir Gonçalves." };

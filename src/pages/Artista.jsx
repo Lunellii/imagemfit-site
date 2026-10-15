@@ -8,6 +8,7 @@ import { useCart } from "@/hooks/useCart";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import RotatingCategoryCard from "@/components/home/RotatingCategoryCard";
 import { selectLatestUploadBatch } from "@/utils/newArrivals";
+import { getCategoryPath } from "@/utils/categoryText";
 
 const ARTIST_PHOTO = `${import.meta.env.BASE_URL}artist/almir-donizete-goncalves.png?v=20260409`;
 const ARTIST_CATEGORY_KEYS = new Set(["pinturasmanuais", "pinturamanual", "tridimensional", "tridmensional"]);
@@ -148,7 +149,7 @@ export default function Artista() {
                 <RotatingCategoryCard
                   key={category.id}
                   category={category}
-                  linkTo={`/portfolio/categoria/${category.id}`}
+                  linkTo={getCategoryPath(category)}
                   coverImages={coversByCategory[category.id] || []}
                   imageHeight="h-48 sm:h-56 md:h-60"
                 />
