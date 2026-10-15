@@ -49,11 +49,11 @@ export default function HomeGaleria() {
           <h2 className="font-display text-4xl font-extrabold md:text-5xl">Chegou agora</h2>
           <Link to="/portfolio" className="border-b border-ink pb-0.5 text-sm font-semibold">Todas as categorias</Link>
         </div>
-        <div className="mt-10 flex snap-x gap-6 overflow-x-auto px-5 pb-4 scrollbar-hide sm:px-8 lg:px-[max(2rem,calc((100vw_-_80rem)/2_+_2rem))]">
+        <div className="mt-10 flex gap-6 overflow-x-auto px-5 pb-4 scrollbar-hide sm:px-8 lg:px-[max(2rem,calc((100vw_-_80rem)/2_+_2rem))]">
           {categories.map((category) => {
             const cover = (imagesByCategory[category.id] || [])[0];
             return (
-              <Link key={category.id} to={getCategoryLink(category)} className="group w-[72vw] shrink-0 snap-start sm:w-[22rem]">
+              <Link key={category.id} to={getCategoryLink(category)} className="group w-[72vw] shrink-0 sm:w-[22rem]">
                 <div className="aspect-[4/3] overflow-hidden bg-line">
                   {cover ? <img src={cover.image_url} alt={`${category.name}: ${cover.code}`} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" /> : null}
                 </div>
