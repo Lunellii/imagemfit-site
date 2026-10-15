@@ -157,91 +157,77 @@ export default function SearchOverlay({ open, onClose }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[70] bg-black/96 backdrop-blur-lg px-4 py-5 sm:px-6 sm:py-8"
+          className="fixed inset-0 z-[70] bg-paper px-5 py-5 font-sans text-ink sm:px-8 sm:py-8"
         >
           <div className="mx-auto flex h-full max-w-5xl flex-col">
-            <div className="flex items-center justify-between gap-4 border-b border-gold/20 pb-4">
-              <div>
-                <span className="text-gold text-[11px] tracking-[0.32em] uppercase">Busca comercial</span>
-                <h2 className="font-heading text-2xl text-white mt-1">Buscar no catálogo</h2>
-              </div>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="font-display text-3xl font-semibold">Buscar no catálogo</h2>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-10 h-10 border border-white/20 text-white/70 hover:border-gold hover:text-gold transition-colors flex items-center justify-center"
+                className="flex h-11 w-11 items-center justify-center text-ink transition-colors hover:bg-line"
                 aria-label="Fechar busca"
               >
-                <X size={19} />
+                <X size={24} />
               </button>
             </div>
 
             <div className="relative mt-5">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gold" size={18} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone" size={20} />
               <input
                 ref={inputRef}
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Código, categoria ou nome"
-                className="w-full bg-[#151515] border border-white/15 text-white placeholder-white/35 pl-12 pr-4 py-4 text-sm outline-none focus:border-gold transition-colors"
+                className="h-14 w-full border border-line bg-white pl-12 pr-4 text-lg outline-none transition-colors placeholder:text-stone/60 focus:border-ink"
               />
             </div>
 
-            <div className="mt-5 flex-1 overflow-y-auto pr-1">
+            <div className="mt-6 flex-1 overflow-y-auto pr-1">
               {loading ? (
-                <div className="h-64 flex items-center justify-center">
-                  <Loader2 className="w-7 h-7 animate-spin text-gold" />
+                <div className="flex h-64 items-center justify-center">
+                  <Loader2 className="h-7 w-7 animate-spin text-brass" />
                 </div>
               ) : !query.trim() ? (
-                <div className="border border-dashed border-gold/20 py-16 text-center">
-                  <Search className="w-9 h-9 text-gold/40 mx-auto mb-4" />
-                  <p className="text-white/45 text-sm">Digite para pesquisar por código, categoria ou nome.</p>
-                </div>
+                <p className="py-16 text-center text-stone">Digite um código (ex.: NAT_00001), uma categoria ou um nome.</p>
               ) : results.length === 0 ? (
-                <div className="border border-dashed border-gold/20 py-16 text-center">
-                  <p className="text-white/45 text-sm">Nenhum quadro encontrado.</p>
-                </div>
+                <p className="py-16 text-center text-stone">Nenhum quadro encontrado para “{query.trim()}”.</p>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-8">
+                <div className="grid grid-cols-2 gap-x-5 gap-y-8 pb-8 sm:grid-cols-3 lg:grid-cols-4">
                   {results.map((image) => {
                     const categoryName = getCategoryName(image);
                     const inCart = isInCart(image.id);
 
                     return (
-                      <article key={image.id} className="bg-[#171717] border border-white/10 hover:border-gold/40 transition-colors">
-                        <div className="bg-black/40">
-                          <img
-                            src={image.image_url}
-                            alt={image.code}
-                            loading="lazy"
-                            decoding="async"
-                            draggable={false}
-                            onContextMenu={(event) => event.preventDefault()}
-                            className="w-full h-auto"
-                          />
-                        </div>
-                        <div className="p-3 space-y-2">
-                          <div>
-                            <p className="text-gold font-mono text-xs font-semibold truncate">#{image.code}</p>
-                            {categoryName && <p className="text-white/45 text-[11px] truncate mt-0.5">{categoryName}</p>}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => addToCart(image)}
-                            className={`w-full flex items-center justify-center gap-1.5 text-xs py-2 font-medium transition-colors ${
-                              inCart ? "bg-gold/20 border border-gold text-gold" : "bg-gold text-black hover:bg-gold/85"
-                            }`}
-                          >
-                            {inCart ? (
-                              <>
-                                <Check size={12} /> Na minha seleção
-                              </>
-                            ) : (
-                              <>
-                                <ListPlus size={12} /> Adicionar
-                              </>
-                            )}
-                          </button>
-                        </div>
+                      <article key={image.id}>
+                        <img
+                          src={image.image_url}
+                          alt={image.code}
+                          loading="lazy"
+                          decoding="async"
+                          draggable={false}
+                          onContextMenu={(event) => event.preventDefault()}
+                          className="h-auto w-full bg-line"
+                        />
+                        <p className="mt-3 truncate font-semibold">{image.code}</p>
+                        {categoryName && <p className="truncate text-sm text-stone">{categoryName}</p>}
+                        <button
+                          type="button"
+                          onClick={() => addToCart(image)}
+                          className={`mt-2 flex h-11 w-full items-center justify-center gap-1.5 text-sm font-semibold transition-colors ${
+                            inCart ? "border border-brass bg-brass/10 text-brass" : "bg-ink text-paper hover:bg-brass"
+                          }`}
+                        >
+                          {inCart ? (
+                            <>
+                              <Check size={16} /> Na seleção
+                            </>
+                          ) : (
+                            <>
+                              <ListPlus size={16} /> Selecionar
+                            </>
+                          )}
+                        </button>
                       </article>
                     );
                   })}

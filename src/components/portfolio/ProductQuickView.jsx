@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ListPlus, Maximize2, Ruler, X } from "lucide-react";
+import { Check, ListPlus, Ruler, X } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import { commercialClient } from "@/api/commercialClient";
@@ -90,7 +90,7 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[80] overflow-y-auto bg-black/96 p-3 backdrop-blur-xl sm:p-6"
+          className="fixed inset-0 z-[80] overflow-y-auto bg-ink/70 p-3 font-sans text-ink backdrop-blur-sm sm:p-6"
           onClick={onClose}
         >
           <div className="flex min-h-full items-center justify-center">
@@ -98,58 +98,54 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
               role="dialog"
               aria-modal="true"
               aria-label={`Detalhes do quadro ${image.code}`}
-              initial={{ opacity: 0, y: 24, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 16, scale: 0.98 }}
-              transition={{ duration: 0.28 }}
-              className="grid w-full max-w-5xl overflow-hidden border border-white/10 bg-[#151515] shadow-2xl lg:grid-cols-[1.08fr_0.92fr]"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.22 }}
+              className="relative grid w-full max-w-5xl overflow-hidden bg-white shadow-2xl lg:grid-cols-[1.15fr_0.85fr]"
               onClick={(event) => event.stopPropagation()}
             >
-              <div className="relative flex min-h-[46vh] items-center justify-center bg-[#090909] p-4 sm:p-7 lg:min-h-[66vh]">
+              <button
+                type="button"
+                onClick={onClose}
+                className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center bg-white/90 text-ink transition-colors hover:bg-paper"
+                aria-label="Fechar detalhes"
+              >
+                <X size={22} />
+              </button>
+
+              <div className="flex min-h-[44vh] items-center justify-center bg-paper p-4 sm:p-8 lg:min-h-[68vh]">
                 <img
                   src={image.image_url}
                   alt={image.title || `Quadro ${image.code}`}
                   draggable={false}
                   onContextMenu={(event) => event.preventDefault()}
-                  className="max-h-[62vh] max-w-full object-contain shadow-2xl"
+                  className="max-h-[64vh] max-w-full object-contain"
                 />
-                <span className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/75 px-3 py-2 text-[9px] uppercase tracking-[0.22em] text-white/65 backdrop-blur-sm">
-                  <Maximize2 size={12} className="text-gold" /> Visualização ampliada
-                </span>
               </div>
 
-              <div className="relative flex flex-col p-5 sm:p-7 lg:p-8">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center border border-white/15 text-white/55 transition-colors hover:border-gold hover:text-gold"
-                  aria-label="Fechar detalhes"
-                >
-                  <X size={19} />
-                </button>
+              <div className="flex flex-col p-6 sm:p-8">
+                <p className="text-sm text-stone">{categoryName || "Catálogo Imagem Fit"}</p>
+                <h2 className="font-display mt-1 pr-10 text-4xl font-semibold leading-tight">{image.code}</h2>
+                {image.title && image.title !== image.code ? <p className="mt-1 text-stone">{image.title}</p> : null}
 
-                <span className="text-[10px] font-semibold uppercase tracking-[0.35em] text-gold">{categoryName || "Catálogo Imagem Fit"}</span>
-                <h2 className="mt-4 pr-12 font-heading text-3xl font-semibold text-white sm:text-4xl">{image.title && image.title !== image.code ? image.title : "Quadro decorativo"}</h2>
-                <p className="mt-1 font-mono text-base tracking-wider text-gold">#{image.code}</p>
-
-                <div className="mt-5 border-y border-white/10 py-5">
-                  <div className="mb-3 flex items-center gap-2 text-gold">
-                    <Ruler size={16} />
-                    <h3 className="text-xs font-semibold uppercase tracking-[0.2em]">Escolha um tamanho</h3>
-                  </div>
-                  <p className="mb-4 text-xs leading-relaxed text-white/50">A medida é opcional. Também fazemos tamanhos personalizados.</p>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <div className="mt-7 border-t border-line pt-6">
+                  <h3 className="flex items-center gap-2 font-semibold">
+                    <Ruler size={18} className="text-brass" /> Tamanho <span className="font-normal text-stone">(opcional)</span>
+                  </h3>
+                  <p className="mt-1 text-sm text-stone">Também fazemos medidas personalizadas.</p>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
                     {FRAME_SIZES.map((size) => (
                       <button
                         key={size}
                         type="button"
                         onClick={() => setSelectedSize(selectedSize === size ? "" : size)}
                         aria-pressed={selectedSize === size}
-                        className={`border px-3 py-2 text-center font-mono text-xs tracking-wide transition-colors ${
-                          selectedSize === size ? "border-gold bg-gold text-black" : "border-gold/25 bg-gold/5 text-white/80 hover:border-gold/60"
+                        className={`h-11 border text-sm font-semibold transition-colors ${
+                          selectedSize === size ? "border-ink bg-ink text-paper" : "border-line hover:border-ink"
                         }`}
                       >
-                        {size} cm
+                        {size}
                       </button>
                     ))}
                   </div>
@@ -158,57 +154,56 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
                     type="button"
                     onClick={() => setSelectedSize(selectedSize === "custom" ? "" : "custom")}
                     aria-pressed={selectedSize === "custom"}
-                    className={`mt-2 flex w-full items-center justify-center border px-3 py-2.5 text-xs font-semibold transition-colors ${
-                      selectedSize === "custom" ? "border-gold bg-gold text-black" : "border-gold/35 bg-gold/5 text-gold hover:border-gold"
+                    className={`mt-2 h-11 w-full border text-sm font-semibold transition-colors ${
+                      selectedSize === "custom" ? "border-ink bg-ink text-paper" : "border-line hover:border-ink"
                     }`}
                   >
-                    Tamanho personalizado
+                    Outra medida
                   </button>
 
                   {selectedSize === "custom" ? (
                     <div className="mt-3 grid grid-cols-[1fr_auto_1fr_auto] items-end gap-2" role="group" aria-label="Medida personalizada">
-                      <label className="text-xs text-white/60">
+                      <label className="text-sm text-stone">
                         <span className="mb-1.5 block">Largura</span>
                         <input
                           type="text"
                           inputMode="decimal"
                           value={customWidth}
                           onChange={(event) => setCustomWidth(event.target.value.replace(/[^0-9.,]/g, "").slice(0, 6))}
-                          placeholder="Ex.: 72"
-                          className="w-full border border-white/15 bg-black/35 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-gold"
+                          placeholder="72"
+                          className="h-11 w-full border border-line bg-white px-3 text-ink outline-none transition-colors placeholder:text-stone/50 focus:border-ink"
                         />
                       </label>
-                      <span className="pb-2.5 text-xs text-white/35">×</span>
-                      <label className="text-xs text-white/60">
+                      <span className="pb-3 text-stone">×</span>
+                      <label className="text-sm text-stone">
                         <span className="mb-1.5 block">Altura</span>
                         <input
                           type="text"
                           inputMode="decimal"
                           value={customHeight}
                           onChange={(event) => setCustomHeight(event.target.value.replace(/[^0-9.,]/g, "").slice(0, 6))}
-                          placeholder="Ex.: 110"
-                          className="w-full border border-white/15 bg-black/35 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-gold"
+                          placeholder="110"
+                          className="h-11 w-full border border-line bg-white px-3 text-ink outline-none transition-colors placeholder:text-stone/50 focus:border-ink"
                         />
                       </label>
-                      <span className="pb-2.5 text-xs text-white/35">cm</span>
+                      <span className="pb-3 text-sm text-stone">cm</span>
                     </div>
                   ) : null}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-5">
+                <div className="mt-auto grid grid-cols-2 gap-2 pt-7">
                   <button
                     type="button"
                     onClick={addToSelection}
                     disabled={selected && !selectionChanged}
-                    className={`flex min-h-10 min-w-0 items-center justify-center gap-1 px-2 py-2 text-[9px] font-bold uppercase tracking-[0.04em] transition-colors sm:gap-2 sm:text-[10px] sm:tracking-[0.1em] ${
-                      selected && !selectionChanged ? "border border-gold/50 bg-gold/10 text-gold" : "bg-gold text-black hover:bg-[#c9a85d]"
+                    className={`flex h-12 min-w-0 items-center justify-center gap-2 px-2 text-sm font-semibold transition-colors ${
+                      selected && !selectionChanged ? "border border-brass bg-brass/10 text-brass" : "bg-ink text-paper hover:bg-brass"
                     }`}
                   >
-                    {selected && !selectionChanged ? <Check size={15} /> : <ListPlus size={15} />}
+                    {selected && !selectionChanged ? <Check size={17} /> : <ListPlus size={17} />}
                     {selected && !selectionChanged ? "Na seleção" : selected ? "Atualizar" : "Selecionar"}
                   </button>
-                  <ShareArtworkButton image={image} className="flex min-h-10 min-w-0 items-center justify-center gap-1 border border-gold/45 px-2 py-2 text-[9px] font-bold uppercase tracking-[0.04em] text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50 sm:gap-2 sm:text-[10px] sm:tracking-[0.1em]" />
-
+                  <ShareArtworkButton image={image} className="flex h-12 min-w-0 items-center justify-center gap-2 border border-ink/25 px-2 text-sm font-semibold transition-colors hover:border-ink disabled:opacity-50" />
                 </div>
               </div>
             </motion.article>

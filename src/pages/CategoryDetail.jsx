@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight, ListPlus, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
 import { localClient } from "@/api/localClient";
 import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/useCart";
@@ -45,16 +44,11 @@ function ArtworkCard({ image, categoryName, masonry, onOpen }) {
   };
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className={`group relative overflow-hidden border border-white/10 bg-[#1a1a1a] transition-colors hover:border-gold/45 ${masonry ? "mb-5 break-inside-avoid" : ""}`}
-    >
+    <article className={`group ${masonry ? "mb-6 break-inside-avoid" : ""}`}>
       <button
         type="button"
         onClick={() => onOpen(image)}
-        className="relative block w-full overflow-hidden bg-black/30 text-left"
+        className="relative block w-full overflow-hidden bg-line text-left"
         aria-label={`Ver detalhes do quadro ${image.code}`}
       >
         <img
@@ -64,34 +58,33 @@ function ArtworkCard({ image, categoryName, masonry, onOpen }) {
           decoding="async"
           draggable={false}
           onContextMenu={(event) => event.preventDefault()}
-          className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.035]"
+          className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.03]"
         />
-        <span className="absolute inset-x-0 bottom-0 translate-y-full bg-black/75 px-3 py-2 text-center text-[9px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm transition-transform duration-300 group-hover:translate-y-0">
-          Ver detalhes
-        </span>
       </button>
 
-      <div className="space-y-2 p-2.5 sm:p-3">
-        <div className="flex items-center justify-between gap-2">
-          <p className="truncate font-mono text-xs font-semibold text-gold">#{image.code}</p>
-          {image.title && image.title !== image.code ? <p className="truncate text-right text-[11px] text-white/35">{image.title}</p> : null}
+      <div className="pt-3">
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="truncate text-[0.95rem] font-semibold">{image.code}</p>
+          <button type="button" onClick={() => onOpen(image)} className="shrink-0 text-sm text-stone underline-offset-4 hover:text-ink hover:underline">
+            Detalhes
+          </button>
         </div>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="mt-2.5 grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={addToSelection}
             aria-label={`${selected ? "Já está na seleção" : "Adicionar à seleção"}: quadro ${image.code}`}
-            className={`flex h-9 min-w-0 items-center justify-center gap-1 px-1 text-[9px] font-semibold uppercase tracking-[0.04em] transition-colors ${
-              selected ? "border border-gold/50 bg-gold/10 text-gold" : "bg-gold text-black hover:bg-[#c9a85d]"
+            className={`flex h-11 min-w-0 items-center justify-center gap-1.5 px-2 text-sm font-semibold transition-colors ${
+              selected ? "border border-brass bg-brass/10 text-brass" : "bg-ink text-paper hover:bg-brass"
             }`}
           >
-            {selected ? <Check size={12} /> : <ListPlus size={12} />}
+            {selected ? <Check size={16} /> : <ListPlus size={16} />}
             {selected ? "Na seleção" : "Selecionar"}
           </button>
           <ShareArtworkButton image={image} compact />
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }
 
@@ -188,30 +181,33 @@ export default function CategoryDetail() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#111]">
-        <Loader2 className="h-8 w-8 animate-spin text-gold" />
+      <div className="flex min-h-screen items-center justify-center bg-paper">
+        <Loader2 className="h-8 w-8 animate-spin text-brass" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#111] pb-20 pt-28">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <Link to="/portfolio" className="mb-10 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-white/45 transition-colors hover:text-gold">
-          <ChevronLeft size={14} /> Voltar ao portfólio
+    <div className="min-h-screen bg-paper pb-24 pt-28 font-sans text-ink md:pt-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-sm text-stone transition-colors hover:text-ink">
+          <ChevronLeft size={16} /> Catálogo
         </Link>
 
-        <motion.header className="mb-9" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}>
-          <span className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.4em] text-gold">Catálogo para lojistas</span>
-          <h1 className="font-heading text-4xl font-semibold text-white md:text-5xl">{category?.name || "Categoria"}</h1>
-          {category?.description ? <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55">{category.description}</p> : null}
-          <p className="mt-3 text-xs text-white/30">{totalImages} quadro(s){totalPages > 1 ? ` · página ${currentPage} de ${totalPages}` : ""}</p>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/55">Abra um produto, escolha uma medida se desejar ou compartilhe a imagem com o código.</p>
-        </motion.header>
+        <header className="mb-10 mt-6 grid gap-4 border-b border-line pb-8 md:grid-cols-[1fr_auto] md:items-end">
+          <div>
+            <h1 className="font-display text-5xl font-semibold leading-none md:text-6xl">{category?.name || "Categoria"}</h1>
+            {category?.description ? <p className="mt-4 max-w-2xl text-lg leading-relaxed text-stone">{category.description}</p> : null}
+          </div>
+          <p className="text-sm text-stone">
+            {totalImages} {totalImages === 1 ? "peça" : "peças"}
+            {totalPages > 1 ? ` · página ${currentPage} de ${totalPages}` : ""}
+          </p>
+        </header>
 
         {images.length ? (
           <>
-            <div className={isEspelhosPage ? "columns-2 gap-x-4 sm:columns-3 lg:columns-4" : "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5"}>
+            <div className={isEspelhosPage ? "columns-2 gap-x-5 sm:columns-3 lg:columns-4" : "grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4"}>
               {images.map((image) => (
                 <ArtworkCard
                   key={image.id}
@@ -224,23 +220,23 @@ export default function CategoryDetail() {
             </div>
 
             {totalPages > 1 ? (
-              <div className="mt-14 flex items-center justify-center gap-2">
-                <button type="button" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="flex h-9 w-9 items-center justify-center border border-white/20 text-white/60 transition-colors hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-30">
-                  <ChevronLeft size={15} />
+              <nav className="mt-16 flex flex-wrap items-center justify-center gap-2" aria-label="Páginas">
+                <button type="button" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} aria-label="Página anterior" className="flex h-11 w-11 items-center justify-center border border-line text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-30">
+                  <ChevronLeft size={18} />
                 </button>
                 {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-                  <button key={page} type="button" onClick={() => goToPage(page)} className={`h-9 w-9 border font-mono text-xs transition-colors ${page === currentPage ? "border-gold bg-gold text-black" : "border-white/20 text-white/60 hover:border-gold hover:text-gold"}`}>
+                  <button key={page} type="button" onClick={() => goToPage(page)} aria-current={page === currentPage ? "page" : undefined} className={`h-11 min-w-11 border px-3 text-sm font-semibold transition-colors ${page === currentPage ? "border-ink bg-ink text-paper" : "border-line text-ink hover:border-ink"}`}>
                     {page}
                   </button>
                 ))}
-                <button type="button" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="flex h-9 w-9 items-center justify-center border border-white/20 text-white/60 transition-colors hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-30">
-                  <ChevronRight size={15} />
+                <button type="button" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} aria-label="Próxima página" className="flex h-11 w-11 items-center justify-center border border-line text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-30">
+                  <ChevronRight size={18} />
                 </button>
-              </div>
+              </nav>
             ) : null}
           </>
         ) : (
-          <div className="border border-dashed border-gold/20 py-20 text-center text-sm text-white/30">Nenhum quadro cadastrado nesta categoria ainda.</div>
+          <div className="border border-dashed border-line py-20 text-center text-stone">Nenhum quadro cadastrado nesta categoria ainda.</div>
         )}
       </div>
 

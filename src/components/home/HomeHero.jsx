@@ -44,12 +44,8 @@ export default function HomeHero() {
       </div>
 
       <div className="mx-auto mt-16 max-w-7xl border-t border-line pt-5 md:mt-24">
-        <p className="flex flex-wrap justify-between gap-3 text-[0.8rem] uppercase tracking-[0.2em] text-stone">
-          <span>Humaniza</span>
-          <span className="text-brass">·</span>
-          <span>Personaliza</span>
-          <span className="text-brass">·</span>
-          <span>Decora</span>
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.8rem] uppercase tracking-[0.2em] text-stone">
+          Humaniza <span className="text-brass" aria-hidden="true">·</span> Personaliza <span className="text-brass" aria-hidden="true">·</span> Decora
         </p>
       </div>
     </section>

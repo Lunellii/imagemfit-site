@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { localClient } from "@/api/localClient";
-import { motion } from "framer-motion";
-import { ArrowRight, Loader2, LayoutGrid, Store } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import CategoryGrid from "@/components/portfolio/CategoryGrid";
+import CategoryGrid, { getCategoryLink } from "@/components/portfolio/CategoryGrid";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import { toast } from "@/components/ui/use-toast";
 
@@ -74,50 +73,43 @@ export default function Portfolio() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-gold" />
+      <div className="flex min-h-screen items-center justify-center bg-paper">
+        <Loader2 className="h-8 w-8 animate-spin text-brass" />
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen">
-      <div className="relative h-64 overflow-hidden bg-[#0b0b0b] md:h-80">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(184,142,53,0.18),transparent_52%)]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black to-transparent" />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
-        >
-          <span className="text-gold text-xs tracking-[0.5em] uppercase font-medium block mb-3">Catálogo para lojistas</span>
-          <h1 className="font-heading text-5xl md:text-6xl font-bold text-white mb-4">Produtos para o seu mix</h1>
-          <div className="gold-line w-20 mx-auto" />
-        </motion.div>
-      </div>
+  const quickLinks = categories.filter((category) => (imagesByCategory[category.id] || []).length || !Object.keys(imagesByCategory).length);
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mb-14 flex flex-col justify-between gap-6 border-l-2 border-gold pl-5 lg:flex-row lg:items-center">
-          <p className="max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
-            Abra os produtos, escolha uma medida se desejar e monte sua seleção. Depois, compartilhe as imagens e os códigos com a loja ou o contato que preferir.
-          </p>
-          <Link to="/parceiros" className="inline-flex shrink-0 items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-gold transition-all hover:gap-4">
-            <Store size={14} /> Como comprar <ArrowRight size={13} />
+  return (
+    <div className="min-h-screen bg-paper pb-24 pt-28 font-sans text-ink md:pt-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <header className="grid gap-6 border-b border-line pb-8 md:grid-cols-[1fr_auto] md:items-end">
+          <div>
+            <h1 className="font-display text-5xl font-semibold leading-none md:text-6xl">Catálogo</h1>
+            <p className="mt-4 max-w-2xl text-lg leading-relaxed text-stone">
+              Abra uma peça, escolha a medida se quiser e adicione à sua seleção. Depois é só compartilhar os códigos com quem preferir.
+            </p>
+          </div>
+          <Link to="/parceiros" className="inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-brass">
+            Como comprar <ArrowRight size={15} />
           </Link>
-        </motion.div>
+        </header>
+
+        <nav className="-mx-5 mb-12 mt-6 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-hide sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Ir para categoria">
+          {quickLinks.map((category) => (
+            <Link key={category.id} to={getCategoryLink(category)} className="shrink-0 border border-line bg-white px-4 py-2 text-sm transition-colors hover:border-ink">
+              {category.name}
+            </Link>
+          ))}
+        </nav>
 
         {newImages.length > 0 && <NewArrivalsCarousel images={newImages} />}
 
-        <div className="mb-8 flex items-center gap-4">
-          <LayoutGrid className="text-gold" size={20} />
-          <div>
-            <h2 className="font-heading text-2xl font-bold text-white">Categorias do catálogo</h2>
-            <p className="text-white/40 text-xs mt-0.5">{categories.length} categoria(s) disponível(is)</p>
-          </div>
+        <div className="mb-8 flex items-baseline justify-between gap-4">
+          <h2 className="font-display text-3xl font-semibold md:text-4xl">Categorias</h2>
+          <p className="text-sm text-stone">{categories.length} categorias</p>
         </div>
-        <div className="gold-line w-full mb-8" />
 
         <CategoryGrid categories={categories} imagesByCategory={imagesByCategory} />
       </div>

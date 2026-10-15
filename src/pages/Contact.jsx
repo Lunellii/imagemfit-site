@@ -1,5 +1,4 @@
-import { motion } from "framer-motion";
-import { Building2, CheckCircle2, Instagram, Loader2, Mail, MapPin, MessageCircle, Store } from "lucide-react";
+import { Instagram, Loader2, Mail, MapPin, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { commercialClient } from "@/api/commercialClient";
@@ -68,33 +67,26 @@ export default function Contact() {
   ];
 
   return (
-    <div className="min-h-screen pb-16 pt-28">
-      <div className="mx-auto max-w-6xl px-6">
-        <motion.header className="mb-10 max-w-3xl" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
-          <span className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em] text-gold">
-            <Building2 size={17} /> Exclusivo para lojistas e parceiros
-          </span>
-          <h1 className="font-heading text-5xl font-bold leading-tight text-white md:text-6xl">Atendimento comercial</h1>
-          <div className="gold-line my-6 w-20" />
-          <p className="max-w-2xl text-base leading-relaxed text-white/70">
-            Cadastre sua loja e descreva o que procura. O contato ficará salvo para acompanhamento e, em seguida, você falará diretamente com nossa equipe pelo WhatsApp.
+    <div className="min-h-screen bg-paper pb-24 pt-28 font-sans text-ink md:pt-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <header className="max-w-3xl border-b border-line pb-8">
+          <h1 className="font-display text-5xl font-semibold leading-none md:text-6xl">Atendimento comercial</h1>
+          <p className="mt-4 text-lg leading-relaxed text-stone">
+            Conte um pouco sobre a sua loja. Salvamos o contato e você segue direto para o WhatsApp da nossa equipe.
           </p>
-        </motion.header>
+        </header>
 
-        <div className="mb-10 grid gap-4 border border-gold/45 bg-gold/[0.08] p-5 sm:grid-cols-[auto_1fr] sm:items-center sm:p-6">
-          <div className="flex h-12 w-12 items-center justify-center bg-gold text-black"><Store size={22} /></div>
-          <div>
-            <h2 className="text-lg font-semibold text-white">Você recebeu este catálogo de uma loja?</h2>
-            <p className="mt-1 text-sm leading-relaxed text-white/65">Para comprar, monte sua seleção e compartilhe diretamente com a loja que enviou o catálogo para você.</p>
-          </div>
+        <div className="mt-6 border-l-2 border-brass bg-white p-5">
+          <h2 className="font-semibold">Recebeu este catálogo de uma loja?</h2>
+          <p className="mt-1 leading-relaxed text-stone">Para comprar, monte sua seleção e envie para a loja que compartilhou o catálogo com você.</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
-          <motion.form onSubmit={handleSubmit} initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }} className="space-y-5 lg:col-span-3">
+        <div className="mt-12 grid grid-cols-1 gap-14 lg:grid-cols-[1.4fr_1fr]">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
               {fields.map((field) => (
                 <label key={field.key} className="space-y-2">
-                  <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-white/65">{field.label}</span>
+                  <span className="block text-sm font-semibold">{field.label}</span>
                   <input
                     type={field.type}
                     value={form[field.key]}
@@ -102,72 +94,73 @@ export default function Contact() {
                     placeholder={field.placeholder}
                     autoComplete={field.autoComplete}
                     maxLength={field.maxLength}
-                    className="w-full border border-white/15 bg-card px-4 py-3.5 text-base text-white outline-none transition-colors placeholder:text-white/30 focus:border-gold"
+                    className="h-12 w-full border border-line bg-white px-4 text-base outline-none transition-colors placeholder:text-stone/60 focus:border-ink"
                   />
                 </label>
               ))}
             </div>
 
             <label className="block space-y-2">
-              <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-white/65">Como podemos ajudar? *</span>
+              <span className="block text-sm font-semibold">Como podemos ajudar? *</span>
               <textarea
                 value={form.message}
                 onChange={(event) => updateField("message", event.target.value)}
-                placeholder="Conte o que sua loja procura ou quais informações comerciais deseja receber..."
+                placeholder="O que sua loja procura ou quais informações você quer receber"
                 rows={5}
-                className="w-full resize-none border border-white/15 bg-card px-4 py-3.5 text-base text-white outline-none transition-colors placeholder:text-white/30 focus:border-gold"
+                className="w-full resize-none border border-line bg-white px-4 py-3 text-base outline-none transition-colors placeholder:text-stone/60 focus:border-ink"
               />
             </label>
 
             <input type="text" value={form.website} onChange={(event) => updateField("website", event.target.value)} tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
 
-            <button type="submit" disabled={sending} className="flex w-full items-center justify-center gap-3 bg-[#25D366] py-4 text-sm font-bold uppercase tracking-[0.18em] text-black transition-colors hover:bg-[#4ade80] disabled:opacity-60">
-              {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <MessageCircle size={19} />}
+            <button type="submit" disabled={sending} className="flex h-14 w-full items-center justify-center gap-3 bg-ink text-base font-semibold text-paper transition-colors hover:bg-brass disabled:opacity-60">
+              {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <MessageCircle size={20} />}
               {sending ? "Salvando contato..." : "Continuar pelo WhatsApp"}
             </button>
-            <p className="text-center text-sm leading-relaxed text-white/45">Seu contato será salvo antes do encaminhamento para o WhatsApp.</p>
-          </motion.form>
+            <p className="text-sm text-stone">* Campos obrigatórios.</p>
+          </form>
 
-          <motion.aside initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 }} className="space-y-5 lg:col-span-2">
-            <div className="border border-gold/30 bg-gold/[0.05] p-6">
-              <MessageCircle className="text-[#25D366]" size={28} />
-              <h2 className="mt-4 font-heading text-2xl font-semibold text-white">Contato comercial</h2>
-              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="mt-2 block text-lg font-semibold text-gold hover:text-white">(47) 99927-3809</a>
-              <p className="mt-3 text-sm leading-relaxed text-white/55">Segunda a sexta, das 8h às 17h. Sábado somente com horário marcado.</p>
+          <aside className="space-y-8">
+            <div>
+              <h2 className="text-sm text-stone">WhatsApp comercial</h2>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="font-display mt-1 block text-3xl font-semibold transition-colors hover:text-brass">(47) 99927-3809</a>
+              <p className="mt-2 text-stone">Segunda a sexta, das 8h às 17h. Sábado com horário marcado.</p>
             </div>
 
-            {[
-              { icon: MapPin, title: "Atendimento presencial", text: "Rua São Paulo, 649 · Timbó, SC · CEP 89095-220" },
-              { icon: Mail, title: "E-mail", text: "atendimento.imagemfit@gmail.com" },
-              { icon: Instagram, title: "Instagram", text: "@imagemfit.quadros", href: INSTAGRAM_URL }
-            ].map((item) => (
-              <div key={item.title} className="flex gap-4 border border-white/10 p-5">
-                <item.icon size={19} className="mt-0.5 shrink-0 text-gold" />
-                <div>
-                  <h3 className="text-sm font-semibold text-white">{item.title}</h3>
-                  {item.href ? (
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={() => commercialClient.analytics.track("contact_instagram", { path: "/contato" })}
-                      className="mt-1 block text-sm font-semibold leading-relaxed text-gold transition-colors hover:text-white"
-                    >
-                      {item.text}
-                    </a>
-                  ) : (
-                    <p className="mt-1 text-sm leading-relaxed text-white/55">{item.text}</p>
-                  )}
-                </div>
+            <dl className="divide-y divide-line border-y border-line">
+              <div className="py-4">
+                <dt className="text-sm text-stone">Endereço</dt>
+                <dd className="mt-1">
+                  Rua São Paulo, 649 · Timbó, SC · 89095-220
+                  <a href="https://www.google.com/maps/search/?api=1&query=Rua+S%C3%A3o+Paulo+649+Timb%C3%B3+SC" target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-brass">
+                    <MapPin size={15} /> Ver no mapa
+                  </a>
+                </dd>
               </div>
-            ))}
-
-            <div className="space-y-3 border-t border-white/10 pt-5">
-              {["Atendimento humano", "Contato salvo para acompanhamento", "Encaminhamento direto ao WhatsApp"].map((text) => (
-                <p key={text} className="flex items-center gap-3 text-sm text-white/65"><CheckCircle2 size={16} className="text-gold" /> {text}</p>
-              ))}
-            </div>
-          </motion.aside>
+              <div className="py-4">
+                <dt className="text-sm text-stone">E-mail</dt>
+                <dd className="mt-1">
+                  <a href="mailto:atendimento.imagemfit@gmail.com" className="flex items-center gap-2 break-all transition-colors hover:text-brass">
+                    <Mail size={16} className="shrink-0" /> atendimento.imagemfit@gmail.com
+                  </a>
+                </dd>
+              </div>
+              <div className="py-4">
+                <dt className="text-sm text-stone">Instagram</dt>
+                <dd className="mt-1">
+                  <a
+                    href={INSTAGRAM_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => commercialClient.analytics.track("contact_instagram", { path: "/contato" })}
+                    className="flex items-center gap-2 transition-colors hover:text-brass"
+                  >
+                    <Instagram size={16} /> @imagemfit.quadros
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          </aside>
         </div>
       </div>
     </div>

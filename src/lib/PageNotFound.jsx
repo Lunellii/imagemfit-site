@@ -1,38 +1,20 @@
-import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 export default function PageNotFound() {
-  const location = useLocation();
-  const pageName = location.pathname.substring(1) || "/";
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
-      <div className="max-w-md w-full">
-        <div className="text-center space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-7xl font-light text-slate-300">404</h1>
-            <div className="h-0.5 w-16 bg-slate-200 mx-auto" />
-          </div>
-
-          <div className="space-y-3">
-            <h2 className="text-2xl font-medium text-slate-800">Página não encontrada</h2>
-            <p className="text-slate-600 leading-relaxed">
-              A página <span className="font-medium text-slate-700">"{pageName}"</span> não existe neste site.
-            </p>
-          </div>
-
-          <div className="pt-6">
-            <button
-              onClick={() => {
-                window.location.href = "/";
-              }}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              Voltar ao início
-            </button>
-          </div>
+    <div className="flex min-h-screen items-center bg-paper px-5 pb-24 pt-32 font-sans text-ink sm:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <p className="text-sm text-stone">Erro 404</p>
+        <h1 className="font-display mt-3 max-w-2xl text-5xl font-semibold leading-none md:text-6xl">Esta página não existe.</h1>
+        <p className="mt-5 max-w-lg text-lg leading-relaxed text-stone">O endereço pode ter mudado. Você encontra todas as peças no catálogo.</p>
+        <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
+          <Link to="/portfolio" className="inline-flex items-center gap-3 bg-ink px-7 py-4 text-sm font-semibold text-paper transition-colors hover:bg-brass">
+            Ver o catálogo <ArrowRight size={16} />
+          </Link>
+          <Link to="/" className="border-b border-ink/40 pb-1 text-sm font-semibold transition-colors hover:border-brass hover:text-brass">
+            Página inicial
+          </Link>
         </div>
       </div>
     </div>

@@ -119,7 +119,7 @@ export default function Layout() {
   const pausedCtaLabel = pausedCtaUsesWhatsApp ? DEFAULT_SITE_STATE.cta_label : siteState.cta_label || DEFAULT_SITE_STATE.cta_label;
 
   return (
-    <div className="min-h-screen bg-background font-body">
+    <div className="min-h-screen bg-paper font-sans text-ink">
       <header
         className={`fixed top-0 left-0 right-0 z-50 border-b font-sans text-ink transition-colors duration-300 ${
           scrolled || mobileOpen ? "border-line bg-paper/95 backdrop-blur-md" : "border-transparent bg-paper"
@@ -206,19 +206,19 @@ export default function Layout() {
       <main className="pb-16 sm:pb-0">
         {holdWhileLoading ? (
           <div className="min-h-screen flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-gold" />
+            <Loader2 className="h-8 w-8 animate-spin text-brass" />
           </div>
         ) : showPausedView ? (
-          <section className="min-h-screen pt-32 pb-16 px-6 flex items-center justify-center">
-            <div className="max-w-2xl w-full border border-gold/30 bg-black/60 backdrop-blur-sm p-8 md:p-12 text-center">
-              <span className="text-gold text-xs tracking-[0.32em] uppercase">Atualização de portfólio</span>
-              <h1 className="font-heading text-4xl md:text-5xl text-white mt-4">{siteState.headline}</h1>
-              <p className="text-white/70 text-base leading-relaxed mt-4">{siteState.message}</p>
+          <section className="flex min-h-screen items-center px-5 pb-16 pt-32 sm:px-8">
+            <div className="mx-auto w-full max-w-2xl">
+              <p className="text-sm text-stone">Atualização do catálogo</p>
+              <h1 className="font-display mt-3 text-5xl font-semibold leading-none">{siteState.headline}</h1>
+              <p className="mt-5 text-lg leading-relaxed text-stone">{siteState.message}</p>
               <a
                 href={pausedCtaUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex mt-8 px-7 py-3 border border-gold text-gold text-xs tracking-[0.24em] uppercase hover:bg-gold hover:text-black transition-colors"
+                className="mt-8 inline-flex bg-ink px-7 py-4 text-sm font-semibold text-paper transition-colors hover:bg-brass"
               >
                 {pausedCtaLabel}
               </a>

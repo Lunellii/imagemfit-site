@@ -433,34 +433,30 @@ export default function WhatsAppButton({ onSearch }) {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="mx-4 w-[calc(100vw-2rem)] overflow-hidden border border-gold/30 bg-[#1c1c1c] shadow-2xl sm:mx-0 sm:w-80"
+            className="mx-4 w-[calc(100vw-2rem)] overflow-hidden border border-line bg-white font-sans text-ink shadow-[0_24px_60px_-24px_rgba(23,22,20,0.45)] sm:mx-0 sm:w-[22rem]"
           >
-            <div className="bg-gold px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ListChecks size={16} className="text-black" />
-                <span className="text-black font-semibold text-sm">Minha seleção ({cart.length})</span>
-              </div>
-              <button onClick={() => setOpen(false)} className="text-black/60 hover:text-black">
-                <X size={16} />
+            <div className="flex items-center justify-between border-b border-line px-5 py-4">
+              <span className="font-display text-lg font-semibold">Minha seleção ({cart.length})</span>
+              <button onClick={() => setOpen(false)} className="text-stone hover:text-ink" aria-label="Fechar seleção">
+                <X size={20} />
               </button>
             </div>
 
-            <div className="max-h-72 overflow-y-auto">
+            <div className="max-h-80 overflow-y-auto">
               {cart.length === 0 ? (
-                <p className="px-6 py-8 text-center text-sm leading-relaxed text-white/55">Sua seleção ainda está vazia. Adicione os quadros que deseja compartilhar.</p>
+                <p className="px-6 py-10 text-center leading-relaxed text-stone">Sua seleção está vazia. Toque em “Selecionar” nos quadros que quiser compartilhar.</p>
               ) : (
-                <ul className="divide-y divide-white/5">
+                <ul className="divide-y divide-line">
                   {cart.map((item) => (
-                    <li key={item.id} className="flex items-center gap-3 px-4 py-3">
-                      {item.image_url && <img src={item.image_url} alt={item.code} className="w-10 h-10 object-cover flex-shrink-0" />}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-gold font-mono text-xs font-semibold">#{item.code}</p>
-                        {item.title && item.title !== item.code && <p className="text-white/50 text-xs truncate">{item.title}</p>}
-                        {item.category && <p className="text-white/30 text-xs">{item.category}</p>}
-                        {item.size && <p className="mt-1 text-xs font-semibold text-gold/80">Tamanho: {item.size}</p>}
+                    <li key={item.id} className="flex items-center gap-3 px-5 py-3">
+                      {item.image_url && <img src={item.image_url} alt={item.code} className="h-14 w-14 flex-shrink-0 object-cover" />}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold">{item.code}</p>
+                        {item.category && <p className="text-sm text-stone">{item.category}</p>}
+                        {item.size && <p className="text-sm text-brass">Tamanho: {item.size}</p>}
                       </div>
-                      <button onClick={() => removeItem(item.id)} className="text-white/30 hover:text-red-400 transition-colors flex-shrink-0">
-                        <Trash2 size={14} />
+                      <button onClick={() => removeItem(item.id)} className="flex-shrink-0 p-2 text-stone transition-colors hover:text-red-700" aria-label={`Remover ${item.code}`}>
+                        <Trash2 size={17} />
                       </button>
                     </li>
                   ))}
@@ -469,11 +465,11 @@ export default function WhatsAppButton({ onSearch }) {
             </div>
 
             {cart.length > 0 && (
-              <div className="p-4 border-t border-white/10 space-y-2">
+              <div className="space-y-3 border-t border-line p-5">
                 <button
                   onClick={handleCopy}
                   disabled={nativeShareAvailable && preparingOrderImage}
-                  className="flex w-full items-center justify-center gap-2 bg-gold py-3 text-xs font-semibold uppercase tracking-widest text-black transition-colors hover:bg-gold/90 disabled:cursor-wait disabled:opacity-55"
+                  className="flex w-full items-center justify-center gap-2 bg-ink py-3.5 text-sm font-semibold text-paper transition-colors hover:bg-brass disabled:cursor-wait disabled:opacity-55"
                 >
                   {nativeShareAvailable && preparingOrderImage ? (
                     <>Preparando imagem...</>
@@ -502,11 +498,11 @@ export default function WhatsAppButton({ onSearch }) {
                     </>
                   )}
                 </button>
-                <p className="px-2 text-center text-[9px] leading-relaxed text-white/35">
-                  {nativeShareAvailable ? "Escolha o WhatsApp e depois o contato que deve receber a seleção." : "Depois de copiar, abra a conversa desejada e cole a seleção completa."}
+                <p className="text-center text-sm leading-relaxed text-stone">
+                  {nativeShareAvailable ? "Escolha o aplicativo e o contato que deve receber a seleção." : "Depois de copiar, abra a conversa desejada e cole a seleção."}
                 </p>
-                <button onClick={clearCart} className="flex w-full items-center justify-center gap-2 bg-gold py-2.5 text-xs font-semibold uppercase tracking-widest text-black transition-colors hover:bg-[#c9a85d]">
-                  <Trash2 size={13} /> Limpar seleção
+                <button onClick={clearCart} className="flex w-full items-center justify-center gap-2 py-1 text-sm text-stone underline-offset-4 transition-colors hover:text-ink hover:underline">
+                  Limpar seleção
                 </button>
               </div>
             )}
@@ -520,23 +516,23 @@ export default function WhatsAppButton({ onSearch }) {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         aria-label={open ? "Fechar minha seleção" : "Abrir minha seleção"}
-        className="relative hidden h-14 w-14 items-center justify-center bg-gold shadow-lg transition-colors hover:bg-gold/90 sm:flex"
+        className="relative hidden items-center gap-2.5 bg-ink px-5 py-3.5 font-sans text-sm font-semibold text-paper shadow-[0_14px_30px_-12px_rgba(23,22,20,0.6)] transition-colors hover:bg-brass sm:flex"
       >
-        {open ? <X size={22} className="text-black" /> : <ListChecks size={22} className="text-black" />}
+        {open ? <X size={18} /> : <ListChecks size={18} />}
+        Minha seleção
         {!open && cart.length > 0 ? (
-          <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#25D366] text-[10px] font-bold text-white">{cart.length}</span>
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-paper px-1.5 text-xs font-bold text-ink">{cart.length}</span>
         ) : null}
       </motion.button>
 
-      <div className="grid h-16 w-full grid-cols-2 border-t border-white/10 bg-[#111]/98 shadow-2xl backdrop-blur-md sm:hidden">
-        <button type="button" onClick={onSearch} className="flex flex-col items-center justify-center gap-1 text-white/60 transition-colors hover:text-gold">
-          <Search size={18} />
-          <span className="text-[8px] font-semibold uppercase tracking-[0.16em]">Buscar</span>
+      <div className="grid h-16 w-full grid-cols-2 border-t border-line bg-paper/97 font-sans text-ink backdrop-blur-md sm:hidden">
+        <button type="button" onClick={onSearch} className="flex items-center justify-center gap-2 text-sm font-semibold text-stone">
+          <Search size={18} /> Buscar
         </button>
-        <button type="button" onClick={() => setOpen(!open)} className={`relative flex flex-col items-center justify-center gap-1 border-l border-white/10 transition-colors ${open ? "bg-gold text-black" : "text-white/60 hover:text-gold"}`}>
+        <button type="button" onClick={() => setOpen(!open)} className={`flex items-center justify-center gap-2 border-l border-line text-sm font-semibold transition-colors ${open ? "bg-ink text-paper" : "text-ink"}`}>
           {open ? <X size={18} /> : <ListChecks size={18} />}
-          <span className="text-[9px] font-semibold uppercase tracking-[0.14em]">Minha seleção</span>
-          {!open && cart.length > 0 ? <span className="absolute right-[28%] top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[8px] font-bold text-black">{cart.length}</span> : null}
+          Minha seleção
+          {!open && cart.length > 0 ? <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-ink px-1.5 text-xs font-bold text-paper">{cart.length}</span> : null}
         </button>
       </div>
     </div>

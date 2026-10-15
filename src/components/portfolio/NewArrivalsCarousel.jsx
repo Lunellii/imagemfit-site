@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, ListPlus } from "lucide-react";
-import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/components/ui/use-toast";
 import ProductQuickView from "@/components/portfolio/ProductQuickView";
@@ -78,18 +77,18 @@ export default function NewArrivalsCarousel({ images }) {
   if (!images.length) return null;
 
   return (
-    <section className="relative mb-14 overflow-hidden border border-gold/30 bg-gradient-to-br from-gold/10 via-[#181818] to-[#111] px-5 py-7 sm:px-7 sm:py-8">
-      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/10 blur-3xl" />
-      <div className="relative mb-7 flex items-end justify-between gap-5">
-        <div className="max-w-2xl">
-          <h3 className="font-heading text-3xl font-semibold text-white md:text-4xl">Novidades no catálogo</h3>
+    <section className="mb-16">
+      <div className="mb-6 flex items-end justify-between gap-5">
+        <div>
+          <h2 className="font-display text-3xl font-semibold md:text-4xl">Novidades</h2>
+          <p className="mt-1 text-stone">As últimas peças adicionadas ao catálogo.</p>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={() => scroll("left")} aria-label="Ver novidades anteriores" className="flex h-9 w-9 items-center justify-center border border-white/20 text-white/60 transition-colors hover:border-gold hover:text-gold">
-            <ChevronLeft size={16} />
+          <button type="button" onClick={() => scroll("left")} aria-label="Ver novidades anteriores" className="flex h-11 w-11 items-center justify-center border border-line transition-colors hover:border-ink">
+            <ChevronLeft size={18} />
           </button>
-          <button type="button" onClick={() => scroll("right")} aria-label="Ver próximas novidades" className="flex h-9 w-9 items-center justify-center border border-white/20 text-white/60 transition-colors hover:border-gold hover:text-gold">
-            <ChevronRight size={16} />
+          <button type="button" onClick={() => scroll("right")} aria-label="Ver próximas novidades" className="flex h-11 w-11 items-center justify-center border border-line transition-colors hover:border-ink">
+            <ChevronRight size={18} />
           </button>
         </div>
       </div>
@@ -100,34 +99,27 @@ export default function NewArrivalsCarousel({ images }) {
         onPointerMove={moveMouseDrag}
         onPointerUp={endMouseDrag}
         onPointerCancel={endMouseDrag}
-        className="relative flex cursor-grab select-none gap-4 overflow-x-auto pb-2 active:cursor-grabbing scrollbar-hide"
+        className="flex cursor-grab select-none gap-5 overflow-x-auto pb-2 active:cursor-grabbing scrollbar-hide"
       >
         {images.map((image) => {
           const selected = isInCart(image.id);
           return (
-            <motion.article key={image.id} whileHover={{ y: -5 }} className="group w-56 flex-shrink-0 sm:w-60">
-              <div className="relative overflow-hidden border border-white/10 bg-card transition-colors group-hover:border-gold/40">
-                <button type="button" onClick={() => { if (!dragRef.current.moved) setSelectedImage(image); }} className="block aspect-[4/3] w-full overflow-hidden bg-[#0c0c0c]" aria-label={`Ver detalhes do quadro ${image.code}`}>
-                  <img src={image.image_url} alt={image.title || image.code} loading="lazy" decoding="async" draggable={false} onContextMenu={(event) => event.preventDefault()} className="h-full w-full object-contain p-1 transition-transform duration-700 group-hover:scale-[1.035]" />
+            <article key={image.id} className="group w-60 flex-shrink-0 sm:w-64">
+              <button type="button" onClick={() => { if (!dragRef.current.moved) setSelectedImage(image); }} className="block aspect-[4/3] w-full overflow-hidden bg-line" aria-label={`Ver detalhes do quadro ${image.code}`}>
+                <img src={image.image_url} alt={image.title || image.code} loading="lazy" decoding="async" draggable={false} onContextMenu={(event) => event.preventDefault()} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
+              </button>
+              <div className="mt-3 flex items-baseline justify-between gap-2">
+                <p className="truncate font-semibold">{image.code}</p>
+                {(image.category_name || image.category) ? <p className="truncate text-sm text-stone">{image.category_name || image.category}</p> : null}
+              </div>
+              <div className="mt-2.5 grid grid-cols-2 gap-2">
+                <button type="button" data-no-drag="true" onClick={(event) => addToSelection(image, event)} aria-label={`${selected ? "Já está na seleção" : "Adicionar à seleção"}: quadro ${image.code}`} className={`flex h-11 min-w-0 items-center justify-center gap-1.5 px-2 text-sm font-semibold transition-colors ${selected ? "border border-brass bg-brass/10 text-brass" : "bg-ink text-paper hover:bg-brass"}`}>
+                  {selected ? <Check size={16} /> : <ListPlus size={16} />}
+                  {selected ? "Na seleção" : "Selecionar"}
                 </button>
+                <ShareArtworkButton image={image} compact />
               </div>
-              <div className="mt-3 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">{image.title || image.code}</p>
-                    {(image.category_name || image.category) ? <p className="mt-0.5 truncate text-xs text-white/45">{image.category_name || image.category}</p> : null}
-                  </div>
-                  <p className="font-mono text-xs tracking-wider text-gold">#{image.code}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  <button type="button" data-no-drag="true" onClick={(event) => addToSelection(image, event)} aria-label={`${selected ? "Já está na seleção" : "Adicionar à seleção"}: quadro ${image.code}`} className={`flex h-9 min-w-0 items-center justify-center gap-1 px-1 text-[9px] font-semibold uppercase tracking-[0.04em] ${selected ? "border border-gold/50 bg-gold/10 text-gold" : "bg-gold text-black hover:bg-[#c9a85d]"}`}>
-                    {selected ? <Check size={12} /> : <ListPlus size={12} />}
-                    {selected ? "Na seleção" : "Selecionar"}
-                  </button>
-                  <ShareArtworkButton image={image} compact />
-                </div>
-              </div>
-            </motion.article>
+            </article>
           );
         })}
       </div>
