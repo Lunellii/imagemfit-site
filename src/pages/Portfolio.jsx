@@ -7,8 +7,7 @@ import CategoryGrid from "@/components/portfolio/CategoryGrid";
 import NewArrivalsCarousel from "@/components/portfolio/NewArrivalsCarousel";
 import { toast } from "@/components/ui/use-toast";
 
-const NEW_ARRIVALS_COUNT = 25;
-const normalizeCategoryName = (name) => String(name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+const NEW_ARRIVALS_COUNT = 32;
 
 export default function Portfolio() {
   const [categories, setCategories] = useState([]);
@@ -21,19 +20,18 @@ export default function Portfolio() {
 
     const load = async () => {
       try {
-        const cats = await localClient.entities.Category.list("order", 100);
+        const [cats, arrivals] = await Promise.all([
+          localClient.entities.Category.list("order", 100),
+          localClient.entities.PortfolioImage.list("-created_date", NEW_ARRIVALS_COUNT)
+        ]);
 
         if (!mounted) return;
 
         const sortedCategories = [...cats].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
-        const paintingCategory = sortedCategories.find((category) => normalizeCategoryName(category.name) === "pinturas manuais");
-        const paintings = paintingCategory
-          ? await localClient.entities.PortfolioImage.filter({ category_id: paintingCategory.id }, "-created_date", NEW_ARRIVALS_COUNT)
-          : [];
-        if (!mounted) return;
-        const arrivalsWithCategory = paintings.map((image) => ({
+        const categoryNameById = Object.fromEntries(sortedCategories.map((category) => [category.id, category.name]));
+        const arrivalsWithCategory = arrivals.map((image) => ({
           ...image,
-          category_name: paintingCategory.name
+          category_name: image.category_name || image.category || categoryNameById[image.category_id] || ""
         }));
 
         setCategories(sortedCategories);
