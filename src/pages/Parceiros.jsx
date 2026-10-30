@@ -95,6 +95,10 @@ export default function Parceiros() {
                 <CheckCircle2 className="hidden text-[#9b742b] sm:block" size={20} />
               </div>
             ))}
+            <div className="border-l-2 border-[#9b742b] bg-black/[0.035] px-5 py-5 sm:ml-[96px]">
+              <h3 className="font-heading text-xl font-semibold">O quadro fica igual à imagem do site?</h3>
+              <p className="mt-2 text-sm leading-relaxed text-black/60">As imagens do site são simulações digitais. Na impressão, as cores podem ficar um pouco diferentes por causa da tela de cada aparelho (brilho e calibração), da tinta e do material. Por isso levamos o catálogo físico até você: assim dá para ver as cores reais antes do pedido.</p>
+            </div>
           </div>
         </div>
       </section>

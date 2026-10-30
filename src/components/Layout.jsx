@@ -294,6 +294,7 @@ export default function Layout() {
             </div>
             <div className="gold-line mb-6" />
             <p className="text-center text-white/30 text-xs tracking-widest">© {new Date().getFullYear()} Imagem Fit Quadros. Todos os direitos reservados.</p>
+            <p className="mt-3 text-center text-white/25 text-[11px] leading-relaxed">As imagens do site são ilustrativas e podem apresentar variações em relação ao produto final.</p>
           </div>
         </footer>
       )}

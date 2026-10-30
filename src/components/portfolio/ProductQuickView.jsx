@@ -131,6 +131,7 @@ export default function ProductQuickView({ image, categoryName = "", onClose }) 
                 <span className="text-[10px] font-semibold uppercase tracking-[0.35em] text-gold">{categoryName || "Catálogo Imagem Fit"}</span>
                 <h2 className="mt-4 pr-12 font-heading text-3xl font-semibold text-white sm:text-4xl">{image.title && image.title !== image.code ? image.title : "Quadro decorativo"}</h2>
                 <p className="mt-1 font-mono text-base tracking-wider text-gold">#{image.code}</p>
+                <p className="mt-3 text-xs italic leading-relaxed text-white/45">Imagem ilustrativa. Cores e acabamento podem variar no quadro impresso.</p>
 
                 <div className="mt-5 border-y border-white/10 py-5">
                   <div className="mb-3 flex items-center gap-2 text-gold">

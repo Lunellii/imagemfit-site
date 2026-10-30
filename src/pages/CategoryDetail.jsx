@@ -160,6 +160,7 @@ export default function CategoryDetail() {
           {category?.description ? <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55">{category.description}</p> : null}
           <p className="mt-3 text-xs text-white/30">{totalImages} quadro(s){totalPages > 1 ? ` · página ${currentPage} de ${totalPages}` : ""}</p>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/55">Abra um produto, escolha uma medida se desejar ou compartilhe a imagem com o código.</p>
+          <p className="mt-2 text-xs italic text-white/40">Imagens ilustrativas. Cores e acabamento podem variar no quadro impresso.</p>
         </motion.header>
 
         {images.length ? (

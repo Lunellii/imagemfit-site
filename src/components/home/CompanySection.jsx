@@ -24,7 +24,7 @@ export default function CompanySection() {
             Aqui, cada atendimento é próximo, personalizado e feito por pessoas. Nossa equipe entende o seu espaço, o perfil dos seus clientes e ajuda a encontrar os quadros certos para o seu mix.
           </p>
           <p className="mt-4 text-base leading-relaxed text-white/58">
-            Fazemos a simulação do quadro diretamente na parede do cliente, facilitando a escolha de tamanho, composição e acabamento antes do pedido.
+            Fazemos a simulação do quadro diretamente na parede do cliente, facilitando a escolha de tamanho, composição e acabamento antes do pedido. É uma prévia: o quadro impresso pode ter pequenas variações de cor.
           </p>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
