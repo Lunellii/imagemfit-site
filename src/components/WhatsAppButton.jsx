@@ -6,6 +6,8 @@ import { commercialClient } from "@/api/commercialClient";
 
 const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
 const REQUEST_TEXT = "Gostaria de consultar valores, opções de moldura, materiais disponíveis e prazo para esta seleção.";
+const DISCLAIMER_TITLE = "Imagens ilustrativas";
+const DISCLAIMER_TEXT = "As cores e o acabamento do quadro impresso podem variar em relação à imagem digital.";
 const CATEGORY_BY_PREFIX = {
   AFM: "Abstrato Fluido e Mármore",
   ANI: "Animais",
@@ -75,7 +77,7 @@ export default function WhatsAppButton({ onSearch }) {
       })
       .join("\n");
 
-    return `Olá, tudo bem? Separei estes produtos no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}`;
+    return `Olá, tudo bem? Separei estes produtos no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}\n\nEstou ciente de que as imagens são ilustrativas e que cores e acabamento podem variar no quadro impresso.`;
   };
 
   const loadImage = (src) =>
@@ -205,7 +207,10 @@ export default function WhatsAppButton({ onSearch }) {
     tempContext.font = "19px Arial";
     const footerLines = wrapText(tempContext, REQUEST_TEXT, width - padding * 2 - 58);
     const footerHeight = footerLines.length * 27 + 84;
-    const height = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap + footerHeight + padding;
+    tempContext.font = "18px Arial";
+    const disclaimerLines = wrapText(tempContext, DISCLAIMER_TEXT, width - padding * 2 - 56);
+    const disclaimerHeight = disclaimerLines.length * 25 + 66;
+    const height = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap + footerHeight + gap + disclaimerHeight + padding;
     const pixelRatio = 2;
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(width * pixelRatio);
@@ -289,6 +294,20 @@ export default function WhatsAppButton({ onSearch }) {
     footerLines.forEach((line, index) => {
       if (!line) return;
       context.fillText(line, padding + 28, footerY + 66 + index * 27);
+    });
+
+    const disclaimerY = footerY + footerHeight + gap;
+    context.strokeStyle = "#c7a15a";
+    context.lineWidth = 2;
+    context.strokeRect(padding + 1, disclaimerY + 1, width - padding * 2 - 2, disclaimerHeight - 2);
+    context.fillStyle = "#c7a15a";
+    context.font = "700 20px Arial";
+    context.fillText(`! ${DISCLAIMER_TITLE}`, padding + 28, disclaimerY + 36);
+    context.fillStyle = "#ffffff";
+    context.font = "18px Arial";
+    disclaimerLines.forEach((line, index) => {
+      if (!line) return;
+      context.fillText(line, padding + 28, disclaimerY + 64 + index * 25);
     });
 
     return new Promise((resolve, reject) => {

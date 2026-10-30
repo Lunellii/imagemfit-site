@@ -14,9 +14,10 @@ export async function createArtworkFile({ image_url: imageUrl, code }) {
   const width = Math.min(image.naturalWidth, 1600);
   const height = Math.round(image.naturalHeight * width / image.naturalWidth);
   const footerHeight = Math.max(96, Math.round(width * 0.09));
+  const noticeHeight = Math.max(56, Math.round(width * 0.06));
   const canvas = document.createElement("canvas");
   canvas.width = width;
-  canvas.height = height + footerHeight;
+  canvas.height = height + footerHeight + noticeHeight;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("CANVAS_UNAVAILABLE");
 
@@ -42,6 +43,16 @@ export async function createArtworkFile({ image_url: imageUrl, code }) {
   context.textAlign = "right";
   context.font = `700 ${Math.max(24, Math.round(width * 0.035))}px Arial`;
   context.fillText(`#${code}`, Math.round(width * 0.96), height + footerHeight / 2, width * 0.52);
+
+  context.fillStyle = "#c7a15a";
+  context.fillRect(0, height + footerHeight, width, noticeHeight);
+  context.fillStyle = "#151515";
+  context.textAlign = "center";
+  context.font = `700 ${Math.max(16, Math.round(width * 0.024))}px Arial`;
+  context.fillText(
+    "Imagem ilustrativa · cores e acabamento podem variar no impresso",
+    width / 2, height + footerHeight + noticeHeight / 2, width * 0.94
+  );
 
   const blob = await new Promise((resolve, reject) => {
     try {
