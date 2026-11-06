@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ClipboardCopy, ListChecks, Search, Share2, X, Trash2 } from "lucide-react";
+import { Check, ClipboardCopy, ListChecks, MessageCircle, Search, Share2, X, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { commercialClient } from "@/api/commercialClient";
+import { createSelectionImage } from "@/utils/selectionImage";
 
-const LOGO_URL = `${import.meta.env.BASE_URL}logo-if-branca.png`;
+const WHATSAPP_NUMBER = "5547999273809";
 const REQUEST_TEXT = "Gostaria de consultar valores, opções de moldura, materiais disponíveis e prazo para esta seleção.";
-const DISCLAIMER_TITLE = "Imagens ilustrativas";
-const DISCLAIMER_TEXT = "As cores e o acabamento do quadro impresso podem variar em relação à imagem digital.";
+const NOTICE_TEXT = "Estou ciente de que as imagens são ilustrativas e que cores e detalhes podem ter pequenas alterações após a impressão.";
 const CATEGORY_BY_PREFIX = {
   AFM: "Abstrato Fluido e Mármore",
   ANI: "Animais",
@@ -42,6 +42,7 @@ export default function WhatsAppButton({ onSearch }) {
   const [nativeShareAvailable, setNativeShareAvailable] = useState(false);
   const [preparedOrderImage, setPreparedOrderImage] = useState(null);
   const [preparingOrderImage, setPreparingOrderImage] = useState(false);
+  const [desktopHint, setDesktopHint] = useState(null);
   const createOrderImageRef = useRef(null);
   const { cart, removeItem, clearCart } = useCart();
 
@@ -57,14 +58,6 @@ export default function WhatsAppButton({ onSearch }) {
     setNativeShareAvailable(Boolean(isTouchDevice && navigator.share && canShareFiles));
   }, []);
 
-  const absoluteUrl = (src) => {
-    try {
-      return src ? new URL(src, window.location.origin).href : "";
-    } catch {
-      return src || "";
-    }
-  };
-
   const buildMessage = () => {
     if (!cart.length) return "";
     const lines = cart
@@ -77,82 +70,7 @@ export default function WhatsAppButton({ onSearch }) {
       })
       .join("\n");
 
-    return `Olá, tudo bem? Separei estes produtos no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}\n\nEstou ciente de que as imagens são ilustrativas e que cores e acabamento podem variar no quadro impresso.`;
-  };
-
-  const loadImage = (src) =>
-    new Promise((resolve) => {
-      const url = absoluteUrl(src);
-      if (!url) {
-        resolve(null);
-        return;
-      }
-
-      const image = new Image();
-      try {
-        if (new URL(url).origin !== window.location.origin) {
-          image.crossOrigin = "anonymous";
-        }
-      } catch {
-        // Keep loading even if URL parsing fails.
-      }
-      image.onload = () => resolve(image);
-      image.onerror = () => resolve(null);
-      image.src = url;
-    });
-
-  const drawFittedImage = (context, image, x, y, width, height) => {
-    if (!image) {
-      context.fillStyle = "#e7e2d7";
-      context.fillRect(x, y, width, height);
-      context.fillStyle = "#777";
-      context.font = "14px Arial";
-      context.textAlign = "center";
-      context.fillText("Imagem indisponível", x + width / 2, y + height / 2);
-      context.textAlign = "left";
-      return;
-    }
-
-    const scale = Math.min(width / image.width, height / image.height);
-    const drawWidth = image.width * scale;
-    const drawHeight = image.height * scale;
-    context.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
-  };
-
-  const wrapText = (context, text, maxWidth) => {
-    const lines = [];
-    text.split("\n").forEach((paragraph) => {
-      if (!paragraph.trim()) {
-        lines.push("");
-        return;
-      }
-
-      const words = paragraph.split(" ");
-      let currentLine = "";
-      words.forEach((word) => {
-        const testLine = currentLine ? `${currentLine} ${word}` : word;
-        if (context.measureText(testLine).width <= maxWidth || !currentLine) {
-          currentLine = testLine;
-        } else {
-          lines.push(currentLine);
-          currentLine = word;
-        }
-      });
-      if (currentLine) lines.push(currentLine);
-    });
-
-    return lines;
-  };
-
-  const truncateText = (context, text, maxWidth) => {
-    const value = String(text || "").trim();
-    if (!value || context.measureText(value).width <= maxWidth) return value;
-
-    let truncated = value;
-    while (truncated.length > 0 && context.measureText(`${truncated}...`).width > maxWidth) {
-      truncated = truncated.slice(0, -1);
-    }
-    return truncated ? `${truncated}...` : "";
+    return `Olá, tudo bem? Separei estes produtos no catálogo da Imagem Fit:\n\n${lines}\n\n${REQUEST_TEXT}\n\n${NOTICE_TEXT}`;
   };
 
   const blobToDataUrl = (blob) =>
@@ -180,140 +98,16 @@ export default function WhatsAppButton({ onSearch }) {
     return `<div><img src="${imageDataUrl}" alt="Imagem Fit Quadros - pedido" /><br><p>${htmlMessage}</p></div>`;
   };
 
-  const createOrderImage = async () => {
-    const [logo, items] = await Promise.all([
-      loadImage(LOGO_URL),
-      Promise.all(
-        cart.map(async (item) => ({
-          ...item,
-          image: await loadImage(item.image_url),
-        })),
-      ),
-    ]);
-
-    const columns = items.length === 1 ? 1 : items.length === 2 ? 2 : 3;
-    const width = columns === 1 ? 760 : columns === 2 ? 900 : 1020;
-    const padding = 38;
-    const gap = 22;
-    const headerHeight = 122;
-    const cardPadding = 12;
-    const captionHeight = 104;
-    const cardWidth = Math.floor((width - padding * 2 - gap * (columns - 1)) / columns);
-    const imageHeight = columns === 1 ? 440 : columns === 2 ? 280 : 205;
-    const cardHeight = imageHeight + captionHeight + cardPadding * 2;
-    const rows = Math.ceil(items.length / columns);
-    const tempCanvas = document.createElement("canvas");
-    const tempContext = tempCanvas.getContext("2d");
-    tempContext.font = "19px Arial";
-    const footerLines = wrapText(tempContext, REQUEST_TEXT, width - padding * 2 - 58);
-    const footerHeight = footerLines.length * 27 + 84;
-    tempContext.font = "18px Arial";
-    const disclaimerLines = wrapText(tempContext, DISCLAIMER_TEXT, width - padding * 2 - 56);
-    const disclaimerHeight = disclaimerLines.length * 25 + 66;
-    const height = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap + footerHeight + gap + disclaimerHeight + padding;
-    const pixelRatio = 2;
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(width * pixelRatio);
-    canvas.height = Math.round(height * pixelRatio);
-
-    const context = canvas.getContext("2d");
-    context.scale(pixelRatio, pixelRatio);
-    context.fillStyle = "#111111";
-    context.fillRect(0, 0, width, height);
-
-    const logoHeight = 58;
-    const logoWidth = logo ? Math.round((logo.width / logo.height) * logoHeight) : 0;
-    if (logo) {
-      context.drawImage(logo, padding, padding - 2, logoWidth, logoHeight);
-    }
-
-    const brandX = logo ? padding + logoWidth + 18 : padding;
-    context.fillStyle = "#c7a15a";
-    context.font = "700 28px Arial";
-    context.fillText("Imagem Fit Quadros", brandX, padding + 30);
-    context.fillStyle = "#ffffff";
-    context.font = "16px Arial";
-    context.fillText("Códigos selecionados para orçamento", brandX, padding + 57);
-
-    const summaryText = `${items.length} ${items.length === 1 ? "quadro" : "quadros"}`;
-    context.font = "700 15px Arial";
-    const summaryWidth = context.measureText(summaryText).width + 30;
-    context.strokeStyle = "#c7a15a";
-    context.lineWidth = 1;
-    context.strokeRect(width - padding - summaryWidth, padding + 10, summaryWidth, 34);
-    context.fillStyle = "#c7a15a";
-    context.fillText(summaryText, width - padding - summaryWidth + 15, padding + 32);
-
-    items.forEach((item, index) => {
-      const col = index % columns;
-      const row = Math.floor(index / columns);
-      const x = padding + col * (cardWidth + gap);
-      const y = padding + headerHeight + row * (cardHeight + gap);
-      const imageX = x + cardPadding;
-      const imageY = y + cardPadding;
-      const imageWidth = cardWidth - cardPadding * 2;
-
-      context.fillStyle = "#f4efe5";
-      context.fillRect(x, y, cardWidth, cardHeight);
-      context.strokeStyle = "#d7c7a5";
-      context.lineWidth = 1;
-      context.strokeRect(x + 0.5, y + 0.5, cardWidth - 1, cardHeight - 1);
-      context.fillStyle = "#ffffff";
-      context.fillRect(imageX, imageY, imageWidth, imageHeight);
-      drawFittedImage(context, item.image, imageX, imageY, imageWidth, imageHeight);
-
-      const captionY = y + cardPadding + imageHeight;
-      context.fillStyle = "#111111";
-      context.font = columns === 1 ? "700 32px Arial" : columns === 2 ? "700 27px Arial" : "700 22px Arial";
-      const codeText = truncateText(context, `#${item.code}`, cardWidth - 28);
-      context.fillText(codeText, x + 14, captionY + 32);
-
-      const label = getItemCategory(item) || (item.title && item.title !== item.code ? item.title : "");
-      context.fillStyle = "#5f5f5f";
-      context.font = columns === 1 ? "20px Arial" : columns === 2 ? "17px Arial" : "14px Arial";
-      const labelText = truncateText(context, label, cardWidth - 28);
-      if (labelText) context.fillText(labelText, x + 14, captionY + 55);
-      if (item.size) {
-        context.fillStyle = "#9b742b";
-        context.font = columns === 1 ? "700 18px Arial" : columns === 2 ? "700 15px Arial" : "700 13px Arial";
-        const sizeText = truncateText(context, `Tamanho: ${item.size}`, cardWidth - 28);
-        context.fillText(sizeText, x + 14, captionY + 79);
-      }
-    });
-
-    const footerY = padding + headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gap + gap;
-    context.fillStyle = "#f4efe5";
-    context.fillRect(padding, footerY, width - padding * 2, footerHeight);
-    context.fillStyle = "#c7a15a";
-    context.fillRect(padding, footerY, 8, footerHeight);
-    context.fillStyle = "#111111";
-    context.font = "700 18px Arial";
-    context.fillText("Pedido de orçamento", padding + 28, footerY + 34);
-    context.fillStyle = "#303030";
-    context.font = "19px Arial";
-    footerLines.forEach((line, index) => {
-      if (!line) return;
-      context.fillText(line, padding + 28, footerY + 66 + index * 27);
-    });
-
-    const disclaimerY = footerY + footerHeight + gap;
-    context.strokeStyle = "#c7a15a";
-    context.lineWidth = 2;
-    context.strokeRect(padding + 1, disclaimerY + 1, width - padding * 2 - 2, disclaimerHeight - 2);
-    context.fillStyle = "#c7a15a";
-    context.font = "700 20px Arial";
-    context.fillText(`! ${DISCLAIMER_TITLE}`, padding + 28, disclaimerY + 36);
-    context.fillStyle = "#ffffff";
-    context.font = "18px Arial";
-    disclaimerLines.forEach((line, index) => {
-      if (!line) return;
-      context.fillText(line, padding + 28, disclaimerY + 64 + index * 25);
-    });
-
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("PNG_FAILED"))), "image/png");
-    });
-  };
+  const createOrderImage = () =>
+    createSelectionImage(
+      cart.map((item) => ({
+        image_url: item.image_url,
+        code: item.code,
+        label: getItemCategory(item) || (item.title && item.title !== item.code ? item.title : ""),
+        size: item.size,
+      })),
+      REQUEST_TEXT,
+    );
 
   createOrderImageRef.current = createOrderImage;
   const cartSignature = cart.map((item) => `${item.id}:${item.code}:${item.image_url || ""}:${item.size || ""}`).join("|");
@@ -344,6 +138,10 @@ export default function WhatsAppButton({ onSearch }) {
       active = false;
     };
   }, [cartSignature]);
+
+  useEffect(() => {
+    setDesktopHint(null);
+  }, [cartSignature, open]);
 
   const fallbackCopy = (message) => {
     const textarea = document.createElement("textarea");
@@ -401,7 +199,12 @@ export default function WhatsAppButton({ onSearch }) {
     return true;
   };
 
-  const handleCopy = async () => {
+  const whatsappUrl = (message) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+  // Celular: a folha de compartilhamento leva imagem + texto juntos.
+  // Computador: o WhatsApp Web só aceita colar a imagem, então ela vai para a área de
+  // transferência e a conversa abre com o texto já digitado; basta colar (Ctrl+V) e enviar.
+  const handleSend = async () => {
     const message = buildMessage();
     if (!message) return;
     commercialClient.analytics.track("share_selection");
@@ -415,30 +218,48 @@ export default function WhatsAppButton({ onSearch }) {
         return;
       }
 
+      let imageCopied = false;
+      if (navigator.clipboard?.write && window.ClipboardItem) {
+        imageCopied = await navigator.clipboard
+          .write([new ClipboardItem({ "image/png": orderImageBlob })])
+          .then(() => true)
+          .catch(() => false);
+      }
+      if (!imageCopied) downloadOrderImage(orderImageBlob);
+      const url = whatsappUrl(message);
+      window.open(url, "_blank", "noopener");
+      setDesktopHint({ url, downloaded: !imageCopied });
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+      if (orderImageBlob) downloadOrderImage(orderImageBlob);
+      fallbackCopy(message);
+      setCopied(orderImageBlob ? "downloaded" : "text");
+      window.setTimeout(() => setCopied(""), 2500);
+    }
+  };
+
+  // Para mandar a seleção a outra pessoa: copia imagem e texto sem abrir conversa.
+  const handleCopyOnly = async () => {
+    const message = buildMessage();
+    if (!message) return;
+    let orderImageBlob = preparedImageBlob;
+
+    try {
+      orderImageBlob = orderImageBlob || (await createOrderImage());
       if (navigator.clipboard?.write && window.ClipboardItem) {
         const messageBlob = new Blob([message], { type: "text/plain" });
         const imageDataUrl = await blobToDataUrl(orderImageBlob);
         const htmlBlob = new Blob([buildClipboardHtml(imageDataUrl, message)], { type: "text/html" });
         await navigator.clipboard.write([new ClipboardItem({ "text/html": htmlBlob, "image/png": orderImageBlob, "text/plain": messageBlob })]);
         setCopied("order");
-      } else if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(message);
-        setCopied("text");
       } else {
         fallbackCopy(message);
         setCopied("text");
       }
-    } catch (error) {
-      if (error?.name === "AbortError") {
-        return;
-      }
-
-      if (orderImageBlob) {
-        downloadOrderImage(orderImageBlob);
-        setCopied("downloaded");
-      }
+    } catch {
+      if (orderImageBlob) downloadOrderImage(orderImageBlob);
       fallbackCopy(message);
-      if (!orderImageBlob) setCopied("text");
+      setCopied(orderImageBlob ? "downloaded" : "text");
     }
 
     window.setTimeout(() => setCopied(""), 2500);
@@ -489,12 +310,27 @@ export default function WhatsAppButton({ onSearch }) {
 
             {cart.length > 0 && (
               <div className="p-4 border-t border-white/10 space-y-2">
+                {desktopHint && (
+                  <div className="border border-gold/40 bg-gold/10 p-3 text-xs leading-relaxed text-white/80">
+                    <p className="font-semibold text-gold">
+                      {desktopHint.downloaded ? "Imagem salva nos downloads" : "Imagem copiada!"}
+                    </p>
+                    <p className="mt-1">
+                      {desktopHint.downloaded
+                        ? "Na conversa do WhatsApp que abrimos, arraste a imagem baixada para dentro e envie junto com o texto."
+                        : "Na conversa do WhatsApp que abrimos, aperte Ctrl+V para anexar a imagem e envie junto com o texto."}
+                    </p>
+                    <a href={desktopHint.url} target="_blank" rel="noreferrer" className="mt-2 inline-block font-semibold text-gold underline underline-offset-2">
+                      Abrir a conversa de novo
+                    </a>
+                  </div>
+                )}
                 <button
-                  onClick={handleCopy}
-                  disabled={nativeShareAvailable && preparingOrderImage}
+                  onClick={handleSend}
+                  disabled={preparingOrderImage}
                   className="flex w-full items-center justify-center gap-2 bg-gold py-3 text-xs font-semibold uppercase tracking-widest text-black transition-colors hover:bg-gold/90 disabled:cursor-wait disabled:opacity-55"
                 >
-                  {nativeShareAvailable && preparingOrderImage ? (
+                  {preparingOrderImage ? (
                     <>Preparando imagem...</>
                   ) : copied ? (
                     <>
@@ -507,24 +343,33 @@ export default function WhatsAppButton({ onSearch }) {
                             ? "Imagem e códigos enviados"
                             : copied === "sharedImage"
                               ? "Imagem compartilhada e texto copiado"
-                              : copied === "sharedText"
-                                ? "Mensagem compartilhada"
-                                : "Mensagem copiada"}
+                              : "Mensagem copiada"}
                     </>
                   ) : nativeShareAvailable ? (
                     <>
-                    <Share2 size={13} /> Finalizar e compartilhar
+                      <Share2 size={13} /> Finalizar e compartilhar
                     </>
                   ) : (
                     <>
-                    <ClipboardCopy size={13} /> Copiar imagem e códigos
+                      <MessageCircle size={14} /> Enviar pelo WhatsApp
                     </>
                   )}
                 </button>
-                <p className="px-2 text-center text-[9px] leading-relaxed text-white/35">
-                  {nativeShareAvailable ? "Escolha o WhatsApp e depois o contato que deve receber a seleção." : "Depois de copiar, abra a conversa desejada e cole a seleção completa."}
+                <p className="px-2 text-center text-[10px] leading-relaxed text-white/40">
+                  {nativeShareAvailable
+                    ? "Escolha o WhatsApp e depois o contato que deve receber a seleção."
+                    : "Abrimos a conversa com a Imagem Fit com o texto pronto. A imagem fica copiada para você colar."}
                 </p>
-                <button onClick={clearCart} className="flex w-full items-center justify-center gap-2 bg-gold py-2.5 text-xs font-semibold uppercase tracking-widest text-black transition-colors hover:bg-[#c9a85d]">
+                {!nativeShareAvailable && (
+                  <button
+                    onClick={handleCopyOnly}
+                    disabled={preparingOrderImage}
+                    className="flex w-full items-center justify-center gap-2 border border-gold/40 py-2.5 text-[10px] font-semibold uppercase tracking-widest text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-55"
+                  >
+                    <ClipboardCopy size={13} /> Copiar para outro contato
+                  </button>
+                )}
+                <button onClick={clearCart} className="flex w-full items-center justify-center gap-2 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/40 transition-colors hover:text-red-400">
                   <Trash2 size={13} /> Limpar seleção
                 </button>
               </div>

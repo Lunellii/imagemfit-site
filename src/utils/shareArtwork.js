@@ -1,66 +1,89 @@
-const loadArtwork = (url) => new Promise((resolve, reject) => {
-  const image = new Image();
-  image.crossOrigin = "anonymous";
-  image.onload = () => resolve(image);
-  image.onerror = () => reject(new Error("IMAGE_LOAD_FAILED"));
-  image.src = url;
-});
+import {
+  SANS,
+  SHARE_COLORS,
+  SHARE_NOTICE_TEXT,
+  SHARE_NOTICE_TITLE,
+  canvasToPng,
+  drawInfoBadge,
+  drawLogo,
+  goldGradient,
+  loadImage,
+  loadLogo,
+  loadShareFonts,
+  setFont,
+} from "@/utils/shareImageKit";
 
 export async function createArtworkFile({ image_url: imageUrl, code }) {
-  const [image, logo] = await Promise.all([
-    loadArtwork(imageUrl),
-    loadArtwork(`${import.meta.env.BASE_URL}logo-imagem-fit-quadros-branca.png`)
-  ]);
+  const [image, logo] = await Promise.all([loadImage(imageUrl), loadLogo(), loadShareFonts()]);
+  if (!image) throw new Error("IMAGE_LOAD_FAILED");
+
   const width = Math.min(image.naturalWidth, 1600);
-  const height = Math.round(image.naturalHeight * width / image.naturalWidth);
-  const footerHeight = Math.max(96, Math.round(width * 0.09));
-  const noticeHeight = Math.max(56, Math.round(width * 0.06));
+  const height = Math.round((image.naturalHeight * width) / image.naturalWidth);
+  const s = width / 1080;
+  const lineHeight = Math.max(3, Math.round(5 * s));
+  const footerHeight = Math.round(150 * s);
+  const noticeHeight = Math.round(66 * s);
+  const padding = Math.round(48 * s);
   const canvas = document.createElement("canvas");
   canvas.width = width;
-  canvas.height = height + footerHeight + noticeHeight;
+  canvas.height = height + lineHeight + footerHeight + noticeHeight;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("CANVAS_UNAVAILABLE");
 
-  context.fillStyle = "#ffffff";
+  context.fillStyle = SHARE_COLORS.paper;
   context.fillRect(0, 0, width, height);
   context.drawImage(image, 0, 0, width, height);
-  context.fillStyle = "#151515";
-  context.fillRect(0, height, width, footerHeight);
-  context.fillStyle = "#c7a15a";
-  context.fillRect(0, height, width, Math.max(3, Math.round(width * 0.004)));
-  // The supplied logo has transparent margins; draw only its visible artwork.
-  const logoSource = { x: 900, y: 977, width: 3145, height: 1089 };
-  const logoScale = Math.min((width * 0.43) / logoSource.width, (footerHeight * 0.72) / logoSource.height);
-  const logoWidth = logoSource.width * logoScale;
-  const logoHeight = logoSource.height * logoScale;
-  context.drawImage(
-    logo,
-    logoSource.x, logoSource.y, logoSource.width, logoSource.height,
-    Math.round(width * 0.04), height + (footerHeight - logoHeight) / 2,
-    logoWidth, logoHeight
-  );
-  context.textBaseline = "middle";
+
+  context.fillStyle = goldGradient(context, 0, width);
+  context.fillRect(0, height, width, lineHeight);
+
+  const footerY = height + lineHeight;
+  context.fillStyle = SHARE_COLORS.ink;
+  context.fillRect(0, footerY, width, footerHeight + noticeHeight);
+
+  const logoHeight = Math.round(74 * s);
+  drawLogo(context, logo, padding, footerY + (footerHeight - logoHeight) / 2, logoHeight);
+
   context.textAlign = "right";
-  context.font = `700 ${Math.max(24, Math.round(width * 0.035))}px Arial`;
-  context.fillText(`#${code}`, Math.round(width * 0.96), height + footerHeight / 2, width * 0.52);
+  context.fillStyle = SHARE_COLORS.gold;
+  setFont(context, `600 ${Math.round(14 * s)}px ${SANS}`, 5 * s);
+  context.fillText("CÓDIGO DO QUADRO", width - padding - 5 * s, footerY + footerHeight / 2 - 18 * s);
+  context.fillStyle = "#ffffff";
+  setFont(context, `700 ${Math.round(44 * s)}px ${SANS}`, 1 * s);
+  context.fillText(`#${code}`, width - padding, footerY + footerHeight / 2 + 32 * s, width * 0.5);
 
-  context.fillStyle = "#c7a15a";
-  context.fillRect(0, height + footerHeight, width, noticeHeight);
-  context.fillStyle = "#151515";
-  context.textAlign = "center";
-  context.font = `700 ${Math.max(16, Math.round(width * 0.024))}px Arial`;
-  context.fillText(
-    "Imagem ilustrativa · cores e acabamento podem variar no impresso",
-    width / 2, height + footerHeight + noticeHeight / 2, width * 0.94
-  );
+  const noticeY = footerY + footerHeight;
+  context.fillStyle = SHARE_COLORS.inkSoft;
+  context.fillRect(0, noticeY, width, noticeHeight);
+  context.fillStyle = "rgba(201, 160, 86, 0.28)";
+  context.fillRect(0, noticeY, width, Math.max(1, Math.round(s)));
 
-  const blob = await new Promise((resolve, reject) => {
-    try {
-      canvas.toBlob((result) => result ? resolve(result) : reject(new Error("IMAGE_EXPORT_FAILED")), "image/png");
-    } catch (error) {
-      reject(error);
-    }
-  });
+  setFont(context, `700 ${Math.round(16 * s)}px ${SANS}`);
+  const title = `${SHARE_NOTICE_TITLE}  ·  `;
+  const titleWidth = context.measureText(title).width;
+  setFont(context, `400 ${Math.round(16 * s)}px ${SANS}`);
+  const bodyWidth = context.measureText(SHARE_NOTICE_TEXT).width;
+  const badgeRadius = 11 * s;
+  const rowWidth = badgeRadius * 2 + 14 * s + titleWidth + bodyWidth;
+  const fit = Math.min(1, (width - padding * 2) / rowWidth);
+  const rowX = (width - rowWidth * fit) / 2;
+  const rowY = noticeY + noticeHeight / 2;
+
+  context.save();
+  context.translate(rowX, rowY);
+  context.scale(fit, fit);
+  drawInfoBadge(context, badgeRadius, 0, badgeRadius);
+  context.textAlign = "left";
+  context.textBaseline = "middle";
+  context.fillStyle = SHARE_COLORS.goldLight;
+  setFont(context, `700 ${Math.round(16 * s)}px ${SANS}`);
+  context.fillText(title, badgeRadius * 2 + 14 * s, 1 * s);
+  context.fillStyle = "rgba(247, 242, 233, 0.78)";
+  setFont(context, `400 ${Math.round(16 * s)}px ${SANS}`);
+  context.fillText(SHARE_NOTICE_TEXT, badgeRadius * 2 + 14 * s + titleWidth, 1 * s);
+  context.restore();
+
+  const blob = await canvasToPng(canvas);
   const safeCode = String(code || "quadro").replace(/[^a-z0-9_-]/gi, "-");
   return new File([blob], `imagem-fit-${safeCode}.png`, { type: "image/png" });
 }
