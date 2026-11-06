@@ -5,7 +5,6 @@ import { useCart } from "@/hooks/useCart";
 import { commercialClient } from "@/api/commercialClient";
 import { createSelectionImage } from "@/utils/selectionImage";
 
-const WHATSAPP_NUMBER = "5547999273809";
 const REQUEST_TEXT = "Gostaria de consultar valores, opções de moldura, materiais disponíveis e prazo para esta seleção.";
 const NOTICE_TEXT = "Estou ciente de que as imagens são ilustrativas e que cores e detalhes podem ter pequenas alterações após a impressão.";
 const CATEGORY_BY_PREFIX = {
@@ -199,11 +198,12 @@ export default function WhatsAppButton({ onSearch }) {
     return true;
   };
 
-  const whatsappUrl = (message) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  // Sem número: o próprio WhatsApp pede para escolher o contato que vai receber.
+  const whatsappUrl = (message) => `https://wa.me/?text=${encodeURIComponent(message)}`;
 
   // Celular: a folha de compartilhamento leva imagem + texto juntos.
   // Computador: o WhatsApp Web só aceita colar a imagem, então ela vai para a área de
-  // transferência e a conversa abre com o texto já digitado; basta colar (Ctrl+V) e enviar.
+  // transferência e o WhatsApp abre com o texto pronto; a pessoa escolhe o contato, cola (Ctrl+V) e envia.
   const handleSend = async () => {
     const message = buildMessage();
     if (!message) return;
@@ -238,7 +238,7 @@ export default function WhatsAppButton({ onSearch }) {
     }
   };
 
-  // Para mandar a seleção a outra pessoa: copia imagem e texto sem abrir conversa.
+  // Só copia imagem e texto, para colar em qualquer aplicativo.
   const handleCopyOnly = async () => {
     const message = buildMessage();
     if (!message) return;
@@ -317,11 +317,11 @@ export default function WhatsAppButton({ onSearch }) {
                     </p>
                     <p className="mt-1">
                       {desktopHint.downloaded
-                        ? "Na conversa do WhatsApp que abrimos, arraste a imagem baixada para dentro e envie junto com o texto."
-                        : "Na conversa do WhatsApp que abrimos, aperte Ctrl+V para anexar a imagem e envie junto com o texto."}
+                        ? "No WhatsApp, escolha o contato, arraste a imagem baixada para a conversa e envie junto com o texto."
+                        : "No WhatsApp, escolha o contato e, na conversa, aperte Ctrl+V para anexar a imagem. Depois é só enviar com o texto."}
                     </p>
                     <a href={desktopHint.url} target="_blank" rel="noreferrer" className="mt-2 inline-block font-semibold text-gold underline underline-offset-2">
-                      Abrir a conversa de novo
+                      Abrir o WhatsApp de novo
                     </a>
                   </div>
                 )}
@@ -358,7 +358,7 @@ export default function WhatsAppButton({ onSearch }) {
                 <p className="px-2 text-center text-[10px] leading-relaxed text-white/40">
                   {nativeShareAvailable
                     ? "Escolha o WhatsApp e depois o contato que deve receber a seleção."
-                    : "Abrimos a conversa com a Imagem Fit com o texto pronto. A imagem fica copiada para você colar."}
+                    : "O WhatsApp abre com o texto pronto para você escolher o contato. A imagem fica copiada para colar na conversa."}
                 </p>
                 {!nativeShareAvailable && (
                   <button
@@ -366,7 +366,7 @@ export default function WhatsAppButton({ onSearch }) {
                     disabled={preparingOrderImage}
                     className="flex w-full items-center justify-center gap-2 border border-gold/40 py-2.5 text-[10px] font-semibold uppercase tracking-widest text-gold transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-55"
                   >
-                    <ClipboardCopy size={13} /> Copiar para outro contato
+                    <ClipboardCopy size={13} /> Só copiar imagem e texto
                   </button>
                 )}
                 <button onClick={clearCart} className="flex w-full items-center justify-center gap-2 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/40 transition-colors hover:text-red-400">
